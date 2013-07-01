@@ -18,6 +18,7 @@ class Game():
     def __init__(self):
         self.logger = logging.getLogger("main")
         self.fullscreen = False
+        pygame.init()
 
     def load(self):
         self.logger.info("Loading game")

@@ -29,13 +29,21 @@ else:
 clock = pygame.time.Clock()
 
 
-stuffToBlit = []
+menus = {}
+menus['main'] = MainMenu()
 
 
 def loop():
-    if drawnLocation != location:
-        draw()
-    blit()
+    mode, sub = location.split('.')
+    if mode == "menu":
+        menu = menus[sub]
+        if drawnLocation != location:
+            menu.draw()
+        screen.blit(menu, (0, 0))
+
+    elif mode == "game":
+        pass
+
     newFrame()
 
 
@@ -43,12 +51,6 @@ def newFrame():
     clock.tick(60)
     pygame.display.flip()
 
-
-def draw():
-    menu = MainMenu()
-    button1 = Button((25, 25), (25, 25))
-    stuffToBlit.append(menu)
-    stuffToBlit.append(button1)
 
 def blit():
     mode = location.split('.')[0]
