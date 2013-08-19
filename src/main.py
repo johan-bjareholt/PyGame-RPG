@@ -24,16 +24,17 @@ class Game():
         self.logger.info("Loading game")
         print("Loading game")
 
-        global inputs, graphics
+        global inputs, graphics, events, globs
+        globs = import_module("globals", __name__)
         inputs = import_module("input", __name__).Input()
         graphics = import_module("graphics", __name__)
+        events = import_module("events", __name__).Events()
 
 
     def run(self):
         self.a = 0
         while True:
-            self.a += 1
-            #print(self.a)
+            events.loop()
             inputs.loop()
             graphics.loop()
             if inputs.quit():

@@ -1,6 +1,9 @@
 import logging
 import pygame
 
+import globals as globs
+
+location = globs.location
 
 class Input:
     def __init__(self):
@@ -19,10 +22,26 @@ class Input:
         self.logger.debug(self.events)
         ## Only pressed
         self.pressed = pygame.key.get_pressed()
-        self.logger.debug(self.pressed)
+        #self.logger.debug(self.pressed)
+        self.asd()
 
     def quit(self):
         for event in self.events:
             if event.type == pygame.QUIT:
                 return True
         return False
+
+    def asd(self):
+        mode, location = globs.location.split('.')
+        if mode == "menu":
+            for event in self.events:
+                if event.type == pygame.MOUSEBUTTONUP:
+                    print("Press!")
+                    print(event.dict['pos'])
+                    print(globs.menus[location])
+                    print(event)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        gfx.game.playing = not gfx.game.playing
+                if event.type == pygame.MOUSEMOTION:
+                    pass

@@ -2,43 +2,51 @@
 import logging
 import pygame
 
+# Globals
+import globals as globs
+
 # The package files
-from .menu import MainMenu, Button
+from .cursors import *
+from .menu import MainMenu
 from .world import World
+
 
 logger = logging.getLogger("gfx")
 
 print("Loading graphics")
 logger.info("Loading graphics")
 
-location = "menu.main"
+
+# Initialize variables
+resolution = globs.resolution
+location = globs.location
 drawnLocation = ""
-
-
-global X, Y
-X, Y = 1280, 720
-global screen
 
 fullscreen = False
 if fullscreen:
-    screen = pygame.display.set_mode((X, Y), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode(resolution, pygame.FULLSCREEN)
 else:
-    screen = pygame.display.set_mode((X, Y))
-
+    screen = pygame.display.set_mode(resolution)
 
 clock = pygame.time.Clock()
 
+globs.menus = {}
+globs.menus['main'] = MainMenu()
 
-menus = {}
-menus['main'] = MainMenu()
-
+def loadCursor(name):
+    cursor = eval(name)()
+    compiledCursor = pygame.cursors.compile(cursor.stringcursor, black=cursor.black, white=cursor.white, xor='o')
+    pygame.mouse.set_cursor((8,8),(4,4),*compiledCursor)
 
 def loop():
     mode, sub = location.split('.')
     if mode == "menu":
-        menu = menus[sub]
+        menu = globs.menus[sub]
         if drawnLocation != location:
             menu.draw()
+            global drawnLocation
+            drawnLocation = location
+        menu.blitz()
         screen.blit(menu, (0, 0))
 
     elif mode == "game":
@@ -51,11 +59,4 @@ def newFrame():
     clock.tick(60)
     pygame.display.flip()
 
-
-def blit():
-    mode = location.split('.')[0]
-    if mode == 'menu':
-        for stuff in stuffToBlit:
-            screen.blit(stuff, stuff.XY)
-    elif mode == 'game':
-        pass
+loadCursor("CircleCursor_black")
