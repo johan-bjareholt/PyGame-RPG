@@ -80,7 +80,17 @@ class Button(Sprite):
     def clicked(self):
         print("You just clicked me!")
 
+class QuitButton(Button):
+    def clicked(self):
+        pygame.quit()
 
+class BackButton(Button):
+    def __init__(self, back, parent, xy, wh, bgColor=None, fgColor=None, text=None, font=None):
+        Button.__init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text="Back", font="calibri")
+        self.back = back
+
+    def clicked(self):
+        globs.location = self.back
 
 def getFont(name, fontsize):
     fontlocation = globs.cwd + "/graphics/fonts/" + name + ".ttf"

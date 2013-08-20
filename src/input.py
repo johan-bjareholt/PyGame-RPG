@@ -36,9 +36,8 @@ class Input:
         if mode == "menu":
             for event in self.events:
                 if event.type == pygame.MOUSEBUTTONUP:
-                    print(event.dict['pos'])
+                    #print(event.dict['pos'])
                     X, Y = event.dict['pos']
-                    #print("{}, {}".format(X, Y))
                     for button in globs.menus[location].buttons:
                         #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
                         if button.X <= X and button.X+button.image.W >= X and button.Y <= Y and button.Y+button.image.H >= Y:

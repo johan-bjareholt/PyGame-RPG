@@ -6,7 +6,7 @@ import globals as globs
 
 resolution = globs.resolution
 
-from .baseclasses import Surface, Button, Text
+from .baseclasses import Surface, Button, QuitButton, BackButton, Text
 
 
 class Menu(Surface):
@@ -92,36 +92,73 @@ class MainMenu(Menu):
         Menu.__init__(self)
 
     def drawMain(self):
-        #class Button1(Button):
-        #    def __init__(self):
-        #        Button.__init__(self, globs.menus['main'], ((resolution[0]/2)-(100/2), (resolution[1]/2)-100), (100, 25), text="Hello")
-        self.button1 = Button(self, ((resolution[0]/2)-(100/2), (resolution[1]/2)-100), (100, 25), text="Hello")
-        #self.button1 = Button1()
-        def button1_clicked(self):
-            print("You clicked button1!")
-        #self.button1.clicked = button1_clicked
-        self.button1.clicked = types.MethodType(button1_clicked, self.button1)
-        self.buttons.add(self.button1)
+        # Initialize Singleplayer button
+        self.singleplayerButton = Button(self, ((resolution[0]/2)-(200/2), (resolution[1]/2)-100), (200, 50), text="Singleplayer")
+        # OnClick action
+        def singleplayerButton_clicked(self):
+            print("You clicked singleplayerButton!")
+        self.singleplayerButton.clicked = types.MethodType(singleplayerButton_clicked, self.singleplayerButton)
+        self.buttons.add(self.singleplayerButton)
 
-        print(self.button1.clicked)
-        self.button1.clicked()
+        # Initialize Multiplayer button
+        self.multiplayerButton = Button(self, ((resolution[0]/2)-(200/2), resolution[1]/2), (200, 50), text="Multiplayer")
+        # OnClick action
+        def multiplayerButton_clicked(self):
+            print("You clicked multiplayerButton!")
+        self.multiplayerButton.clicked = types.MethodType(multiplayerButton_clicked, self.multiplayerButton)
+        self.buttons.add(self.multiplayerButton)
 
-        self.button2 = Button(self, ((resolution[0]/2)-(100/2), resolution[1]/2), (100, 25), text="Hello2")
-        self.buttons.add(self.button2)
+        # Initialize Settings button
+        self.settingsButton = Button(self, ((resolution[0]/2)-(200/2), (resolution[1]/2)+100), (200, 50), text="Settings")
+        def settingsButton_clicked(self):
+            globs.location = "menu.settings"
+            print("You clicked settingsButton!")
+        self.settingsButton.clicked = types.MethodType(settingsButton_clicked, self.settingsButton)
+        self.buttons.add(self.settingsButton)
 
-        self.button3 = Button(self, ((resolution[0]/2)-(100/2), (resolution[1]/2)+100), (100, 25), text="Hello3")
-        self.buttons.add(self.button3)
+        self.quitButton = QuitButton(self, (25, (resolution[1])-50-25), (100, 50), text="Quit")
+        self.buttons.add(self.quitButton)
 
-        # Title text
+        # Initialize Title text
         self.titleText = Text(self, (0,0), "My RPG Game", 50)
         self.titleText.xy = ((resolution[0]/2)-(self.titleText.image.get_width()/2), (resolution[1]/2)-200)
 
-        self.button1.draw()
-        self.button2.draw()
-        self.button3.draw()
-
+        # Draw title
         self.titleText.draw()
 
+        # Draw buttons
+        self.singleplayerButton.draw()
+        self.multiplayerButton.draw()
+        self.settingsButton.draw()
+
     def blitMain(self):
+        # Blit all buttons
         self.buttons.draw(self)
+        # Blit title text
         self.titleText.blit()
+
+class SettingsMenu(Menu):
+    '''
+    The Settings menu
+
+    Used to set the game settings
+    '''
+    def __init__(self):
+        Menu.__init__(self)
+
+    def drawMain(self):
+        # Initialize Title text
+        self.settingsText = Text(self, (0,0), "Settings", 50)
+        self.settingsText.xy = ((resolution[0]/2)-(self.settingsText.image.get_width()/2), (resolution[1]/2)-200)
+
+        self.backButton = BackButton("menu.main", self, (25, (resolution[1])-50-25), (100, 50), text="Quit")
+        self.buttons.add(self.backButton)
+
+        # Draw title
+        self.settingsText.draw()
+
+    def blitMain(self):
+        # Blit all buttons
+        self.buttons.draw(self)
+        # Blit title text
+        self.settingsText.blit()
