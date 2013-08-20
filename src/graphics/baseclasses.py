@@ -24,6 +24,7 @@ class Sprite(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = Surface(wh)
         self.xy = xy
+        self.X, self.Y = self.xy
         self.parent = parent
         self.rect = self.image.get_rect(topleft=xy)
         self.bgColor = bgColor

@@ -36,10 +36,14 @@ class Input:
         if mode == "menu":
             for event in self.events:
                 if event.type == pygame.MOUSEBUTTONUP:
-                    print("Press!")
                     print(event.dict['pos'])
-                    print(globs.menus[location])
-                    print(event)
+                    X, Y = event.dict['pos']
+                    #print("{}, {}".format(X, Y))
+                    for button in globs.menus[location].buttons:
+                        #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
+                        if button.X <= X and button.X+button.image.W >= X and button.Y <= Y and button.Y+button.image.H >= Y:
+                            #print("You pressed da button yeyeyeye!")
+                            button.clicked()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         gfx.game.playing = not gfx.game.playing

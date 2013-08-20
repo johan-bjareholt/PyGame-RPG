@@ -20,11 +20,11 @@ class TimedEvent(Event):
     Base class for timed events
     '''
 
-    def __str__(self):
-        return "{name} of {self.duration} {unit}s".format(name=self.__name__(), duration=str(self.duration), unit=self.unit)
-
     def __init__(self, units):
         self.duration = units
+
+    def __str__(self):
+        return "{name} of {duration} {unit}s".format(name=str(self.__name__()), duration=str(self.duration), unit=self.unit)
 
     def isDone(self):
         # A function which returns True if 

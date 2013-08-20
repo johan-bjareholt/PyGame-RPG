@@ -16,6 +16,7 @@ class CircleCursor_white(Cursor):
             ".XXXXXX.",
             " .XXXX. ",
             "  ....  ")
+
 class CircleCursor_black(Cursor):
     def __init__(self):
         Cursor.__init__(self)
@@ -28,6 +29,7 @@ class CircleCursor_black(Cursor):
             "X......X",
             " X....X ",
             "  XXXX  ")
+
 class ClassicCursor_black(Cursor):
     def __init__(self):
         Cursor.__init__(self)
