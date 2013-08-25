@@ -48,3 +48,22 @@ class Input:
                         gfx.game.playing = not gfx.game.playing
                 if event.type == pygame.MOUSEMOTION:
                     pass
+
+        elif mode == 'game':
+            speed = 25
+            if self.pressed[pygame.K_w]:
+                # Up
+                new_coords = (globs.character.xy[0], globs.character.xy[1]-speed)
+                globs.character.xy = new_coords
+            if self.pressed[pygame.K_s]:
+                # Down
+                new_coords = (globs.character.xy[0], globs.character.xy[1]+speed)
+                globs.character.xy = new_coords
+            if self.pressed[pygame.K_a]:
+                # Left
+                new_coords = (globs.character.xy[0]-speed, globs.character.xy[1])
+                globs.character.xy = new_coords
+            if self.pressed[pygame.K_d]:
+                # Right
+                new_coords = (globs.character.xy[0]+speed, globs.character.xy[1])
+                globs.character.xy = new_coords

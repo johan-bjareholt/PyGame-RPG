@@ -2,6 +2,7 @@
 import logging
 import pygame
 import ConfigParser
+from importlib import import_module
 
 # Globals
 import globals as globs
@@ -9,7 +10,10 @@ import globals as globs
 # The package files
 from .cursors import *
 from .menu import MainMenu, SettingsMenu
-from .world import World
+
+from .ingame import *
+from .worldblocks import *
+from .entities import *
 
 
 logger = logging.getLogger("gfx")
@@ -22,7 +26,7 @@ config = ConfigParser.ConfigParser()
 config.read("settings.conf")
 
 # Location variable
-drawnLocation = ""
+lastLocation = ""
 
 # Clock for fps and events triggered by frames
 clock = pygame.time.Clock()
@@ -30,6 +34,8 @@ clock = pygame.time.Clock()
 globs.menus = {}
 globs.menus['main'] = MainMenu()
 globs.menus['settings'] = SettingsMenu()
+
+pygame.display.init()
 
 def loadCursor(name):
     cursor = eval(name)()
@@ -40,17 +46,26 @@ def loop():
     mode, sub = globs.location.split('.')
     if mode == "menu":
         menu = globs.menus[sub]
-        if drawnLocation != globs.location:
-            screen.fill((255,255,255))
+        if lastLocation != globs.location:
             menu.draw()
-            global drawnLocation
-            drawnLocation = globs.location
+            global lastLocation
+            lastLocation = globs.location
         menu.blitz()
         screen.blit(menu, (0, 0))
 
     elif mode == "game":
-        pass
+        if lastLocation != globs.location:
+            # If new map
+            if lastLocation.split('.')[0] != globs.location.split('.')[0]:
+                # If first time inGame
+                globs.character = Character(screen, (0,0), (75,100))
+                print("Loaded character")
 
+            globs.currentgame = Game(screen, "world1", "StartRegion")
+
+        globs.currentgame.loop()
+
+    lastLocation = globs.location
     newFrame()
 
 
@@ -58,16 +73,18 @@ def newFrame():
     clock.tick(60)
     pygame.display.flip()
 
-def initializeScreen():
-    # Set resolution
-    global resolution
-    try:
-        resolution = config.get("video", "resolution").split('x')
-        resolution = map(int, resolution)
-        print(resolution)
-    except Exception as e:
-        print(e)
-    globs.resolution = resolution
+def initializeScreen(res=None):
+    # Set globs.resolution
+    print(res)
+    if not res:
+        try:
+            globs.resolution = config.get("video", "resolution").split('x')
+            globs.resolution = map(int, globs.resolution)
+            print(globs.resolution)
+        except Exception as e:
+            print(e)
+    else:
+        globs.resolution = res
     # Check if fullscreen
     try:
         string = config.get("video", "fullscreen")
@@ -82,11 +99,11 @@ def initializeScreen():
     # Inirialize screen
     global screen
     if fullscreen:
-        screen = pygame.display.set_mode(resolution, pygame.FULLSCREEN)
-        print("Resolution: {}  Fullscreen: {}".format(str(resolution), str(fullscreen)))
+        screen = pygame.display.set_mode(globs.resolution, pygame.FULLSCREEN)
+        print("globs.resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
     else:
-        screen = pygame.display.set_mode(resolution)
-    globs.screen = screen
+        screen = pygame.display.set_mode(globs.resolution)
 
+globs.initializeScreen = initializeScreen
 initializeScreen()
 loadCursor("CircleCursor_black")

@@ -5,16 +5,11 @@ class Surface(pygame.Surface):
     '''
     Base class for surfaces
     '''
-    def __init__(self, wh, transparent=False, bgColor=None):
+    def __init__(self, wh):
         pygame.Surface.__init__(self, (wh))
         self.WH = wh
         self.W = self.WH[0]
         self.H = self.WH[1]
-        if bgColor:
-            self.fill(bgColor)
-
-    def rect(self):
-        return self.get_rect(topleft=(self.X, self.Y))
 
 class Sprite(pygame.sprite.Sprite):
     '''
@@ -26,7 +21,7 @@ class Sprite(pygame.sprite.Sprite):
         self.xy = xy
         self.X, self.Y = self.xy
         self.parent = parent
-        self.rect = self.image.get_rect(topleft=xy)
+        self.rect = self.image.get_rect(topleft=self.xy)
         self.bgColor = bgColor
         if self.bgColor:
             self.image.fill(self.bgColor)
@@ -35,10 +30,25 @@ class Sprite(pygame.sprite.Sprite):
         pass
 
     def blit(self):
-        self.parent.blit(self.image, (self.xy))
+        self.parent.blit(self.image, self.xy)
 
     def clicked(self):
         print("You just clicked me!")
+
+    def rect(self):
+        return self.get_rect(topleft=(self.X, self.Y))
+
+class Container(Sprite):
+    def __init__(self, parent, xy, wh, bgColor=None, text=None):
+        Sprite.__init__(self, parent, xy, wh, bgColor=(235,235,255))
+        self.text = text
+        self.drawText()
+
+    def drawText(self):
+        if self.text:
+            self.textSprite = Text(self, (10,10), self.text, 25)
+            self.image.blit(self.textSprite.image, self.textSprite.xy)
+
 
 class Text(Sprite):
     def __init__(self, parent, xy, text, size, color=(0, 0, 0), font="calibri"):
@@ -54,12 +64,14 @@ class Text(Sprite):
         self.renderedText = self.font.render(self.text, True, pygame.color.Color(self.color[0], self.color[1], self.color[2]))
 
 class Button(Sprite):
-    def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri"):
+    def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None):
         Sprite.__init__(self, parent, xy, wh, bgColor)
 
         self.fgColor = fgColor
         self.text = text
         self.fontname = font
+        self.fontsize = fontsize
+        self.draw()
 
     def draw(self):
         # Fill background
@@ -67,7 +79,8 @@ class Button(Sprite):
         # Apply text
         if self.text:
             # Adapt fontsize
-            self.fontsize = self.image.H/2 + 10
+            if not self.fontsize:
+                self.fontsize = self.image.H/2
             # Load font
             self.font = getFont(self.fontname, self.fontsize)
             self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
@@ -81,13 +94,18 @@ class Button(Sprite):
         print("You just clicked me!")
 
 class QuitButton(Button):
+    def __init__(self, parent, xy, wh):
+        Button.__init__(self, parent, xy, wh, (255, 255, 255), (0, 0, 0), "Quit", "calibri")
+        self.draw()
+
     def clicked(self):
         pygame.quit()
 
 class BackButton(Button):
-    def __init__(self, back, parent, xy, wh, bgColor=None, fgColor=None, text=None, font=None):
-        Button.__init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text="Back", font="calibri")
+    def __init__(self, back, parent, xy, wh):
+        Button.__init__(self, parent, xy, wh, (255, 255, 255), (0, 0, 0), "Back", "calibri")
         self.back = back
+        self.draw()
 
     def clicked(self):
         globs.location = self.back
