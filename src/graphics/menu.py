@@ -97,7 +97,7 @@ class MainMenu(Menu):
         self.singleplayerButton = Button(self, ((resolution[0]/2)-(200/2), (resolution[1]/2)-100), (200, 50), text="Singleplayer")
         # OnClick action
         def singleplayerButton_clicked(self):
-            globs.location = "game."
+            globs.location = "game.world1_StartRegion"
         self.singleplayerButton.clicked = types.MethodType(singleplayerButton_clicked, self.singleplayerButton)
         self.buttons.add(self.singleplayerButton)
 

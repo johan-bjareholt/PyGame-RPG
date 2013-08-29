@@ -11,7 +11,7 @@ import globals as globs
 from .cursors import *
 from .menu import MainMenu, SettingsMenu
 
-from .ingame import *
+from .ingame import Game
 from .worldblocks import *
 from .entities import *
 
@@ -55,13 +55,13 @@ def loop():
 
     elif mode == "game":
         if lastLocation != globs.location:
-            # If new map
+            # If world or game is not initialized, or world changed
+
             if lastLocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
                 globs.character = Character(screen, (0,0), (75,100))
                 print("Loaded character")
-
-            globs.currentgame = Game(screen, "world1", "StartRegion")
+                globs.currentgame = Game(screen)
 
         globs.currentgame.loop()
 
