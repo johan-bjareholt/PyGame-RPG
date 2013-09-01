@@ -3,6 +3,7 @@ import os
 import time
 from importlib import import_module
 import pygame
+import globals as globs
 from pygame import Rect
 
 
@@ -32,12 +33,13 @@ class Game():
 
 
     def run(self):
-        self.a = 0
-        while True:
+        globs.running = True
+        while globs.running:
             inputs.loop()
             events.loop()
             graphics.loop()
             if inputs.quit():
+                self.quit()
                 break
 
     def quit(self):

@@ -5,8 +5,11 @@ class Surface(pygame.Surface):
     '''
     Base class for surfaces
     '''
-    def __init__(self, wh):
-        pygame.Surface.__init__(self, (wh))
+    def __init__(self, wh, transparent=False):
+        if transparent:
+            pygame.Surface.__init__(self, wh, pygame.RLEACCEL)
+        else:
+            pygame.Surface.__init__(self, wh)
         self.WH = wh
         self.W = self.WH[0]
         self.H = self.WH[1]
@@ -18,16 +21,19 @@ class Sprite(pygame.sprite.Sprite):
     def __init__(self, parent, xy, wh, bgColor=None):
         pygame.sprite.Sprite.__init__(self)
         self.image = Surface(wh)
-        self.xy = xy
-        self.X, self.Y = self.xy
+        self.move(xy)
         self.parent = parent
-        self.rect = self.image.get_rect(topleft=self.xy)
         self.bgColor = bgColor
         if self.bgColor:
             self.image.fill(self.bgColor)
 
     def draw(self):
         pass
+
+    def move(self, xy):
+        self.xy = xy
+        self.X, self.Y = self.xy
+        self.rect = self.image.get_rect(topleft=self.xy)
 
     def blit(self):
         self.parent.blit(self.image, self.xy)

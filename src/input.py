@@ -45,7 +45,7 @@ class Input:
                             button.clicked()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        gfx.game.playing = not gfx.game.playing
+                        pygame.quit()
                 if event.type == pygame.MOUSEMOTION:
                     pass
 
@@ -53,17 +53,16 @@ class Input:
             speed = 25
             if self.pressed[pygame.K_w]:
                 # Up
-                new_coords = (globs.character.xy[0], globs.character.xy[1]-speed)
-                globs.character.xy = new_coords
+                globs.character.forceY -= speed
             if self.pressed[pygame.K_s]:
                 # Down
-                new_coords = (globs.character.xy[0], globs.character.xy[1]+speed)
-                globs.character.xy = new_coords
+                globs.character.forceY += speed
             if self.pressed[pygame.K_a]:
                 # Left
-                new_coords = (globs.character.xy[0]-speed, globs.character.xy[1])
-                globs.character.xy = new_coords
+                globs.character.forceX -= speed
             if self.pressed[pygame.K_d]:
                 # Right
-                new_coords = (globs.character.xy[0]+speed, globs.character.xy[1])
-                globs.character.xy = new_coords
+                globs.character.forceX += speed
+
+            if self.pressed[pygame.K_ESCAPE]:
+                globs.location = "menu.main"

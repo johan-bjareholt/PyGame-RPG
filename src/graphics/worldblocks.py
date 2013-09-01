@@ -55,4 +55,4 @@ class Block_10(Block):
 	'''
 	def __init__(self, xy):
 		layer = 5
-		Block.__init__(self, layer, xy, bgColor=(0,0,0), alpha=2)
+		Block.__init__(self, layer, xy, bgColor=(255,255,255), alpha=150)

@@ -55,14 +55,12 @@ def loop():
 
     elif mode == "game":
         if lastLocation != globs.location:
-            # If world or game is not initialized, or world changed
-
             if lastLocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
                 globs.character = Character(screen, (0,0), (75,100))
                 print("Loaded character")
                 globs.currentgame = Game(screen)
-
+            globs.currentgame.loadRegion()
         globs.currentgame.loop()
 
     lastLocation = globs.location
