@@ -13,3 +13,6 @@ class Character(Sprite):
 			pass
 		if self.forceY:
 			pass
+
+	def jump(self):
+		pass

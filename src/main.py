@@ -34,8 +34,8 @@ class Game():
     def run(self):
         self.a = 0
         while True:
-            events.loop()
             inputs.loop()
+            events.loop()
             graphics.loop()
             if inputs.quit():
                 break
