@@ -3,8 +3,8 @@ from .baseclasses import Sprite
 import globals as globs
 
 class Character(Sprite):
-	def __init__(self, parent, xy, wh):
-		Sprite.__init__(self, parent, xy, wh, bgColor=(255,255,255))
+	def __init__(self, parent, xy):
+		Sprite.__init__(self, parent, xy, (75,100), bgColor=(255,255,255))
 
 		self.forceX = 0
 		self.forceY = 0
@@ -13,14 +13,14 @@ class Character(Sprite):
 		# Right/left
 		lastlocation = self.xy
 		self.move((self.X+self.forceX, self.Y))
-		if pygame.sprite.spritecollideany(self, globs.currentgame.worldBlocks):
+		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks):
 			#print("Collide!!! {}".format(pygame.sprite.spritecollide(self, globs.currentgame.worldBlocks, dokill=False)))
 			self.move(lastlocation)
 
 		# up/down
 		lastlocation = self.xy
 		self.move((self.X, self.Y+self.forceY+5))
-		if pygame.sprite.spritecollideany(self, globs.currentgame.worldBlocks):
+		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks):
 			#print("Collide!!! {}".format(pygame.sprite.spritecollide(self, globs.currentgame.worldBlocks, dokill=False)))
 			self.move(lastlocation)
 

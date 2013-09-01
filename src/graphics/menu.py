@@ -178,10 +178,12 @@ class SettingsMenu(Menu):
 
             self.buttons.add(self.resolutionButtons[res])
 
-        self.versionContainer = Container(self, ((resolution[0]/2)+50, (resolution[1]/2)-50), (300,150), text="Versions")
+        self.versionContainer = Container(self, ((resolution[0]/2)+50, (resolution[1]/2)-50), (300,250), text="Versions")
         self.pythonVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
         self.pygameVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
         self.sdlVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)
+        self.videoDriverText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+140), "Video driver: {0}".format(pygame.display.get_driver()), 20)
+        self.displayInfoText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+170), "Hardware acceleration: {0}".format(bool(pygame.display.Info().hw)), 20)
 
         # Draw title
         self.settingsText.draw()
@@ -195,6 +197,8 @@ class SettingsMenu(Menu):
         self.pythonVersionText.blit()
         self.pygameVersionText.blit()
         self.sdlVersionText.blit()
+        self.videoDriverText.blit()
+        self.displayInfoText.blit()
 
         # Blit all buttons
         self.buttons.draw(self)

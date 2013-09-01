@@ -10,6 +10,7 @@ class Game():
 
         self.loadedTiles = {}
         self.worldBlocks = pygame.sprite.Group()
+        self.collidableBlocks = pygame.sprite.Group()
 
     def loop(self):
         # Clear
@@ -46,8 +47,9 @@ class Game():
         self.screen.blit(self.worldSurface, (self.worldSurface.X, self.worldSurface.Y))
         self.screen.blit(self.guiSurface, (0, 0))
 
-    def loadRegion(self, spawnCoordinates=None):
-        globs.currentregion = world1.TestRegion()
+    def loadRegion(self, regionname, spawnCoordinates=None):
+        world, region = regionname.split('_')
+        globs.currentregion = eval(world + '.' + region + '()')
 
         self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
         self.worldSurface = Surface((globs.currentregion.pixelWidth, globs.currentregion.pixelHeight), transparent=True)
@@ -57,10 +59,10 @@ class Game():
         for row in globs.currentregion:
             columncount = 1
             for tile in row:
-                if tile != "  ":
+                if tile != "   ":
+                    #print("tileid: {id}, xy: {xy}".format(id=tile, xy=blockPixel(columncount, rowcount)))
                     thisTile = eval('Block_{id}({xy})'.format(id=tile, xy=blockPixel(columncount, rowcount)))
                     self.worldBlocks.add(thisTile)
-                    #print("tileid: {id}, xy: {xy}".format(id=tile, xy=thisTile.xy))
                 columncount += 1
             rowcount += 1
 
