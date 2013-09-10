@@ -53,10 +53,10 @@ class Input:
             speed = 25
             if self.pressed[pygame.K_w]:
                 # Up
-                globs.character.forceY -= speed
+                globs.character.jump()
             if self.pressed[pygame.K_s]:
                 # Down
-                globs.character.forceY += speed
+                pass
             if self.pressed[pygame.K_a]:
                 # Left
                 globs.character.forceX -= speed

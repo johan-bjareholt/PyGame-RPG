@@ -26,32 +26,27 @@ config = ConfigParser.ConfigParser()
 config.read("settings.conf")
 
 # Location variable
+global lastLocation
 lastLocation = ""
 
 # Clock for fps and events triggered by frames
 clock = pygame.time.Clock()
 
-globs.menus = {}
-globs.menus['main'] = MainMenu()
-globs.menus['settings'] = SettingsMenu()
-
 pygame.display.init()
 
-def loadCursor(name):
-    cursor = eval(name)()
-    compiledCursor = pygame.cursors.compile(cursor.stringcursor, black=cursor.black, white=cursor.white, xor='o')
-    pygame.mouse.set_cursor((8,8),(4,4),*compiledCursor)
+
+def loadMenus():
+    globs.menus = {}
+    globs.menus['main'] = MainMenu()
+    globs.menus['settings'] = SettingsMenu()
 
 def loop():
     mode, sub = globs.location.split('.')
     if mode == "menu":
-        menu = globs.menus[sub]
         if lastLocation != globs.location:
-            menu.draw()
-            global lastLocation
-            lastLocation = globs.location
-        menu.blitz()
-        screen.blit(menu, (0, 0))
+            globs.menus[sub].draw()
+        globs.menus[sub].blitz()
+        screen.blit(globs.menus[sub], (0, 0))
 
     elif mode == "game":
         if lastLocation != globs.location:
@@ -61,8 +56,10 @@ def loop():
                 print("Loaded character")
                 globs.currentgame = Game(screen)
             globs.currentgame.loadRegion(globs.location.split('.')[1])
+            globs.character.xy = (850, 850)
         globs.currentgame.loop()
 
+    global lastLocation
     lastLocation = globs.location
     newFrame()
 
@@ -73,7 +70,6 @@ def newFrame():
 
 def initializeScreen(res=None):
     # Set globs.resolution
-    print(res)
     if not res:
         try:
             globs.resolution = config.get("video", "resolution").split('x')
@@ -82,7 +78,13 @@ def initializeScreen(res=None):
         except Exception as e:
             print(e)
     else:
-        globs.resolution = res
+        globs.resolution = map(int, res)
+        lastLocation = ""
+    print("Resolution set to " + str(globs.resolution))
+
+    # Reload menus for new resolution
+    loadMenus()
+
     # Check if fullscreen
     try:
         string = config.get("video", "fullscreen")
@@ -101,6 +103,11 @@ def initializeScreen(res=None):
         print("globs.resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
     else:
         screen = pygame.display.set_mode(globs.resolution)
+
+def loadCursor(name):
+    cursor = eval(name)()
+    compiledCursor = pygame.cursors.compile(cursor.stringcursor, black=cursor.black, white=cursor.white, xor='o')
+    pygame.mouse.set_cursor((8,8),(4,4),*compiledCursor)
 
 globs.initializeScreen = initializeScreen
 initializeScreen()

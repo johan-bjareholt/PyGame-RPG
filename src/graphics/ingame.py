@@ -50,6 +50,7 @@ class Game():
     def loadRegion(self, regionname, spawnCoordinates=None):
         world, region = regionname.split('_')
         globs.currentregion = eval(world + '.' + region + '()')
+        print(globs.currentregion.spawnCoordinates)
 
         self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
         self.worldSurface = Surface((globs.currentregion.pixelWidth, globs.currentregion.pixelHeight), transparent=True)
@@ -66,11 +67,12 @@ class Game():
                 columncount += 1
             rowcount += 1
 
-
-        if not spawnCoordinates:
-            globs.character.xy = blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1])
-        else:
-            globs.character.xy = globs.currentregion.spawnCoordinates
+        print(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
+        globs.character.xy = blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1])
+        #if not spawnCoordinates:
+        #    globs.character.xy = blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1])
+        #else:
+        #    globs.character.xy = blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1])
 
     def clearInGameLayers(self):
         # Clear default layers

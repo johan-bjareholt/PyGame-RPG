@@ -5,8 +5,6 @@ import types
 
 import globals as globs
 
-resolution = globs.resolution
-
 from .baseclasses import Surface, Button, QuitButton, BackButton, Container, Text
 
 
@@ -15,18 +13,18 @@ class Menu(Surface):
     Base class for the menus
     '''
     def __init__(self, bgImage="/sky.jpg", bgColor=(0, 0, 0), font="calibri"):
-        Surface.__init__(self, resolution)
+        Surface.__init__(self, globs.resolution)
 
-        self.background = self.subsurface((0, 0), resolution)
-        self.main = self.subsurface((0, 0), resolution)
-        self.foreground = self.subsurface((0, 0), resolution)
+        self.background = self.subsurface((0, 0), globs.resolution)
+        self.main = self.subsurface((0, 0), globs.resolution)
+        self.foreground = self.subsurface((0, 0), globs.resolution)
 
         self.buttons = pygame.sprite.Group()
 
         # Background initialization
         if bgImage:
             self.backgroundImage = pygame.image.load(os.getcwd()+bgImage)
-            self.backgroundImage = pygame.transform.scale(self.backgroundImage, resolution)
+            self.backgroundImage = pygame.transform.scale(self.backgroundImage, globs.resolution)
         self.backgroundColor = bgColor
 
         self.fontname = font
@@ -94,7 +92,7 @@ class MainMenu(Menu):
 
     def drawMain(self):
         # Initialize Singleplayer button
-        self.singleplayerButton = Button(self, ((resolution[0]/2)-(200/2), (resolution[1]/2)-100), (200, 50), text="Singleplayer")
+        self.singleplayerButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)-100), (200, 50), text="Singleplayer")
         # OnClick action
         def singleplayerButton_clicked(self):
             globs.location = "game.world1_StartRegion"
@@ -102,7 +100,7 @@ class MainMenu(Menu):
         self.buttons.add(self.singleplayerButton)
 
         # Initialize Multiplayer button
-        self.multiplayerButton = Button(self, ((resolution[0]/2)-(200/2), resolution[1]/2), (200, 50), text="Multiplayer(WIP)")
+        self.multiplayerButton = Button(self, ((globs.resolution[0]/2)-(200/2), globs.resolution[1]/2), (200, 50), text="Multiplayer(WIP)")
         # OnClick action
         def multiplayerButton_clicked(self):
             print("You clicked multiplayerButton!")
@@ -110,25 +108,25 @@ class MainMenu(Menu):
         self.buttons.add(self.multiplayerButton)
 
         # Initialize Settings button
-        self.worldcreatorButton = Button(self, ((resolution[0]/2)-(200/2), (resolution[1]/2)+100), (200, 50), text="Worldcreator(WIP)")
+        self.worldcreatorButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)+100), (200, 50), text="Worldcreator(WIP)")
         def worldcreatorButton_clicked(self):
             globs.location = "menu.worldcretor"
         self.worldcreatorButton.clicked = types.MethodType(worldcreatorButton_clicked, self.worldcreatorButton)
         self.buttons.add(self.worldcreatorButton)
 
         # Initialize Settings button
-        self.settingsButton = Button(self, ((resolution[0]/2)-(200/2), (resolution[1]/2)+200), (200, 50), text="Settings")
+        self.settingsButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)+200), (200, 50), text="Settings")
         def settingsButton_clicked(self):
             globs.location = "menu.settings"
         self.settingsButton.clicked = types.MethodType(settingsButton_clicked, self.settingsButton)
         self.buttons.add(self.settingsButton)
 
-        self.quitButton = QuitButton(self, (25, (resolution[1])-50-25), (100, 50))
+        self.quitButton = QuitButton(self, (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.quitButton)
 
         # Initialize Title text
         self.titleText = Text(self, (0,0), "My RPG Game", 50)
-        self.titleText.xy = ((resolution[0]/2)-(self.titleText.image.get_width()/2), (resolution[1]/2)-200)
+        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), (globs.resolution[1]/2)-200)
 
         # Draw title
         self.titleText.draw()
@@ -156,16 +154,16 @@ class SettingsMenu(Menu):
     def drawMain(self):
         # Initialize Title text
         self.settingsText = Text(self, (0,0), "Settings", 50)
-        self.settingsText.xy = ((resolution[0]/2)-(self.settingsText.image.get_width()/2), (resolution[1]/2)-200)
+        self.settingsText.xy = ((globs.resolution[0]/2)-(self.settingsText.image.get_width()/2), (globs.resolution[1]/2)-200)
 
         # Backbutton
-        self.backButton = BackButton("menu.main", self, (25, (resolution[1])-50-25), (100, 50))
+        self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.backButton)
 
         # Create resolution buttons and container
         resolutions = [(960,540),(1280,720),(1600,900),(1920,1080)]
         # Container
-        self.resolutionContainer = Container(self, ((resolution[0]/2)-200-50, (resolution[1]/2)-50), (200,(len(resolutions)*75)+50), text="Display")
+        self.resolutionContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*75)+50), text="Display")
         self.resolutionButtons = []
         # create for each button
         for res in range(len(resolutions)):
@@ -173,12 +171,12 @@ class SettingsMenu(Menu):
             self.resolutionButtons.append(tmpButton)
 
             def tmpButton_clicked(self):
-                globs.initializeScreen((resolutions[res][0], resolutions[res][1]))
+                globs.initializeScreen(resolutions[res])
             self.resolutionButtons[res].clicked = types.MethodType(tmpButton_clicked, self.resolutionButtons[res])
 
             self.buttons.add(self.resolutionButtons[res])
 
-        self.versionContainer = Container(self, ((resolution[0]/2)+50, (resolution[1]/2)-50), (300,250), text="Versions")
+        self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (300,250), text="Versions")
         self.pythonVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
         self.pygameVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
         self.sdlVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)
