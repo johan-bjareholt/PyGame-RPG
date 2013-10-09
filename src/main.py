@@ -1,10 +1,9 @@
 import logging
-import os
+import os, sys
 import time
 from importlib import import_module
 import pygame
 import globals as globs
-from pygame import Rect
 
 
 maindir = os.path.dirname(os.getcwd())
@@ -18,7 +17,6 @@ logging.basicConfig(filename=logFilename, filemode='w', level=logging.DEBUG, for
 class Game():
     def __init__(self):
         self.logger = logging.getLogger("main")
-        self.fullscreen = False
         pygame.init()
 
     def load(self):
@@ -39,11 +37,13 @@ class Game():
             events.loop()
             graphics.loop()
             if inputs.quit():
-                self.quit()
-                break
+                globs.running = False
+            globs.frame += 1
 
     def quit(self):
-        pass
+        pygame.quit()
+        sys.exit()
+        #os._quit(0)
 
 
 if __name__ == '__main__':

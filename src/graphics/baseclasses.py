@@ -1,6 +1,7 @@
 import pygame
 import globals as globs
 
+
 class Surface(pygame.Surface):
     '''
     Base class for surfaces
@@ -14,18 +15,22 @@ class Surface(pygame.Surface):
         self.W = self.WH[0]
         self.H = self.WH[1]
 
+
 class Sprite(pygame.sprite.Sprite):
     '''
     Base class for sprites
     '''
-    def __init__(self, parent, xy, wh, bgColor=None):
+    def __init__(self, parent, xy, wh, bgColor=None, colorkey=None):
         pygame.sprite.Sprite.__init__(self)
         self.image = Surface(wh)
         self.move(xy)
         self.parent = parent
         self.bgColor = bgColor
+        self.colorkey = colorkey
         if self.bgColor:
             self.image.fill(self.bgColor)
+        if colorkey:
+            self.image.set_colorkey(self.transparent)
 
     def draw(self):
         pass
@@ -43,6 +48,7 @@ class Sprite(pygame.sprite.Sprite):
 
     def rect(self):
         return self.get_rect(topleft=(self.X, self.Y))
+
 
 class Container(Sprite):
     def __init__(self, parent, xy, wh, bgColor=None, text=None):
@@ -68,6 +74,7 @@ class Text(Sprite):
 
     def draw(self):
         self.renderedText = self.font.render(self.text, True, pygame.color.Color(self.color[0], self.color[1], self.color[2]))
+
 
 class Button(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None):
@@ -115,6 +122,7 @@ class BackButton(Button):
 
     def clicked(self):
         globs.location = self.back
+
 
 def getFont(name, fontsize):
     fontlocation = globs.cwd + "/graphics/fonts/" + name + ".ttf"

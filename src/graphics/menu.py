@@ -168,10 +168,12 @@ class SettingsMenu(Menu):
         # create for each button
         for res in range(len(resolutions)):
             tmpButton = Button(self, (self.resolutionContainer.xy[0]+25, self.resolutionContainer.xy[1]+45+(75*res)), (150, 50), text="{}x{}".format(resolutions[res][0],resolutions[res][1]))
+            tmpButton.resolution = res
             self.resolutionButtons.append(tmpButton)
 
             def tmpButton_clicked(self):
-                globs.initializeScreen(resolutions[res])
+                globs.initializeScreen(resolutions[self.resolution])
+                globs.redraw = True
             self.resolutionButtons[res].clicked = types.MethodType(tmpButton_clicked, self.resolutionButtons[res])
 
             self.buttons.add(self.resolutionButtons[res])

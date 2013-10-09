@@ -14,6 +14,7 @@ from .menu import MainMenu, SettingsMenu
 from .ingame import Game
 from .worldblocks import *
 from .entities import *
+from .baseclasses import Text
 
 
 logger = logging.getLogger("gfx")
@@ -34,6 +35,9 @@ clock = pygame.time.Clock()
 
 pygame.display.init()
 
+# Draw queue
+globs.drawqueue = []
+
 
 def loadMenus():
     globs.menus = {}
@@ -43,8 +47,9 @@ def loadMenus():
 def loop():
     mode, sub = globs.location.split('.')
     if mode == "menu":
-        if lastLocation != globs.location:
+        if lastLocation != globs.location or globs.redraw:
             globs.menus[sub].draw()
+            globs.redraw = False
         globs.menus[sub].blitz()
         screen.blit(globs.menus[sub], (0, 0))
 
@@ -59,6 +64,8 @@ def loop():
             globs.character.xy = (850, 850)
         globs.currentgame.loop()
 
+    fpsCounter()
+
     global lastLocation
     lastLocation = globs.location
     newFrame()
@@ -67,6 +74,12 @@ def loop():
 def newFrame():
     clock.tick(60)
     pygame.display.flip()
+
+def fpsCounter():
+    if globs.lastframecount != globs.framecount:
+        globs.fpstext = Text(screen, (0,0), str(globs.framecount), 30, color=(150,150,150))
+        globs.lastframecount = globs.framecount
+    globs.fpstext.blit()
 
 def initializeScreen(res=None):
     # Set globs.resolution
@@ -103,6 +116,7 @@ def initializeScreen(res=None):
         print("globs.resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
     else:
         screen = pygame.display.set_mode(globs.resolution)
+    globs.screen = screen
 
 def loadCursor(name):
     cursor = eval(name)()

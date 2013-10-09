@@ -5,14 +5,16 @@ import globals as globs
 from .eventtypes import *
 
 logger = logging.getLogger("events")
-eventlist = []
+
+globs.eventlist = []
 
 class Events:
     def __init__(self):
         self.logger = logging.getLogger("events")
         self.logger.info("Loading events")
         print("Loading events")
-        eventlist.append(ClockEvent(10))
+        #ClockTimer(10)
+        FpsCounter()
 
     def loop(self):
     	mode, sub = globs.location.split('.')
@@ -23,17 +25,8 @@ class Events:
     		pass
 
         # Timed Events
-        for event in eventlist:
-            eventtype = event.__class__.__name__
+        for event in globs.eventlist:
             if not event.isDone():
-                logger.debug(str())
+                event.loop()
             else:
-                eventlist.remove(event)
-                print("Deleted " + str(event))
-
-class Menus:
-	def main(self):
-		print("in main menu")
-
-class Game:
-	pass
+                globs.eventlist.remove(event)

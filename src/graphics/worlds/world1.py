@@ -1,24 +1,5 @@
-class Region(list):
-	def __init__(self, name, spawn):
-		self.spawnCoordinates = spawn
-		self.name = name
-
-		self.pixelHeight = len(self)*50
-		self.pixelWidth   = len(self[0])*50
-
-		self.blockHeight = len(self)
-		self.blockWidth   = len(self[0])
-
-	def loadBlocks(self):
-		rowcount = 1
-		for row in self.region:
-			tilecount = 1
-			for tile in row:
-				if tile != "   ":
-					self.append([self.loadedTiles[tile], self.blockPixel(tilecount, rowcount)])
-					self.worldSurface.blit(self.loadedTiles[tile], (self.blockPixel(tilecount, rowcount)))
-			tilecount += 1
-		rowcount += 1
+from __init__ import Region
+from __init__ import WorldEntity
 
 class StartRegion(Region):
 	def __init__(self):
@@ -67,6 +48,9 @@ class StartRegion(Region):
 		['000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000','000'],
 		]
 
+		self.entities = [ {'entity': TalkingBush, 'coords': (19,20)}
+						]
+
 		Region.__init__(self, name, spawn)
 
 
@@ -98,3 +82,18 @@ class TestRegion(Region):
 		]
 
 		Region.__init__(self, name, spawn)
+
+
+
+
+
+"""
+World Entities
+"""
+
+class TalkingBush(WorldEntity):
+	def __init__(self, parent, xy):
+		WorldEntity.__init__(self, parent, xy, (50,50), bgColor=(30,150,30))
+
+	def action(self):
+		print("Hello there little fella! I'm a talking bush!")

@@ -22,6 +22,10 @@ class Block(pygame.sprite.Sprite):
 
 		if not 'uncollidable' in flags:
 			globs.currentgame.collidableBlocks.add(self)
+		if 'actionBlock' in flags:
+			globs.currentgame.actionBlocks.add(self)
+		if 'worldActionBlock' in flags:
+			globs.currentgame.worldActionBlocks.add(self)
 
 		if bgColor:
 			self.image.fill(bgColor)
@@ -51,6 +55,14 @@ class Block_002(Block):
 	def __init__(self, xy):
 		layer = 4
 		Block.__init__(self, layer, xy, bgColor=(50,200,50))
+
+class Block_010(Block):
+	'''
+	Bush
+	'''
+	def __init__(self, xy):
+		layer = 4
+		Block.__init__(self, layer, xy, bgColor=(30,150,30), flags=['uncollidable', 'actionBlock'])
 
 class Block_020(Block):
 	'''
@@ -88,7 +100,7 @@ class Block_023(Block):
 	'''
 	def __init__(self, xy):
 		layer = 3
-		Block.__init__(self, layer, xy, bgColor=(100,75,60), flags=['uncollidable'])
+		Block.__init__(self, layer, xy, bgColor=(100,75,60), flags=['uncollidable', 'action'])
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,49))
 		pygame.draw.line(self.image, (0,0,0), (49,0), (49,49))
 
