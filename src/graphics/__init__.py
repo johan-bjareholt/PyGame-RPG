@@ -31,7 +31,6 @@ global lastLocation
 lastLocation = ""
 
 # Clock for fps and events triggered by frames
-clock = pygame.time.Clock()
 
 pygame.display.init()
 
@@ -61,24 +60,18 @@ def loop():
                 print("Loaded character")
                 globs.currentgame = Game(screen)
             globs.currentgame.loadRegion(globs.location.split('.')[1])
-            globs.character.xy = (850, 850)
         globs.currentgame.loop()
 
     fpsCounter()
 
     global lastLocation
     lastLocation = globs.location
-    newFrame()
 
-
-def newFrame():
-    clock.tick(60)
     pygame.display.flip()
 
+
 def fpsCounter():
-    if globs.lastframecount != globs.framecount:
-        globs.fpstext = Text(screen, (0,0), str(globs.framecount), 30, color=(150,150,150))
-        globs.lastframecount = globs.framecount
+    globs.fpstext = Text(screen, (0,0), str(globs.clock.get_fps())[:2], 30, color=(150,150,150))
     globs.fpstext.blit()
 
 def initializeScreen(res=None):

@@ -109,19 +109,3 @@ class FrameTimer(Event):
     def job():
         # Do specific stuff here every loop
         pass
-
-class FpsCounter(ClockTimer):
-    def __name__(self):
-        return "FpsCounterEvent"
-
-    def __init__(self, lastframecount=0):
-        ClockTimer.__init__(self, 1)
-        self.framecount = 0
-
-    def loop(self):
-        self.framecount += 1
-
-    def quit(self):
-        # Do quit stuff
-        globs.framecount = self.framecount
-        FpsCounter(self.framecount)

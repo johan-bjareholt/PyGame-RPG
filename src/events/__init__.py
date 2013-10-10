@@ -14,7 +14,6 @@ class Events:
         self.logger.info("Loading events")
         print("Loading events")
         #ClockTimer(10)
-        FpsCounter()
 
     def loop(self):
     	mode, sub = globs.location.split('.')

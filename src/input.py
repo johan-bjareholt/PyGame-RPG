@@ -42,7 +42,10 @@ class Input:
         for event in self.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    globs.running = False
+                    if mode == "game":
+                        globs.location = "menu.main"
+                    elif mode == "menu":
+                        globs.running = False
         # Menu
         if mode == "menu":
             for event in self.events:
@@ -78,15 +81,12 @@ class Input:
                 pass
             if self.pressed[pygame.K_a]:
                 # Left
-                globs.character.speedX -= force
+                globs.character.run("left")
             if self.pressed[pygame.K_d]:
                 # Right
-                globs.character.speedX += force
+                globs.character.run("right")
             if self.pressed[pygame.K_LSHIFT]:
                 globs.character.sprint()
-
-            #if self.pressed[pygame.K_ESCAPE]:
-            #    globs.location = "menu.main"
 
 
     def quit(self):

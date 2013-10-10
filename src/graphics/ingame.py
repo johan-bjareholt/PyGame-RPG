@@ -12,48 +12,57 @@ class Game():
         # Clear
         globs.character.collision()
 
-        self.clearInGameLayers()
-        #self.screen.fill((0, 0, 0))
+        self.blitBackground()
 
-        # Background
+        cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
+        if cameraX < 0:
+            cameraX = 0
+        cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
+        if cameraY < 0:
+            cameraY = 0
+        globs.cameraX, globs.cameraY = cameraX, cameraY
 
-        # Render, load & blit world
-        self.worldBlocks.draw(self.worldSurface)
-        self.worldEntities.draw(self.worldSurface)
-        self.worldSurface.blit(globs.character.image, globs.character.xy)
+        columnstart = int(cameraX/50)
+        if columnstart < 0:
+            columnstart = 0
+        columnend   = int(columnstart+2*(globs.resolution[1]/50))
 
-        # Camera
-        self.worldSurface.X = (globs.resolution[0]/2)-globs.character.xy[0]
-        self.worldSurface.Y = (globs.resolution[1]/2)-globs.character.xy[1]
+        rowstart = int(cameraY/50)
+        if rowstart < 0:
+            rowstart = 0
+        rowend   = int(rowstart+(globs.resolution[0]/50))
+        print("X:{} Y:{}".format(cameraX, cameraY))
+        print("Row: {},{} Column: {},{}".format(rowstart,rowend,columnstart,columnend))
 
-        # Make the camera not move when at edge of map
-        #extra = 100
-        #if self.worldSurface.X > 0+extra:
-        #    self.worldSurface.X = 0+extra
-        #elif self.worldSurface.X < (globs.resolution[0]-globs.currentregion.pixelWidth)-extra:
-        #    self.worldSurface.X = globs.resolution[0]-globs.currentregion.pixelWidth-extra
-        #if self.worldSurface.Y > 0+extra:
-        #    self.worldSurface.Y = 0+extra
-        #elif self.worldSurface.Y < (globs.resolution[1]-globs.currentregion.pixelHeight)-extra:
-        #    self.worldSurface.Y = (globs.resolution[1]-globs.currentregion.pixelHeight)-extra
-        if self.worldSurface.X > 0:
-            self.worldSurface.X = 0
-        elif self.worldSurface.X < (globs.resolution[0]-globs.currentregion.pixelWidth):
-            self.worldSurface.X = globs.resolution[0]-globs.currentregion.pixelWidth
-        if self.worldSurface.Y > 0:
-            self.worldSurface.Y = 0
-        elif self.worldSurface.Y < (globs.resolution[1]-globs.currentregion.pixelHeight):
-            self.worldSurface.Y = (globs.resolution[1]-globs.currentregion.pixelHeight)
+        rowcount = rowstart
+        for row in globs.currentregion.renderedmap[rowstart:rowend]:
+            columncount = columnstart
+            for tile in row[columnstart:columnend]:
+                if tile:
+                    self.screen.blit(tile.image, (tile.xy[0]-cameraX, tile.xy[1]-cameraY))
+                    #print(str(tile.xy))
+                    #print("Blitting {} on {}".format(tile, (tile.xy[0], tile.xy[1]) ))
+                    #print("row: {} Column: {}".format(rowcount, columncount))
+                columncount += 1
+            rowcount += 1
 
+        self.screen.blit(globs.character.image, (globs.character.xy[0]-(cameraX), globs.character.xy[1]-(cameraY)))
+
+    def blitBackground(self):
         self.screen.blit(self.backgroundSurface, (0,0))
-        self.screen.blit(self.worldSurface, (self.worldSurface.X, self.worldSurface.Y))
-        self.screen.blit(self.guiSurface, (0, 0))
+
 
     def loadRegion(self, regionname, spawnCoordinates=None):
         # (Re)load tiles
         self.loadedTiles = {}
 
-
+        # Load world
+        world, region = regionname.split('_')
+        globs.currentregion = eval(world + '.' + region + '()')
+        print(globs.currentregion.spawnCoordinates)
+        # Load world surfaces
+        self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
+        self.backgroundSurface.fill((100,120,200))
         # Create/Clear sprite groups
         self.worldBlocks = pygame.sprite.Group()
         self.collidableBlocks = pygame.sprite.Group()
@@ -64,26 +73,23 @@ class Game():
         # General Entities
         self.entities = pygame.sprite.Group()
 
+        globs.currentregion.renderedmap = []
 
-
-        # Load world
-        world, region = regionname.split('_')
-        globs.currentregion = eval(world + '.' + region + '()')
-        print(globs.currentregion.spawnCoordinates)
-        # Load world surfaces
-        self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
-        self.worldSurface = Surface((globs.currentregion.pixelWidth, globs.currentregion.pixelHeight), transparent=True)
-        self.guiSurface = Surface((globs.resolution[0], globs.resolution[1]))
         # Blit blocks
         rowcount = 1
         for row in globs.currentregion:
             columncount = 1
+            renderedRow = []
             for tile in row:
                 if tile != "   ":
                     #print("tileid: {id}, xy: {xy}".format(id=tile, xy=blockPixel(columncount, rowcount)))
                     thisTile = eval('Block_{id}({xy})'.format(id=tile, xy=blockPixel(columncount, rowcount)))
+                    renderedRow.append(thisTile)
                     self.worldBlocks.add(thisTile)
+                else:
+                    renderedRow.append("")
                 columncount += 1
+            globs.currentregion.renderedmap.append(renderedRow)
             rowcount += 1
 
 
@@ -97,15 +103,6 @@ class Game():
         print(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
         globs.character.move(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
 
-    def clearInGameLayers(self):
-        # Clear default layers
-        self.backgroundSurface.fill((100,120,200))
-
-        self.worldSurface.fill((255,0,255))
-        self.worldSurface.set_colorkey((255,0,255))
-
-        self.guiSurface.fill((255,0,255))
-        self.guiSurface.set_colorkey((255,0,255))
 
 def blockPixel(column, row):
     return (column*50-50, row*50-50)

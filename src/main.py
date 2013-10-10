@@ -5,6 +5,8 @@ from importlib import import_module
 import pygame
 import globals as globs
 
+import cProfile
+
 
 maindir = os.path.dirname(os.getcwd())
 
@@ -18,6 +20,7 @@ class Game():
     def __init__(self):
         self.logger = logging.getLogger("main")
         pygame.init()
+        globs.clock = pygame.time.Clock()
 
     def load(self):
         self.logger.info("Loading game")
@@ -38,7 +41,7 @@ class Game():
             graphics.loop()
             if inputs.quit():
                 globs.running = False
-            globs.frame += 1
+            globs.clock.tick(60)
 
     def quit(self):
         pygame.quit()
@@ -50,4 +53,5 @@ if __name__ == '__main__':
     game = Game()
     game.load()
     game.run()
+    #cProfile.run('game.run()')
     game.quit()
