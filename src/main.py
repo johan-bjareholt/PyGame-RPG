@@ -21,6 +21,7 @@ class Game():
         self.logger = logging.getLogger("main")
         pygame.init()
         globs.clock = pygame.time.Clock()
+        globs.cwd = os.getcwd()
 
     def load(self):
         self.logger.info("Loading game")
@@ -41,7 +42,7 @@ class Game():
             graphics.loop()
             if inputs.quit():
                 globs.running = False
-            globs.clock.tick(60)
+            globs.ticktime = globs.clock.tick(60)
 
     def quit(self):
         pygame.quit()

@@ -1,5 +1,5 @@
 import pygame
-from baseclasses import Surface
+from graphics.baseclasses import Surface
 from .worlds import *
 from .worldblocks import *
 import globals as globs
@@ -10,29 +10,25 @@ class Game():
 
     def loop(self):
         # Clear
-        globs.character.collision()
+        globs.character.loop()
 
         self.blitBackground()
 
         cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
-        if cameraX < 0:
-            cameraX = 0
+        if cameraX < 0: cameraX = 0
+        if cameraX > globs.currentregion.pixelWidth: cameraX = globs.currentregion.pixelWidth+(globs.resolution[0])
         cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
-        if cameraY < 0:
-            cameraY = 0
+        if cameraY < 0: cameraY = 0
+        elif cameraY > globs.currentregion.pixelHeight: cameraY = globs.currentregion.pixelHeight+(globs.resolution[1])
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
         columnstart = int(cameraX/50)
-        if columnstart < 0:
-            columnstart = 0
         columnend   = int(columnstart+2*(globs.resolution[1]/50))
 
         rowstart = int(cameraY/50)
-        if rowstart < 0:
-            rowstart = 0
         rowend   = int(rowstart+(globs.resolution[0]/50))
-        print("X:{} Y:{}".format(cameraX, cameraY))
-        print("Row: {},{} Column: {},{}".format(rowstart,rowend,columnstart,columnend))
+        #print("X:{} Y:{}".format(cameraX, cameraY))
+        #print("Row: {},{} Column: {},{}".format(rowstart,rowend,columnstart,columnend))
 
         rowcount = rowstart
         for row in globs.currentregion.renderedmap[rowstart:rowend]:

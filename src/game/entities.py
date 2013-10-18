@@ -1,18 +1,29 @@
 import pygame
-from .baseclasses import Sprite
+from graphics.baseclasses import Sprite
 import globals as globs
+
+import characters
 
 class Character(Sprite):
 	def __init__(self, parent, xy):
 		Sprite.__init__(self, parent, xy, (40,80), bgColor=(255,255,255))
 
+		self.attributes = characters.load(globs.charactername)
+		print(self.attributes)
+
 		self.speedX = 0.0
 		self.speedY = 0.0
+
+		self.forceY = 0.0
 
 		self.facefacing = "front"
 		self.bodyfacing = "right"
 
 		self.state = "falling"
+
+
+
+
 
 		headR = 10
 		headY = headR
@@ -35,7 +46,11 @@ class Character(Sprite):
 		# Health, Magicka, Stamina
 		#
 		# Skills
-		# Swordfighting, Marksmanship, Arcane
+		# Offensive: Swordfighting, Marksmanship, Destruction
+		# Defensive: Heavy Armor, Light Armor, Restoration
+
+	def loop(self):
+		self.collision()
 
 	def collision(self):
 		#
@@ -49,9 +64,12 @@ class Character(Sprite):
 				x = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks).xy[0]-self.image.get_width()
 			elif self.speedX < 0:
 				x = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks).xy[0]+50
+			else:
+				print("Movement error in X")
 			self.move((x, self.Y))
 			self.speedX = 0
-		self.speedX = self.speedX / 1.2
+		else:
+			self.speedX = self.speedX / 1.2
 
 		if self.speedX > 0:
 			self.facefacing = "left"
@@ -67,6 +85,8 @@ class Character(Sprite):
 		#
 		lastlocation = self.xy
 
+		gravityequation = 1.1
+
 		# If jumping
 		if self.state == "jumping":
 			self.move((self.X, self.Y+self.speedY))
@@ -77,7 +97,7 @@ class Character(Sprite):
 				self.speedY = 0
 				self.state = "falling"
 			else:
-				self.speedY /= globs.clock.get_fps()/52
+				self.speedY /= gravityequation
 
 		# If on ground
 		elif self.state == "ground":
@@ -85,43 +105,50 @@ class Character(Sprite):
 			self.move((self.X, self.Y+1))
 			if not pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks):
 				self.state = "falling"
+				self.speedY = 1
 			self.move(lastlocation)
 
 		# Else fall
 		if self.state == "falling":
 			if self.speedY < 1:
 				self.speedY = 1
-			self.speedY *= globs.clock.get_fps()/52
+			self.speedY *= gravityequation
 			self.move((self.X, self.Y + self.speedY))
 			if pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks):
+				while pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks):
+					Y = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks).xy[1]-self.image.get_height()
+					self.move((self.X, Y))
 				self.state = "ground"
-				Y = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks).xy[1]-self.image.get_height()
-				self.move((self.X, Y))
 				self.speedY = 0
-				
-
 
 		# Out of bounds Y
 		if self.Y > globs.currentregion.pixelHeight:
 			self.move((self.xy[0], globs.currentregion.pixelHeight))
+			self.speedY = 0
 		elif self.Y < 0:
 			self.move((self.xy[0], 0))
+			self.speedY = 0
 		# Out of bounds X
 		if self.X > globs.currentregion.pixelWidth:
 			self.move((globs.currentregion.pixelWidth, self.xy[1]))
+			self.speedX = 0
 		elif self.X < 0:
 			self.move((0, self.xy[1]))
+			self.speedX = 0
+
+		#print("ms since last frame:{} gravityequation: {} speedY: {}".format(globs.ticktime, gravityequation, self.speedY))
+		#print(self.state)
 
 
 	def sprint(self):
 		if self.state == "ground":
-			sprintbonus = globs.clock.get_fps()/58
+			sprintbonus = 1.1
 			self.speedX *= sprintbonus
 
 	def jump(self):
 		# If not going up
 		if self.state == "ground":
-			self.speedY = -15
+			self.speedY = -25
 			self.state = "jumping"
 
 	def run(self, direction):

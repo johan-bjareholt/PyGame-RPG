@@ -3,22 +3,14 @@
 import pygame
 import globals as globs
 
-from .baseclasses import Surface
+from graphics.baseclasses import Surface
 
 class Block(pygame.sprite.Sprite):
-	def __init__(self, layer, xy, flags=[], wh=(50,50), bgColor=None, alpha=None):
+	def __init__(self, xy, flags=[], wh=(50,50), bgColor=None, alpha=None):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.Surface(wh)
 		self.xy = xy
 		self.rect = self.image.get_rect(topleft=self.xy)
-		# Layer
-		# When the blocks are being blitted, 
-		# layer 0-9   = world background
-		# layer 10-19 = world
-		# layer 20-29 = foreground world
-		# layer 30-39 = UI
-		# layer 40-49 = UI foreground
-		self.layer = layer
 
 		if not 'uncollidable' in flags:
 			globs.currentgame.collidableBlocks.add(self)
@@ -37,40 +29,35 @@ class Block_000(Block):
 	Stone
 	'''
 	def __init__(self, xy):
-		layer = 2
-		Block.__init__(self, layer, xy, bgColor=(150,150,150))
+		Block.__init__(self, xy, bgColor=(150,150,150))
 
 class Block_001(Block):
 	'''
 	Dirt
 	'''
 	def __init__(self, xy):
-		layer = 3
-		Block.__init__(self, layer, xy, bgColor=(65,55,40))
+		Block.__init__(self, xy, bgColor=(65,55,40))
 
 class Block_002(Block):
 	'''
 	Grass
 	'''
 	def __init__(self, xy):
-		layer = 4
-		Block.__init__(self, layer, xy, bgColor=(50,200,50))
+		Block.__init__(self, xy, bgColor=(50,200,50))
 
 class Block_010(Block):
 	'''
 	Bush
 	'''
 	def __init__(self, xy):
-		layer = 4
-		Block.__init__(self, layer, xy, bgColor=(30,150,30), flags=['uncollidable', 'actionBlock'])
+		Block.__init__(self, xy, bgColor=(30,150,30), flags=['uncollidable', 'actionBlock'])
 
 class Block_020(Block):
 	'''
 	Wood
 	'''
 	def __init__(self, xy):
-		layer = 3
-		Block.__init__(self, layer, xy, bgColor=(90,70,55), flags=['uncollidable'])
+		Block.__init__(self, xy, bgColor=(90,70,55), flags=['uncollidable'])
 		pygame.draw.line(self.image, (0,0,0), (0,0), (50,0))
 
 class Block_021(Block):
@@ -78,8 +65,7 @@ class Block_021(Block):
 	Wood Vertical
 	'''
 	def __init__(self, xy):
-		layer = 3
-		Block.__init__(self, layer, xy, bgColor=(70,60,48), flags=['uncollidable'])
+		Block.__init__(self, xy, bgColor=(70,60,48), flags=['uncollidable'])
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,50))
 
 class Block_022(Block):
@@ -87,8 +73,7 @@ class Block_022(Block):
 	Wooden Door Top
 	'''
 	def __init__(self, xy):
-		layer = 3
-		Block.__init__(self, layer, xy, bgColor=(100,75,60), flags=['uncollidable'])
+		Block.__init__(self, xy, bgColor=(100,75,60), flags=['uncollidable'])
 		pygame.draw.line(self.image, (0,0,0), (0,0), (49,0))
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,49))
 		pygame.draw.line(self.image, (0,0,0), (49,0), (49,49))
@@ -99,8 +84,7 @@ class Block_023(Block):
 	Wooden Door Bottom
 	'''
 	def __init__(self, xy):
-		layer = 3
-		Block.__init__(self, layer, xy, bgColor=(100,75,60), flags=['uncollidable', 'action'])
+		Block.__init__(self, xy, bgColor=(100,75,60), flags=['uncollidable', 'action'])
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,49))
 		pygame.draw.line(self.image, (0,0,0), (49,0), (49,49))
 
@@ -110,13 +94,11 @@ class Block_050(Block):
 	Glass
 	'''
 	def __init__(self, xy):
-		layer = 5
-		Block.__init__(self, layer, xy, bgColor=(255,255,255), alpha=150)
+		Block.__init__(self, xy, bgColor=(255,255,255), alpha=150)
 
 class Block_150(Block):
 	'''
 	Background Glass
 	'''
 	def __init__(self, xy):
-		layer = 5
-		Block.__init__(self, layer, xy, bgColor=(255,255,255), alpha=150, flags=['uncollidable'])
+		Block.__init__(self, xy, bgColor=(255,255,255), alpha=150, flags=['uncollidable'])

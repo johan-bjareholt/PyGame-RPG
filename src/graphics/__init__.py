@@ -9,11 +9,11 @@ import globals as globs
 
 # The package files
 from .cursors import *
-from .menu import MainMenu, SettingsMenu
+from menu import MainMenu, SettingsMenu, CharacterMenu
 
-from .ingame import Game
-from .worldblocks import *
-from .entities import *
+from game import Game
+from game.worldblocks import *
+from game.entities import *
 from .baseclasses import Text
 
 
@@ -42,6 +42,7 @@ def loadMenus():
     globs.menus = {}
     globs.menus['main'] = MainMenu()
     globs.menus['settings'] = SettingsMenu()
+    globs.menus['characters'] = CharacterMenu()
 
 def loop():
     mode, sub = globs.location.split('.')
@@ -57,9 +58,9 @@ def loop():
             if lastLocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
                 globs.character = Character(screen, (0,0))
-                print("Loaded character")
+                #print("Loaded character")
                 globs.currentgame = Game(screen)
-            globs.currentgame.loadRegion(globs.location.split('.')[1])
+            globs.currentgame.loadRegion(sub)
         globs.currentgame.loop()
 
     fpsCounter()
@@ -74,39 +75,33 @@ def fpsCounter():
     globs.fpstext = Text(screen, (0,0), str(globs.clock.get_fps())[:2], 30, color=(150,150,150))
     globs.fpstext.blit()
 
-def initializeScreen(res=None):
+def initializeScreen():
     # Set globs.resolution
-    if not res:
-        try:
-            globs.resolution = config.get("video", "resolution").split('x')
-            globs.resolution = map(int, globs.resolution)
-            print(globs.resolution)
-        except Exception as e:
-            print(e)
+    if hasattr(globs, "resolution"):
+        pass
     else:
-        globs.resolution = map(int, res)
-        lastLocation = ""
-    print("Resolution set to " + str(globs.resolution))
+        string = config.get("video", "resolution")
+        globs.resolution = config.get("video", "resolution").split('x')
+        globs.resolution = map(int, globs.resolution)
 
     # Reload menus for new resolution
     loadMenus()
 
     # Check if fullscreen
-    try:
+    if hasattr(globs, "fullscreen"):
+        fullscreen = globs.fullscreen
+    else:
         string = config.get("video", "fullscreen")
         if string == 'True':
             fullscreen = True
         else:
             fullscreen = False
-    except Exception as e:
-        print(e)
-        fullscreen = False
-
+        globs.fullscreen = fullscreen
     # Inirialize screen
     global screen
     if fullscreen:
         screen = pygame.display.set_mode(globs.resolution, pygame.FULLSCREEN)
-        print("globs.resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
+        print("Resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
     else:
         screen = pygame.display.set_mode(globs.resolution)
     globs.screen = screen

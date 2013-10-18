@@ -2,83 +2,11 @@ import pygame
 import os
 import sys
 import types
-
 import globals as globs
 
-from .baseclasses import Surface, Button, QuitButton, BackButton, Container, Text
 
-
-class Menu(Surface):
-    '''
-    Base class for the menus
-    '''
-    def __init__(self, bgImage="/sky.jpg", bgColor=(0, 0, 0), font="calibri"):
-        Surface.__init__(self, globs.resolution)
-
-        self.background = self.subsurface((0, 0), globs.resolution)
-        self.main = self.subsurface((0, 0), globs.resolution)
-        self.foreground = self.subsurface((0, 0), globs.resolution)
-
-        self.buttons = pygame.sprite.Group()
-
-        # Background initialization
-        if bgImage:
-            self.backgroundImage = pygame.image.load(os.getcwd()+bgImage)
-            self.backgroundImage = pygame.transform.scale(self.backgroundImage, globs.resolution)
-        self.backgroundColor = bgColor
-
-        self.fontname = font
-
-
-    #
-    # Background layer
-    #
-    def drawBackground(self):
-        if self.backgroundImage:
-            self.background.blit(self.backgroundImage, (0, 0))
-        else:
-            self.background.fill(self.backgroundColor)
-
-    def blitBackground(self):
-        pass
-
-    #
-    # Main layer
-    #
-    def drawMain(self):
-        pass
-
-    def blitMain(self):
-        pass
-
-    #
-    # Foreground layer
-    #
-    def drawForeground(self):
-        pass
-
-    def blitForeground(self):
-        pass
-
-    #
-    # Main commands
-    #
-    def draw(self):
-        self.drawBackground()
-        self.drawMain()
-        self.drawForeground()
-
-    def blitz(self):
-        self.blitBackground()
-        self.blitMain()
-        self.blitForeground()
-
-
-
-'''
-The complete menus are down here!
-'''
-
+from menu.baseclasses import *
+import game
 
 
 class MainMenu(Menu):
@@ -95,7 +23,7 @@ class MainMenu(Menu):
         self.singleplayerButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)-100), (200, 50), text="Singleplayer")
         # OnClick action
         def singleplayerButton_clicked(self):
-            globs.location = "game.world1_StartRegion"
+            globs.location = "menu.characters"
         self.singleplayerButton.clicked = types.MethodType(singleplayerButton_clicked, self.singleplayerButton)
         self.buttons.add(self.singleplayerButton)
 
@@ -142,6 +70,88 @@ class MainMenu(Menu):
         # Blit title text
         self.titleText.blit()
 
+
+
+class CharacterMenu(Menu):
+    '''
+    The CharacterMenu
+    '''
+    def __init__(self):
+        Menu.__init__(self)
+
+    def drawMain(self):
+        characters = game.characters.listCharacters()
+        self.characterContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
+        self.characterButtons = []
+
+        for i, r in enumerate(characters):
+            characterButton = Button(self, (self.characterContainer.xy[0]+25, self.characterContainer.xy[1]+45+(75*i)), (150, 50), text=r, bgColor=(200,200,200))
+            characterButton.character = r
+            self.characterButtons.append(characterButton)
+
+            def characterButton_clicked(self):
+                for button in self.parent.characterButtons:
+                    button.draw()
+                self.draw(bgColor=(255,255,255))
+                self.parent.singleplayerButton.draw(bgColor=(255,255,255))
+                globs.charactername = self.character
+            self.characterButtons[i].clicked = types.MethodType(characterButton_clicked, self.characterButtons[i])
+
+            self.buttons.add(self.characterButtons[i])
+
+        self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.buttons.add(self.backButton)
+
+
+
+
+        # Initialize Singleplayer button
+        self.singleplayerButton = Button(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (200, 50), text="Start Game", bgColor=(175,175,175))
+        # OnClick action
+        def singleplayerButton_clicked(self):
+            if hasattr(globs, 'charactername'):
+                globs.location = "game.world1_StartRegion"
+        self.singleplayerButton.clicked = types.MethodType(singleplayerButton_clicked, self.singleplayerButton)
+        self.buttons.add(self.singleplayerButton)
+
+        self.createCharacterButton = Button(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)+50), (200, 50), text="New Character", bgColor=(255,255,255))
+        # OnClick action
+        def createCharacterButton_clicked(self):
+            if len(self.parent.nameBox.inputText)>=5:
+                game.characters.create(self.parent.nameBox.inputText)
+                globs.charactername = self.parent.nameBox.inputText
+                globs.location = "game.world1_StartRegion"
+        self.createCharacterButton.clicked = types.MethodType(createCharacterButton_clicked, self.createCharacterButton)
+        self.buttons.add(self.createCharacterButton)
+
+
+        self.nameBox = TextBox(self, (((globs.resolution[0]/2)+50),(globs.resolution[1]/2)+150), (200,30), question="Name: ")
+        self.nameBox.draw()
+        self.buttons.add(self.nameBox)
+
+
+
+        # Initialize Title text
+        self.titleText = Text(self, (0,0), "Select your character", 35)
+        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), (globs.resolution[1]/2)-200)
+
+        # Draw title
+        self.titleText.draw()
+
+        # Draw buttons
+        self.singleplayerButton.draw()
+        #self.settingsButton.draw()
+
+    def blitMain(self):
+        # Blit character container
+        self.characterContainer.blit()
+        # Blit all buttons
+        self.buttons.draw(self)
+        # Blit title text
+        self.titleText.blit()
+
+
+
 class SettingsMenu(Menu):
     '''
     The Settings menu
@@ -161,22 +171,36 @@ class SettingsMenu(Menu):
         self.buttons.add(self.backButton)
 
         # Create resolution buttons and container
-        resolutions = [(960,540),(1280,720),(1600,900),(1920,1080)]
+        resolutions = [(960,540),(1280,720),(1600,900),(1920,1080),(3200,1024)]
         # Container
         self.resolutionContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*75)+50), text="Display")
         self.resolutionButtons = []
-        # create for each button
-        for res in range(len(resolutions)):
-            tmpButton = Button(self, (self.resolutionContainer.xy[0]+25, self.resolutionContainer.xy[1]+45+(75*res)), (150, 50), text="{}x{}".format(resolutions[res][0],resolutions[res][1]))
-            tmpButton.resolution = res
+        # create each button
+        for i, r in enumerate(resolutions):
+            tmpButton = Button(self, (self.resolutionContainer.xy[0]+25, self.resolutionContainer.xy[1]+45+(75*i)), (150, 50), text="{}x{}".format(r[0],r[1]))
+            tmpButton.resolution = i
             self.resolutionButtons.append(tmpButton)
 
             def tmpButton_clicked(self):
-                globs.initializeScreen(resolutions[self.resolution])
+                globs.resolution = resolutions[self.resolution]
                 globs.redraw = True
-            self.resolutionButtons[res].clicked = types.MethodType(tmpButton_clicked, self.resolutionButtons[res])
+                globs.initializeScreen()
+            self.resolutionButtons[i].clicked = types.MethodType(tmpButton_clicked, self.resolutionButtons[i])
 
-            self.buttons.add(self.resolutionButtons[res])
+            self.buttons.add(self.resolutionButtons[i])
+
+
+        # Fullscreen button
+        self.fullscreenButton = Button(self, (self.resolutionContainer.xy[0]+25, self.resolutionContainer.xy[1]+45+(75*i)), (150, 50), text="{}x{}".format(r[0],r[1]))
+        self.resolutionButtons.append(tmpButton)
+
+        def fullscreenButton_clicked(self):
+            globs.initializeScreen(globs.resolution)
+            globs.fullscreen != globs.fullscreen
+            globs.redraw = True
+        self.fullscreenButton.clicked = types.MethodType(fullscreenButton_clicked, self.fullscreenButton)
+
+        self.buttons.add(self.fullscreenButton)
 
         self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (300,250), text="Versions")
         self.pythonVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)

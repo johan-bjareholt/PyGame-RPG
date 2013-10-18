@@ -60,6 +60,21 @@ class Input:
                 if event.type == pygame.MOUSEMOTION:
                     pass
 
+        if globs.focusedtextbox:
+            for event in self.events:
+                if event.type == pygame.KEYDOWN:
+                    inkey = event.key
+                    if inkey == pygame.K_BACKSPACE:
+                        globs.focusedtextbox.inputText = globs.focusedtextbox.inputText[0:-1]
+                        globs.focusedtextbox.draw()
+                    elif inkey == pygame.K_RETURN:
+                        globs.focusedtextbox = None
+                    elif inkey <= 127:
+                        if self.pressed[pygame.K_LSHIFT] or self.pressed[pygame.K_RSHIFT]:
+                            globs.focusedtextbox.inputText += chr(inkey).capitalize()
+                        else:
+                            globs.focusedtextbox.inputText += chr(inkey)
+                        globs.focusedtextbox.draw()
 
         # In Game
         elif mode == 'game':
