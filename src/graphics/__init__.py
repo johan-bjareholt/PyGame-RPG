@@ -2,6 +2,7 @@
 import logging
 import pygame
 import ConfigParser
+import datetime
 from importlib import import_module
 
 # Globals
@@ -9,7 +10,7 @@ import globals as globs
 
 # The package files
 from .cursors import *
-from menu import MainMenu, SettingsMenu, CharacterMenu
+from menu import *
 
 from game import Game
 from game.worldblocks import *
@@ -26,10 +27,6 @@ logger.info("Loading graphics")
 config = ConfigParser.ConfigParser()
 config.read("settings.conf")
 
-# Location variable
-global lastLocation
-lastLocation = ""
-
 # Clock for fps and events triggered by frames
 
 pygame.display.init()
@@ -43,19 +40,21 @@ def loadMenus():
     globs.menus['main'] = MainMenu()
     globs.menus['settings'] = SettingsMenu()
     globs.menus['characters'] = CharacterMenu()
+    globs.menus['characterCreator'] = CreateCharacterMenu()
+    globs.menus['multiplayerConnectMenu'] = MultiplayerConnectMenu()
 
 def loop():
     mode, sub = globs.location.split('.')
     if mode == "menu":
-        if lastLocation != globs.location or globs.redraw:
+        if globs.lastlocation != globs.location or globs.redraw:
             globs.menus[sub].draw()
             globs.redraw = False
         globs.menus[sub].blitz()
         screen.blit(globs.menus[sub], (0, 0))
 
     elif mode == "game":
-        if lastLocation != globs.location:
-            if lastLocation.split('.')[0] != globs.location.split('.')[0]:
+        if globs.lastlocation != globs.location:
+            if globs.lastlocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
                 globs.character = Character(screen, (0,0))
                 #print("Loaded character")
@@ -64,9 +63,6 @@ def loop():
         globs.currentgame.loop()
 
     fpsCounter()
-
-    global lastLocation
-    lastLocation = globs.location
 
     pygame.display.flip()
 
@@ -83,9 +79,6 @@ def initializeScreen():
         string = config.get("video", "resolution")
         globs.resolution = config.get("video", "resolution").split('x')
         globs.resolution = map(int, globs.resolution)
-
-    # Reload menus for new resolution
-    loadMenus()
 
     # Check if fullscreen
     if hasattr(globs, "fullscreen"):
@@ -105,6 +98,12 @@ def initializeScreen():
     else:
         screen = pygame.display.set_mode(globs.resolution)
     globs.screen = screen
+
+    # Reinitialize menus for new resolution
+    loadMenus()
+
+def screenshot():
+    pygame.image.save(globs.screen, "test.png")
 
 def loadCursor(name):
     cursor = eval(name)()

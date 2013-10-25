@@ -7,12 +7,14 @@ import globals as globs
 
 import cProfile
 
+running = True
+
 
 maindir = os.path.dirname(os.getcwd())
 
 # Logging
 logFormat = '%(asctime)-15s %(levelname)s %(name)s:%(lineno)s\t  %(message)s'
-logFilename = maindir+"/logs/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
+logFilename = maindir+"/logs/client/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
 logging.basicConfig(filename=logFilename, filemode='w', level=logging.DEBUG, format=logFormat)
 
 
@@ -43,6 +45,7 @@ class Game():
             if inputs.quit():
                 globs.running = False
             globs.ticktime = globs.clock.tick(60)
+            globs.lastlocation = globs.location
 
     def quit(self):
         pygame.quit()
@@ -50,9 +53,12 @@ class Game():
         #os._quit(0)
 
 
+
 if __name__ == '__main__':
     game = Game()
     game.load()
+
+    inputs.parent = game
     game.run()
     #cProfile.run('game.run()')
     game.quit()

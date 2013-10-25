@@ -65,5 +65,5 @@ class Text(Sprite):
 
 
 def getFont(name, fontsize):
-    fontlocation = globs.cwd + "/graphics/fonts/" + name + ".ttf"
+    fontlocation = globs.cwd + "/data/fonts/" + name + ".ttf"
     return pygame.font.Font(fontlocation, fontsize)

@@ -28,15 +28,15 @@ class MainMenu(Menu):
         self.buttons.add(self.singleplayerButton)
 
         # Initialize Multiplayer button
-        self.multiplayerButton = Button(self, ((globs.resolution[0]/2)-(200/2), globs.resolution[1]/2), (200, 50), text="Multiplayer(WIP)")
+        self.multiplayerButton = Button(self, ((globs.resolution[0]/2)-(200/2), globs.resolution[1]/2), (200, 50), text="Multiplayer", bgColor=(150,150,150))
         # OnClick action
         def multiplayerButton_clicked(self):
-            print("You clicked multiplayerButton!")
+            globs.location = "menu.multiplayerConnectMenu"
         self.multiplayerButton.clicked = types.MethodType(multiplayerButton_clicked, self.multiplayerButton)
         self.buttons.add(self.multiplayerButton)
 
         # Initialize Settings button
-        self.worldcreatorButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)+100), (200, 50), text="Worldcreator(WIP)")
+        self.worldcreatorButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)+100), (200, 50), text="Worldcreator", bgColor=(150,150,150))
         def worldcreatorButton_clicked(self):
             globs.location = "menu.worldcretor"
         self.worldcreatorButton.clicked = types.MethodType(worldcreatorButton_clicked, self.worldcreatorButton)
@@ -81,7 +81,7 @@ class CharacterMenu(Menu):
 
     def drawMain(self):
         characters = game.characters.listCharacters()
-        self.characterContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
+        self.characterContainer = Container(self, ((globs.resolution[0]/2)-200-200, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
         self.characterButtons = []
 
         for i, r in enumerate(characters):
@@ -91,10 +91,13 @@ class CharacterMenu(Menu):
 
             def characterButton_clicked(self):
                 for button in self.parent.characterButtons:
+                    button.bgColor=(200,200,200)
                     button.draw()
-                self.draw(bgColor=(255,255,255))
+                self.bgColor = (255,255,255)
+                self.draw()
                 self.parent.singleplayerButton.draw(bgColor=(255,255,255))
                 globs.charactername = self.character
+                self.parent.blitz()
             self.characterButtons[i].clicked = types.MethodType(characterButton_clicked, self.characterButtons[i])
 
             self.buttons.add(self.characterButtons[i])
@@ -106,7 +109,7 @@ class CharacterMenu(Menu):
 
 
         # Initialize Singleplayer button
-        self.singleplayerButton = Button(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (200, 50), text="Start Game", bgColor=(175,175,175))
+        self.singleplayerButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="Start Game", bgColor=(175,175,175))
         # OnClick action
         def singleplayerButton_clicked(self):
             if hasattr(globs, 'charactername'):
@@ -117,23 +120,13 @@ class CharacterMenu(Menu):
         self.createCharacterButton = Button(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)+50), (200, 50), text="New Character", bgColor=(255,255,255))
         # OnClick action
         def createCharacterButton_clicked(self):
-            if len(self.parent.nameBox.inputText)>=5:
-                game.characters.create(self.parent.nameBox.inputText)
-                globs.charactername = self.parent.nameBox.inputText
-                globs.location = "game.world1_StartRegion"
+            globs.location = "menu.characterCreator"
         self.createCharacterButton.clicked = types.MethodType(createCharacterButton_clicked, self.createCharacterButton)
         self.buttons.add(self.createCharacterButton)
 
-
-        self.nameBox = TextBox(self, (((globs.resolution[0]/2)+50),(globs.resolution[1]/2)+150), (200,30), question="Name: ")
-        self.nameBox.draw()
-        self.buttons.add(self.nameBox)
-
-
-
         # Initialize Title text
         self.titleText = Text(self, (0,0), "Select your character", 35)
-        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), (globs.resolution[1]/2)-200)
+        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
         # Draw title
         self.titleText.draw()
@@ -151,6 +144,40 @@ class CharacterMenu(Menu):
         self.titleText.blit()
 
 
+class CreateCharacterMenu(Menu):
+    def __init__(self):
+        Menu.__init__(self)
+
+    def drawMain(self):
+        self.createCharacterButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="New Character", bgColor=(255,255,255))
+        # OnClick action
+        def createCharacterButton_clicked(self):
+            if len(self.parent.nameBox.inputText)>=5:
+                game.characters.create(self.parent.nameBox.inputText)
+                globs.charactername = self.parent.nameBox.inputText
+                globs.location = "game.world1_StartRegion"
+        self.createCharacterButton.clicked = types.MethodType(createCharacterButton_clicked, self.createCharacterButton)
+        self.buttons.add(self.createCharacterButton)
+
+        self.nameBox = InputBox(self, (((globs.resolution[0]/2)-125),(globs.resolution[1])-150), (250,25), question="Name: ")
+        self.nameBox.draw()
+        self.buttons.add(self.nameBox)
+
+        # Initialize Title text
+        self.titleText = Text(self, (0,0), "Create your character", 35)
+        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
+
+        # Draw title
+        self.titleText.draw()
+
+        self.backButton = BackButton("menu.characters", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.buttons.add(self.backButton)
+
+    def blitMain(self):
+        # Blit all buttons
+        self.buttons.draw(self)
+        # Blit title text
+        self.titleText.blit()
 
 class SettingsMenu(Menu):
     '''
@@ -229,3 +256,35 @@ class SettingsMenu(Menu):
 
         # Blit title text
         self.settingsText.blit()
+
+class MultiplayerConnectMenu(Menu):
+    def __init__(self):
+        Menu.__init__(self)
+
+    def drawMain(self):
+        self.connectButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 40), text="Connect", bgColor=(255,255,255), fontsize=30)
+        # OnClick action
+        def connectButton_clicked(self):
+            pass
+        self.connectButton.clicked = types.MethodType(connectButton_clicked, self.connectButton)
+        self.buttons.add(self.connectButton)
+
+        self.ipBox = InputBox(self, (((globs.resolution[0]/2)-125),(globs.resolution[1])-150), (250,40), question="Address: ", fontSize=30)
+        self.ipBox.draw()
+        self.buttons.add(self.ipBox)
+
+        # Initialize Title text
+        self.titleText = Text(self, (0,0), "Connect", 35)
+        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
+
+        # Draw title
+        self.titleText.draw()
+
+        self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.buttons.add(self.backButton)
+
+    def blitMain(self):
+        # Blit all buttons
+        self.buttons.draw(self)
+        # Blit title text
+        self.titleText.blit()

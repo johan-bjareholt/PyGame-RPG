@@ -48,6 +48,10 @@ def create(name):
 def listCharacters():
 	return os.listdir(globs.cwd+'/game/characters/')
 
+def remove(name):
+	location = globs.cwd+'/game/characters/{}'.format(name)
+	os.remove()
+
 def load(name):
 	location = globs.cwd+'/game/characters/{}'.format(name)
 	config = ConfigParser.RawConfigParser()

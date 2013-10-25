@@ -12,6 +12,8 @@ class Block(pygame.sprite.Sprite):
 		self.xy = xy
 		self.rect = self.image.get_rect(topleft=self.xy)
 
+		self.bgColor = bgColor
+
 		if not 'uncollidable' in flags:
 			globs.currentgame.collidableBlocks.add(self)
 		if 'actionBlock' in flags:
@@ -20,7 +22,7 @@ class Block(pygame.sprite.Sprite):
 			globs.currentgame.worldActionBlocks.add(self)
 
 		if bgColor:
-			self.image.fill(bgColor)
+			self.image.fill(self.bgColor)
 		if alpha:
 			self.image.set_alpha(alpha)
 

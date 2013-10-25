@@ -6,7 +6,7 @@ import characters
 
 class Character(Sprite):
 	def __init__(self, parent, xy):
-		Sprite.__init__(self, parent, xy, (40,80), bgColor=(255,255,255))
+		Sprite.__init__(self, parent, xy, (50,90), bgColor=(255,255,255))
 
 		self.attributes = characters.load(globs.charactername)
 		print(self.attributes)
@@ -16,8 +16,9 @@ class Character(Sprite):
 
 		self.forceY = 0.0
 
-		self.facefacing = "front"
+		self.facefacing = "right"
 		self.bodyfacing = "right"
+		self.legDirection = 1
 
 		self.state = "falling"
 
@@ -25,21 +26,37 @@ class Character(Sprite):
 
 
 
-		headR = 10
-		headY = headR
-		headX = (self.image.get_width()/2)
+		#headR = 10
+		#headY = headR
+		#headX = (self.image.get_width()/2)
 
-		pygame.draw.circle(self.image, (0,0,0), (headX, headY), headR)
+		#pygame.draw.circle(self.image, (0,0,0), (headX, headY), headR)
 
+		self.bodyH = 35
+		self.bodyW = 30
+		self.bodyY = (self.image.get_height()/2)-(self.bodyH/2)
+		self.bodyX = (self.image.get_width()-self.bodyW)/2#(self.image.get_width()/2)-(bodyW/2)
+		bodyColor = (0,0,255)
 
-		bodyH = 35
-		bodyW = 15
-		bodyY = 40
-		bodyX = (self.image.get_width()/2)-(bodyW/2)
+		self.body = pygame.surface.Surface((self.bodyW, self.bodyH))
+		bodyRect = pygame.Rect((self.bodyX, self.bodyY), (self.bodyW, self.bodyH))
+		self.body.fill(bodyColor)
 
-		bodyRect = pygame.Rect((bodyX, bodyY), (bodyW, bodyH))
+		self.legsW = 15
+		self.legsH = 20
+		self.legsY = self.bodyY+self.bodyH
+		extrainwards = 2
+		self.legsX1 = self.bodyX+extrainwards
+		self.legsX2 = self.bodyX+self.bodyW-self.legsW-extrainwards
 
-		pygame.draw.rect(self.image, (0,0,0), bodyRect)
+		self.legs = pygame.surface.Surface((self.legsW, self.legsH))
+		#bodyRect = pygame.Rect((self.bodyX, self.bodyY), (self.legsW, self.legsH))
+		self.legsColor = (255,180,140)
+		self.legsColorDark = pygame.color.Color(210,140,100)
+		self.legs.fill(self.legsColor)
+		pygame.draw.rect(self.legs, self.legsColorDark, pygame.Rect((0,0),(self.legsW, self.legsH)), 3)
+
+		#pygame.draw.rect(self.image, (0,0,0), bodyRect)
 
 		### Stats
 		# Physical attributes
@@ -48,6 +65,22 @@ class Character(Sprite):
 		# Skills
 		# Offensive: Swordfighting, Marksmanship, Destruction
 		# Defensive: Heavy Armor, Light Armor, Restoration
+
+	def blit(self, camera=(0,0)):
+		self.parent.blit(self.image, (self.xy[0]-camera[0], self.xy[1]-camera[1]))
+		#Body
+		self.parent.blit(self.body, (self.xy[0]+self.bodyX-camera[0], self.xy[1]+self.bodyY-camera[1]))
+		# Legs
+		if self.speedX != 0:
+			# Leg 1
+			self.parent.blit(self.legs, (self.xy[0]+self.legsX1-camera[0], self.xy[1]+self.legsY-camera[1]))
+			# Leg 2
+			self.parent.blit(self.legs, (self.xy[0]+self.legsX2-camera[0], self.xy[1]+self.legsY-camera[1]))
+		else:
+			# Leg 1
+			self.parent.blit(self.legs, (self.xy[0]+self.legsX1-camera[0], self.xy[1]+self.legsY-camera[1]))
+			# Leg 2
+			self.parent.blit(self.legs, (self.xy[0]+self.legsX2-camera[0], self.xy[1]+self.legsY-camera[1]))
 
 	def loop(self):
 		self.collision()

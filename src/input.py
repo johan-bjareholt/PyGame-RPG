@@ -1,7 +1,9 @@
 import logging
 import pygame
 
+import main
 import globals as globs
+import graphics
 
 location = globs.location
 
@@ -21,7 +23,12 @@ class Input:
 
     def loop(self):
         self.updateInput()
+        self.textBoxRefreshCheck()
         self.checkKeys()
+
+    def textBoxRefreshCheck(self):
+        if globs.location != globs.lastlocation:
+            globs.focusedtextbox = None
 
     def updateInput(self):
         pygame.event.pump()
@@ -46,35 +53,41 @@ class Input:
                         globs.location = "menu.main"
                     elif mode == "menu":
                         globs.running = False
+                elif event.key == pygame.K_F12:
+                    graphics.screenshot()
         # Menu
         if mode == "menu":
-            for event in self.events:
-                if event.type == pygame.MOUSEBUTTONUP:
-                    #print(event.dict['pos'])
-                    X, Y = event.dict['pos']
-                    for button in globs.menus[location].buttons:
-                        #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
-                        if button.X <= X and button.X+button.image.W >= X and button.Y <= Y and button.Y+button.image.H >= Y:
-                            #print("You pressed da button yeyeyeye!")
-                            button.clicked()
-                if event.type == pygame.MOUSEMOTION:
-                    pass
+            location = globs.menus[location]
+        elif mode == "game":
+            location = globs.currentgame
+        for event in self.events:
+            if event.type == pygame.MOUSEBUTTONUP:
+                #print(event.dict['pos'])
+                X, Y = event.dict['pos']
+                for button in location.buttons:
+                    #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
+                    if button.X <= X and button.X+button.image.W >= X and button.Y <= Y and button.Y+button.image.H >= Y:
+                        #print("You pressed da button yeyeyeye!")
+                        button.clicked()
+            if event.type == pygame.MOUSEMOTION:
+                pass
 
-        if globs.focusedtextbox:
+        # If a focused textbox
+        if globs.focused:
             for event in self.events:
                 if event.type == pygame.KEYDOWN:
                     inkey = event.key
                     if inkey == pygame.K_BACKSPACE:
-                        globs.focusedtextbox.inputText = globs.focusedtextbox.inputText[0:-1]
-                        globs.focusedtextbox.draw()
+                        globs.focused.inputText = globs.focused.inputText[0:-1]
+                        globs.focused.draw()
                     elif inkey == pygame.K_RETURN:
-                        globs.focusedtextbox = None
+                        globs.focused.unfocus()
                     elif inkey <= 127:
                         if self.pressed[pygame.K_LSHIFT] or self.pressed[pygame.K_RSHIFT]:
-                            globs.focusedtextbox.inputText += chr(inkey).capitalize()
+                            globs.focused.inputText += chr(inkey).capitalize()
                         else:
-                            globs.focusedtextbox.inputText += chr(inkey)
-                        globs.focusedtextbox.draw()
+                            globs.focused.inputText += chr(inkey)
+                        globs.focused.draw()
 
         # In Game
         elif mode == 'game':
@@ -107,6 +120,5 @@ class Input:
     def quit(self):
         for event in self.events:
             if event.type == pygame.QUIT:
-                globs.running = False
                 return True
         return False

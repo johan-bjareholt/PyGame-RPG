@@ -1,7 +1,9 @@
 import pygame
-from graphics.baseclasses import Surface
+from graphics.baseclasses import Surface, Sprite
+from menu.baseclasses import TextBox
 from .worlds import *
 from .worldblocks import *
+from .baseclasses import *
 import globals as globs
 
 class Game():
@@ -12,6 +14,9 @@ class Game():
         # Clear
         globs.character.loop()
 
+        '''
+            Background and camera
+        '''
         self.blitBackground()
 
         cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
@@ -21,6 +26,10 @@ class Game():
         if cameraY < 0: cameraY = 0
         elif cameraY > globs.currentregion.pixelHeight: cameraY = globs.currentregion.pixelHeight+(globs.resolution[1])
         globs.cameraX, globs.cameraY = cameraX, cameraY
+
+        '''
+            World
+        '''
 
         columnstart = int(cameraX/50)
         columnend   = int(columnstart+2*(globs.resolution[1]/50))
@@ -42,7 +51,33 @@ class Game():
                 columncount += 1
             rowcount += 1
 
-        self.screen.blit(globs.character.image, (globs.character.xy[0]-(cameraX), globs.character.xy[1]-(cameraY)))
+        '''
+            Entities
+        '''
+
+        globs.character.blit(camera=(cameraX, cameraY))
+        #self.screen.blit(globs.character.image, (globs.character.xy[0]-(cameraX), globs.character.xy[1]-(cameraY)))
+
+
+        '''
+            Gui
+        '''
+        # Chatbox
+        self.inputBox.blit()
+        self.chatBox.blit()
+
+        # Minimap
+        self.miniMap.unscaledImage.fill((0,0,0))
+        for row in globs.currentregion.renderedmap[rowstart:rowend]:
+            columncount = columnstart
+            for tile in row[columnstart:columnend]:
+                if tile:
+                    self.miniMap.unscaledImage.set_at((int((tile.xy[0]-cameraX)/50), int((tile.xy[1]-cameraY)/50)), tile.bgColor)
+                    #self.screen.blit(tile.image, (tile.xy[0]-cameraX, tile.xy[1]-cameraY))
+                columncount += 1
+            rowcount += 1
+        self.miniMap.image = pygame.transform.scale(self.miniMap.unscaledImage, (100, 100))
+        self.miniMap.blit()
 
     def blitBackground(self):
         self.screen.blit(self.backgroundSurface, (0,0))
@@ -52,25 +87,27 @@ class Game():
         # (Re)load tiles
         self.loadedTiles = {}
 
-        # Load world
-        world, region = regionname.split('_')
-        globs.currentregion = eval(world + '.' + region + '()')
-        print(globs.currentregion.spawnCoordinates)
+        '''
+            Background
+        '''
         # Load world surfaces
         self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
         self.backgroundSurface.fill((100,120,200))
+
+        '''
+            Load region
+        '''
+        # Load
+        world, region = regionname.split('_')
+        globs.currentregion = eval(world + '.' + region + '()')
+        print(globs.currentregion.spawnCoordinates)
+
         # Create/Clear sprite groups
         self.worldBlocks = pygame.sprite.Group()
         self.collidableBlocks = pygame.sprite.Group()
         ## Different entities
-        # World entities
-        self.worldEntitiyBlocks = pygame.sprite.Group()
-        self.worldEntities = pygame.sprite.Group()
-        # General Entities
-        self.entities = pygame.sprite.Group()
 
         globs.currentregion.renderedmap = []
-
         # Blit blocks
         rowcount = 1
         for row in globs.currentregion:
@@ -88,16 +125,40 @@ class Game():
             globs.currentregion.renderedmap.append(renderedRow)
             rowcount += 1
 
+        '''
+            Entities
+        '''
+        # World entities
+        self.worldEntitiyBlocks = pygame.sprite.Group()
+        self.worldEntities = pygame.sprite.Group()
+        # General Entities
+        self.entities = pygame.sprite.Group()
 
         # Load worldentities
         for worldentity in globs.currentregion.entities:
             self.worldEntities.add(
                 worldentity['entity'](self, blockPixel(worldentity['coords'][0], worldentity['coords'][1])))
 
-
         # Move character to spawncoords
         print(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
         globs.character.move(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
+
+
+        '''
+            GUI
+        '''
+        self.buttons = pygame.sprite.Group()
+
+        # InputBox
+        self.inputBox = ChatBox(globs.screen, (5, globs.resolution[1]-35), (300,30))
+        self.buttons.add(self.inputBox)
+
+        # ChatBox
+        self.chatBox = TextBox(globs.screen, (5, globs.resolution[1]-35-5-90), (300,90), 5, bgColor=(0,0,0), fgColor=(255,255,255), alpha=120)
+
+        # Minimap
+        self.miniMap = Sprite(globs.screen, (globs.resolution[0]-115,15), (globs.resolution[0]/50, globs.resolution[1]/50))
+        self.miniMap.unscaledImage = pygame.surface.Surface((globs.resolution[0]/50, globs.resolution[1]/50))
 
 
 def blockPixel(column, row):
