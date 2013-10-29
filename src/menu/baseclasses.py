@@ -1,4 +1,5 @@
 from graphics.baseclasses import *
+import types
 
 
 class Menu(Surface):
@@ -65,6 +66,48 @@ class Container(Sprite):
             self.image.blit(self.textSprite.image, self.textSprite.xy)
 
 
+class Container2(Sprite):
+    def __init__(self, parent, xy, wh, bgColor=(235,235,255), text='', 
+                 buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=10):
+        Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
+        self.text = text
+
+        self.buttons = []
+        self.buttonH = buttonH
+        self.buttonSpacing = buttonSpacing
+        self.buttonBgColor = buttonBgColor
+        self.buttonFgColor = buttonFgColor
+
+        self.drawText()
+        self.updateButtons()
+
+    def drawText(self):
+        self.textSprite = Text(self, (10,10), self.text, 25)
+        self.image.blit(self.textSprite.image, self.textSprite.xy)
+
+    def updateButtons(self):
+        for button in range(len(self.buttons)):
+            self.buttons[button].xy = (self.buttonSpacing+self.xy[0] ,
+                                      ((self.textSprite.image.get_height()+self.textSprite.xy[1])+
+                                      (self.buttonSpacing*button)+(self.buttonH*button))+self.xy[1])
+
+    def newButton(self, text, function):
+        # Set variables
+        xy=(0,0)
+        wh=(self.image.get_width()-(self.buttonSpacing*2),
+            self.buttonH)
+
+        # Initialize button
+        newbutton = Button(self.parent, xy, wh, bgColor=self.buttonBgColor, fgColor=self.buttonFgColor, text=text)
+        newbutton.onClick(function)
+
+        # Add button to container and return it
+        self.buttons.append(newbutton)
+        self.updateButtons()
+        print(newbutton.xy)
+        self.parent.buttons.add(newbutton)
+        return newbutton
+
 class Button(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None):
         Sprite.__init__(self, parent, xy, wh, bgColor)
@@ -95,16 +138,20 @@ class Button(Sprite):
             # Blit to sprites surface
             self.image.blit(self.renderedText, (x, y))
 
+    def onClick(self, function):
+        self.clicked = types.MethodType(function, self)
+
     def clicked(self):
         print("You just clicked me!")
 
 class TextBox(Sprite):
-    def __init__(self, parent, xy, wh, rows, spacing=3, fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None):
+    def __init__(self, parent, xy, wh, rows, spacing=3, font='andale', fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None):
         Sprite.__init__(self, parent, xy, wh, bgColor)
+        self.font = font
         self.bgColor = bgColor
         self.fgColor = fgColor
         self.alpha = alpha
-        self.text = "Testing testing 123 123 hello there i love ponies and so should you! like a baws man"
+        self.text = ""
         self.focus = False
         self.rows = rows
         self.spacing = spacing
@@ -120,27 +167,32 @@ class TextBox(Sprite):
         self.drawText()
 
     def loadFont(self):
+        '''
+            It is recommended to use monospace fonts in the TextBox
+            The default is AndaleMono
+        '''
         totalspacing = self.spacing*self.rows+self.spacing
         self.fontSize = (self.image.get_height()-totalspacing)/self.rows
         #self.fontSize = self.image.get_height()-4
-        self.font = getFont('calibri', self.fontSize)
+        self.font = getFont(self.font, self.fontSize)
 
     def drawText(self):
-        textwidth = self.font.size(self.text)[0]
-        self.characters_per_row = (self.image.get_width()-(self.spacing*2)) / (textwidth/self.text.count(''))
-        print("Width:"+str(self.image.get_width()))
-        print("spacing:"+str(self.spacing))
-        print("textwidth:"+str(textwidth))
-        print("total chars:"+str(self.text.count('')))
-        print("cpr:"+str(self.characters_per_row))
-        for row in range((self.text.count('')/self.characters_per_row)+1):
-            text = self.text[row*self.characters_per_row:row*(self.characters_per_row)+self.characters_per_row]
-            print(row)
-            print(text)
-            rendered_text = self.font.render(text, True, pygame.color.Color(self.fgColor[0], self.fgColor[1], self.fgColor[2]))
-            self.image.blit(rendered_text, (self.spacing,self.spacing+(row*self.spacing)+(row*self.fontSize)))
-        #rendered_text = self.font.render(text, True, pygame.color.Color(self.fgColor[0], self.fgColor[1], self.fgColor[2]))
-        #self.image.blit(rendered_text, (4,0))
+        charcount = self.text.count('')
+        charwidth = self.font.size('a')[0]
+        chars_per_row = (self.image.get_width()/charwidth)
+
+        entries = reversed(self.text.split('\n'))
+        entrynum = len(self.text.split('\n'))
+        rownum = self.rows-1
+        for entry in entries:
+            entrynum -= 1
+            for row in range((len(entry)/chars_per_row)+1):
+                text = entry[row*chars_per_row:(row+1)*chars_per_row]
+                if text:
+                    print(text)
+                    rendered_text = self.font.render(text, True, pygame.color.Color(self.fgColor[0], self.fgColor[1], self.fgColor[2]))
+                    self.image.blit(rendered_text, (self.spacing, self.spacing+(rownum*self.spacing)+(rownum*self.fontSize)))
+                    rownum -= 1
 
     def drawFrame(self):
         pass

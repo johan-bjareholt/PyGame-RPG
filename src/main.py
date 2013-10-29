@@ -14,7 +14,7 @@ maindir = os.path.dirname(os.getcwd())
 
 # Logging
 logFormat = '%(asctime)-15s %(levelname)s %(name)s:%(lineno)s\t  %(message)s'
-logFilename = maindir+"/logs/client/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
+logFilename = maindir+"/logs/game/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
 logging.basicConfig(filename=logFilename, filemode='w', level=logging.DEBUG, format=logFormat)
 
 

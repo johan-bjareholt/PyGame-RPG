@@ -28,7 +28,7 @@ class Input:
 
     def textBoxRefreshCheck(self):
         if globs.location != globs.lastlocation:
-            globs.focusedtextbox = None
+            globs.focused = None
 
     def updateInput(self):
         pygame.event.pump()
@@ -45,21 +45,25 @@ class Input:
 
     def checkKeys(self):
         mode, location = globs.location.split('.')
-        # General
-        for event in self.events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    if mode == "game":
-                        globs.location = "menu.main"
-                    elif mode == "menu":
-                        globs.running = False
-                elif event.key == pygame.K_F12:
-                    graphics.screenshot()
-        # Menu
         if mode == "menu":
             location = globs.menus[location]
         elif mode == "game":
             location = globs.currentgame
+
+        # General
+        if self.keydown(pygame.K_ESCAPE):
+            if globs.focused:
+                globs.focused.unfocus()
+            else:
+                if mode == "game":
+                    globs.location = "menu.main"
+                elif mode == "menu" and location.__class__.__name__ != "MainMenu":
+                    location.backButton.clicked()
+                elif mode == "menu":
+                    globs.running = False
+        if self.keydown(pygame.K_F12):
+            graphics.screenshot()
+
         for event in self.events:
             if event.type == pygame.MOUSEBUTTONUP:
                 #print(event.dict['pos'])
@@ -72,22 +76,12 @@ class Input:
             if event.type == pygame.MOUSEMOTION:
                 pass
 
-        # If a focused textbox
+        # If something is focused
         if globs.focused:
-            for event in self.events:
-                if event.type == pygame.KEYDOWN:
-                    inkey = event.key
-                    if inkey == pygame.K_BACKSPACE:
-                        globs.focused.inputText = globs.focused.inputText[0:-1]
-                        globs.focused.draw()
-                    elif inkey == pygame.K_RETURN:
-                        globs.focused.unfocus()
-                    elif inkey <= 127:
-                        if self.pressed[pygame.K_LSHIFT] or self.pressed[pygame.K_RSHIFT]:
-                            globs.focused.inputText += chr(inkey).capitalize()
-                        else:
-                            globs.focused.inputText += chr(inkey)
-                        globs.focused.draw()
+            #print(globs.focused.__class__.__name__)
+            # If a textbox is focused
+            if globs.focused.__class__.__name__ in ['InputBox', 'ChatInputBox']:
+                self.textBoxInput()
 
         # In Game
         elif mode == 'game':
@@ -97,6 +91,9 @@ class Input:
             if self.newly_pressed[pygame.K_w]:
                 # entityAction
                 globs.character.worldAction()
+
+            if self.newly_pressed[pygame.K_RETURN]:
+                globs.currentgame.chatInputBox.clicked()
 
 
             # Movement
@@ -116,6 +113,35 @@ class Input:
             if self.pressed[pygame.K_LSHIFT]:
                 globs.character.sprint()
 
+    def textBoxInput(self):
+        for event in self.events:
+            if event.type == pygame.KEYDOWN:
+                inkey = event.key
+                if inkey == pygame.K_BACKSPACE:
+                    globs.focused.inputText = globs.focused.inputText[0:-1]
+                    globs.focused.draw()
+                elif inkey == pygame.K_RETURN:
+                    globs.focused.unfocus()
+                elif inkey <= 127:
+                    if self.pressed[pygame.K_LSHIFT] or self.pressed[pygame.K_RSHIFT]:
+                        globs.focused.inputText += chr(inkey).capitalize()
+                    else:
+                        globs.focused.inputText += chr(inkey) 
+                    globs.focused.draw()
+
+    def keydown(self, key):
+        for event in self.events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == key:
+                    return True
+        return False
+
+    def keyup(self, key):
+        for event in self.events:
+            if event.type == pygame.KEYUP:
+                if event.key == key:
+                    return True
+        return False
 
     def quit(self):
         for event in self.events:

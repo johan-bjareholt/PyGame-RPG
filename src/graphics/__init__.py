@@ -1,7 +1,6 @@
 # Libs
 import logging
 import pygame
-import ConfigParser
 import datetime
 from importlib import import_module
 
@@ -12,7 +11,7 @@ import globals as globs
 from .cursors import *
 from menu import *
 
-from game import Game
+from game import GameClient
 from game.worldblocks import *
 from game.entities import *
 from .baseclasses import Text
@@ -22,10 +21,6 @@ logger = logging.getLogger("gfx")
 
 print("Loading graphics")
 logger.info("Loading graphics")
-
-# Config parser
-config = ConfigParser.ConfigParser()
-config.read("settings.conf")
 
 # Clock for fps and events triggered by frames
 
@@ -58,7 +53,7 @@ def loop():
                 # If first time inGame
                 globs.character = Character(screen, (0,0))
                 #print("Loaded character")
-                globs.currentgame = Game(screen)
+                globs.currentgame = GameClient(screen)
             globs.currentgame.loadRegion(sub)
         globs.currentgame.loop()
 
@@ -76,15 +71,15 @@ def initializeScreen():
     if hasattr(globs, "resolution"):
         pass
     else:
-        string = config.get("video", "resolution")
-        globs.resolution = config.get("video", "resolution").split('x')
+        string = globs.config.get("video", "resolution")
+        globs.resolution = globs.config.get("video", "resolution").split('x')
         globs.resolution = map(int, globs.resolution)
 
     # Check if fullscreen
     if hasattr(globs, "fullscreen"):
         fullscreen = globs.fullscreen
     else:
-        string = config.get("video", "fullscreen")
+        string = globs.config.get("video", "fullscreen")
         if string == 'True':
             fullscreen = True
         else:

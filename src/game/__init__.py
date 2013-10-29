@@ -6,12 +6,14 @@ from .worldblocks import *
 from .baseclasses import *
 import globals as globs
 
-class Game():
+
+class GameClient():
     def __init__(self, screen):
         self.screen = screen
+        self.gameserver = GameServer('world1')
 
     def loop(self):
-        # Clear
+        # Do actions before render
         globs.character.loop()
 
         '''
@@ -21,10 +23,10 @@ class Game():
 
         cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
         if cameraX < 0: cameraX = 0
-        if cameraX > globs.currentregion.pixelWidth: cameraX = globs.currentregion.pixelWidth+(globs.resolution[0])
+        if cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
         cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
         if cameraY < 0: cameraY = 0
-        elif cameraY > globs.currentregion.pixelHeight: cameraY = globs.currentregion.pixelHeight+(globs.resolution[1])
+        elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
         '''
@@ -63,7 +65,7 @@ class Game():
             Gui
         '''
         # Chatbox
-        self.inputBox.blit()
+        self.chatInputBox.blit()
         self.chatBox.blit()
 
         # Minimap
@@ -99,8 +101,9 @@ class Game():
         '''
         # Load
         world, region = regionname.split('_')
-        globs.currentregion = eval(world + '.' + region + '()')
-        print(globs.currentregion.spawnCoordinates)
+        regiondata = self.gameserver.getRegion(region)
+        #print(regionkwargs)
+        globs.currentregion = Region(*regiondata)
 
         # Create/Clear sprite groups
         self.worldBlocks = pygame.sprite.Group()
@@ -149,17 +152,29 @@ class Game():
         '''
         self.buttons = pygame.sprite.Group()
 
-        # InputBox
-        self.inputBox = ChatBox(globs.screen, (5, globs.resolution[1]-35), (300,30))
-        self.buttons.add(self.inputBox)
-
         # ChatBox
-        self.chatBox = TextBox(globs.screen, (5, globs.resolution[1]-35-5-90), (300,90), 5, bgColor=(0,0,0), fgColor=(255,255,255), alpha=120)
+        self.chatBox = ChatBox(globs.screen, (5, globs.resolution[1]-35-5-90), (300,90), 5)
+
+        # InputBox
+        self.chatInputBox = ChatInputBox(globs.screen, (5, globs.resolution[1]-35), (300,30))
+        self.buttons.add(self.chatInputBox)
+
 
         # Minimap
         self.miniMap = Sprite(globs.screen, (globs.resolution[0]-115,15), (globs.resolution[0]/50, globs.resolution[1]/50))
         self.miniMap.unscaledImage = pygame.surface.Surface((globs.resolution[0]/50, globs.resolution[1]/50))
 
+
+class GameServer():
+    def __init__(self, world):
+        self.regions = {}
+        self.world = world
+        #self.region = eval(world + '.' + region + '()')
+
+    def getRegion(self, regionname):
+        if not regionname in self.regions:
+            self.regions[regionname] = eval(self.world + '.' + regionname + '()')
+        return self.regions[regionname].name, self.regions[regionname].spawnCoordinates, self.regions[regionname], self.regions[regionname].entities
 
 def blockPixel(column, row):
     return (column*50-50, row*50-50)

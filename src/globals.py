@@ -1,7 +1,16 @@
 import os
+import ConfigParser
 
 print("Initializing globals")
-resolution = (1280, 720)
+
+try:
+	print('Loading settings conf')
+	config = ConfigParser.ConfigParser()
+	config.read("settings.conf")
+except Exception as e:
+	print('Could not load settings file')
+
+#resolution = (1280, 720)
 location = "menu.main"
 lastlocation = ""
 cwd = os.getcwd()
