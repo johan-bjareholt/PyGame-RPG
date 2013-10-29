@@ -200,42 +200,17 @@ class SettingsMenu(Menu):
         # Create resolution buttons and container
         resolutions = [(960,540),(1280,720),(1600,900),(1920,1080),(3200,1024)]
         # Container
-        self.resolutionContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*75)+50), text="Display")
+        self.resolutionContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*65)+50), text="Display", buttonSpacing=20)
         self.resolutionButtons = []
         # create each button
-        for i, r in enumerate(resolutions):
-            tmpButton = Button(self, (self.resolutionContainer.xy[0]+25, self.resolutionContainer.xy[1]+45+(75*i)), (150, 50), text="{}x{}".format(r[0],r[1]))
-            tmpButton.resolution = i
-            self.resolutionButtons.append(tmpButton)
 
-            def tmpButton_clicked(self):
+        for i, r in enumerate(resolutions):
+            def resButton_clicked(self):
                 globs.resolution = resolutions[self.resolution]
                 globs.redraw = True
                 globs.initializeScreen()
-            self.resolutionButtons[i].onClick(tmpButton_clicked)
-
-            self.buttons.add(self.resolutionButtons[i])
-
-        self.testcontainer = Container2(self, (10,10), (200,400), text='Hello there')
-        def printstuff(self):
-            print('Hello thar!')
-        self.testcontainer.newButton('Testing', printstuff)
-
-        def printstuff2(self):
-            print('Hello thar2!')
-        self.testcontainer.newButton('Testing2', printstuff2)
-
-        # Fullscreen button
-        self.fullscreenButton = Button(self, (self.resolutionContainer.xy[0]+25, self.resolutionContainer.xy[1]+45+(75*i)), (150, 50), text="{}x{}".format(r[0],r[1]))
-        self.resolutionButtons.append(tmpButton)
-
-        def fullscreenButton_clicked(self):
-            globs.initializeScreen(globs.resolution)
-            globs.fullscreen != globs.fullscreen
-            globs.redraw = True
-        self.fullscreenButton.onClick(fullscreenButton_clicked)
-
-        self.buttons.add(self.fullscreenButton)
+            resButton = self.resolutionContainer.newButton("{}x{}".format(r[0], r[1]), resButton_clicked)
+            resButton.resolution = i
 
         self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (300,250), text="Versions")
         self.pythonVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
@@ -244,14 +219,24 @@ class SettingsMenu(Menu):
         self.videoDriverText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+140), "Video driver: {0}".format(pygame.display.get_driver()), 20)
         self.displayInfoText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+170), "Hardware acceleration: {0}".format(bool(pygame.display.Info().hw)), 20)
 
+        # Fullscreen button
+        self.fullscreenButton = ToggleButton(self, (self.versionContainer.xy[0], self.versionContainer.xy[1]+self.versionContainer.image.get_height()+20), (230, 50), text="Fullscreen")
+
+        def fullscreenButton_clicked(self):
+            globs.fullscreen = not globs.fullscreen
+            globs.initializeScreen()
+            globs.redraw = True
+        self.fullscreenButton.onClick(fullscreenButton_clicked)
+
+        self.buttons.add(self.fullscreenButton)
+
+
         # Draw title
         self.settingsText.draw()
 
     def blitMain(self):
         # Blit resolutionContainer
         self.resolutionContainer.blit()
-
-        self.testcontainer.blit()
 
         # Blit versionContainer
         self.versionContainer.blit()

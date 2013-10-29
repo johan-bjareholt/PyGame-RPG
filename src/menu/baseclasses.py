@@ -53,20 +53,7 @@ class Menu(Surface):
 
 
 
-
 class Container(Sprite):
-    def __init__(self, parent, xy, wh, bgColor=None, text=None):
-        Sprite.__init__(self, parent, xy, wh, bgColor=(235,235,255))
-        self.text = text
-        self.drawText()
-
-    def drawText(self):
-        if self.text:
-            self.textSprite = Text(self, (10,10), self.text, 25)
-            self.image.blit(self.textSprite.image, self.textSprite.xy)
-
-
-class Container2(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(235,235,255), text='', 
                  buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=10):
         Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
@@ -87,13 +74,13 @@ class Container2(Sprite):
 
     def updateButtons(self):
         for button in range(len(self.buttons)):
-            self.buttons[button].xy = (self.buttonSpacing+self.xy[0] ,
+            self.buttons[button].move((self.buttonSpacing+self.xy[0] ,
                                       ((self.textSprite.image.get_height()+self.textSprite.xy[1])+
-                                      (self.buttonSpacing*button)+(self.buttonH*button))+self.xy[1])
+                                      (self.buttonSpacing*button)+(self.buttonH*button))+self.xy[1]))
 
     def newButton(self, text, function):
         # Set variables
-        xy=(0,0)
+        xy=(50,50)
         wh=(self.image.get_width()-(self.buttonSpacing*2),
             self.buttonH)
 
@@ -143,6 +130,49 @@ class Button(Sprite):
 
     def clicked(self):
         print("You just clicked me!")
+
+class ToggleButton(Button):
+    def __init__(self, parent, xy, wh, default=False, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None):
+        self.state = globs.fullscreen
+        Button.__init__(self, parent, xy, wh, bgColor, fgColor, text, font, fontsize)
+
+    def draw(self, bgColor=None):
+        # Fill background
+        if not bgColor:
+            self.image.fill(self.bgColor)
+        else:
+            self.image.fill(bgColor)
+        # Apply text
+        if self.text:
+            # Adapt fontsize
+            if not self.fontsize:
+                self.fontsize = (self.image.H/2)+2
+            # Load font
+            self.font = getFont(self.fontname, self.fontsize)
+            self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
+            # Center text
+            x = self.image.H/4
+            y = (self.image.H-self.fontsize)/2
+            # Blit to sprites surface
+            self.image.blit(self.renderedText, (x, y))
+        # Apply toggle thingy
+        h = self.image.get_height()*3/4
+        w = int(h*2)
+        toggleImage = pygame.surface.Surface((w, h))
+        if self.state == True:
+            statetext = "On"
+            toggleImage.fill((30,200,30))
+        elif self.state == False:
+            statetext = "Off"
+            toggleImage.fill((200,30,30))
+        x = self.image.get_width()-w-10
+        y = (self.image.get_height()-h)/2
+        self.image.blit(toggleImage, (x, y))
+
+
+    def clicked(self):
+        self.state != self.state
+        self.draw()
 
 class TextBox(Sprite):
     def __init__(self, parent, xy, wh, rows, spacing=3, font='andale', fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None):

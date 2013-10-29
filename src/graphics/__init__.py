@@ -89,9 +89,9 @@ def initializeScreen():
     global screen
     if fullscreen:
         screen = pygame.display.set_mode(globs.resolution, pygame.FULLSCREEN)
-        print("Resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
     else:
         screen = pygame.display.set_mode(globs.resolution)
+    print("Resolution: {}  Fullscreen: {}".format(str(globs.resolution), str(fullscreen)))
     globs.screen = screen
 
     # Reinitialize menus for new resolution
