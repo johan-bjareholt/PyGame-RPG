@@ -74,9 +74,14 @@ class Container(Sprite):
 
     def updateButtons(self):
         for button in range(len(self.buttons)):
-            self.buttons[button].move((self.buttonSpacing+self.xy[0] ,
-                                      ((self.textSprite.image.get_height()+self.textSprite.xy[1])+
-                                      (self.buttonSpacing*button)+(self.buttonH*button))+self.xy[1]))
+            self.buttons[button].localxy = (self.buttonSpacing, 
+                                           ((self.textSprite.image.get_height()+self.textSprite.xy[1])+
+                                           (self.buttonSpacing*button)+(self.buttonH*button)))
+
+            self.buttons[button].globalxy = ((self.buttons[button].localxy[0]+self.xy[0] ,
+                                              self.buttons[button].localxy[1]+self.xy[1]))
+
+            self.buttons[button].move(self.buttons[button].globalxy)
 
     def newButton(self, text, function):
         # Set variables
@@ -96,13 +101,14 @@ class Container(Sprite):
         return newbutton
 
 class Button(Sprite):
-    def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None):
+    def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None, borderRadius=5):
         Sprite.__init__(self, parent, xy, wh, bgColor)
 
         self.fgColor = fgColor
         self.text = text
         self.fontname = font
         self.fontsize = fontsize
+        self.borderRadius = borderRadius
         self.draw()
 
     def draw(self, bgColor=None):
@@ -111,17 +117,19 @@ class Button(Sprite):
             self.image.fill(self.bgColor)
         else:
             self.image.fill(bgColor)
+        if self.borderRadius:
+            self.cutBorderRadius(self.borderRadius)
         # Apply text
         if self.text:
             # Adapt fontsize
             if not self.fontsize:
-                self.fontsize = (self.image.H/2)+2
+                self.fontsize = (self.image.get_height()/2)+2
             # Load font
             self.font = getFont(self.fontname, self.fontsize)
             self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
             # Center text
-            x = (self.image.W-self.renderedText.get_width())/2
-            y = (self.image.H-self.fontsize)/2
+            x = (self.image.get_width()-self.renderedText.get_width())/2
+            y = (self.image.get_height()-self.fontsize)/2
             # Blit to sprites surface
             self.image.blit(self.renderedText, (x, y))
 
@@ -146,13 +154,13 @@ class ToggleButton(Button):
         if self.text:
             # Adapt fontsize
             if not self.fontsize:
-                self.fontsize = (self.image.H/2)+2
+                self.fontsize = (self.image.get_height()/2)+2
             # Load font
             self.font = getFont(self.fontname, self.fontsize)
             self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
             # Center text
-            x = self.image.H/4
-            y = (self.image.H-self.fontsize)/2
+            x = self.image.get_height()/4
+            y = (self.image.get_height()-self.fontsize)/2
             # Blit to sprites surface
             self.image.blit(self.renderedText, (x, y))
         # Apply toggle thingy
@@ -249,7 +257,7 @@ class InputBox(Sprite):
 
     def loadFont(self):
         if not self.fontSize:
-            self.fontSize = self.image.H-4
+            self.fontSize = self.image.get_height()-4
         self.font = getFont('calibri', self.fontSize)
 
     def drawText(self):

@@ -3,7 +3,7 @@ import threading
 import logging
 import socket
 
-
+import globals as globs
 
 # ToDo:
 # Settings file
@@ -11,12 +11,9 @@ import socket
 # Protocol
 # Game variable holder
 
-
-
-maindir = os.path.dirname(os.path.dirname(os.getcwd()))
 # Logging
 logFormat = '%(asctime)-15s %(levelname)s %(name)s:%(lineno)s\t  %(message)s'
-logFilename = maindir+"/logs/server/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
+logFilename = globs.maindir+"/logs/server/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
 logging.basicConfig(filename=logFilename, filemode='w', level=logging.DEBUG, format=logFormat)
 logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -25,14 +22,14 @@ logging.getLogger().addHandler(logging.StreamHandler())
 class Main():
     def __init__(self, addr=None, port=None):
         self.running = True
-        self.cwd = os.getcwd()
 
         global server_address
-        server_address = (addr, port)
+        if not addr and not port:
+            server_address = (str(globs.config.get("network", "ip")), int(globs.config.get("network", "port")))
+        else:
+            server_address = (addr, port)
 
         self.log = logging.getLogger('main')
-
-        self.settings = {'ip':'127.0.0.1', 'port':2500}
 
     def start(self):
         self.log.debug("Starting sockets")
@@ -127,12 +124,11 @@ class TcpHandler(threading.Thread):
 
         # Create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = server_address
 
     def run(self):
         # Bind the socket to the port
-        self.log.info('Starting up TCP on {}:{}'.format(self.server_address[0], self.server_address[1]))
-        self.sock.bind(self.server_address)
+        self.log.info('Starting up TCP on {}:{}'.format(server_address[0], server_address[1]))
+        self.sock.bind(server_address)
 
         # Listening for new connections
         self.sock.listen(5)
@@ -151,12 +147,11 @@ class UdpHandler(threading.Thread):
 
         # Create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server_address = server_address
 
     def run(self):
         # Bind the socket to the port
-        self.log.info('Starting up UDP on {}:{}'.format(self.server_address[0], self.server_address[1]))
-        self.sock.bind(self.server_address)
+        self.log.info('Starting up UDP on {}:{}'.format(server_address[0], server_address[1]))
+        self.sock.bind(server_address)
 
         while main.running:
             data, address = self.sock.recvfrom(4096)

@@ -1,7 +1,7 @@
 # Libs
 import logging
 import pygame
-import datetime
+import time, datetime
 from importlib import import_module
 
 # Globals
@@ -98,7 +98,7 @@ def initializeScreen():
     loadMenus()
 
 def screenshot():
-    pygame.image.save(globs.screen, "test.png")
+    pygame.image.save(globs.screen, "screenshots/"+time.strftime("%Y-%m-%d %Hh %Mm %Ss")+".png")
 
 def loadCursor(name):
     cursor = eval(name)()

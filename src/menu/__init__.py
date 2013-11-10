@@ -38,7 +38,7 @@ class MainMenu(Menu):
         # Initialize Settings button
         self.worldcreatorButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)+100), (200, 50), text="Worldcreator", bgColor=(150,150,150))
         def worldcreatorButton_clicked(self):
-            globs.location = "menu.worldcretor"
+            pass
         self.worldcreatorButton.onClick(worldcreatorButton_clicked)
         self.buttons.add(self.worldcreatorButton)
 

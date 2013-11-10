@@ -3,6 +3,10 @@ import ConfigParser
 
 print("Initializing globals")
 
+cwd = os.getcwd()
+maindir = os.path.dirname(cwd)
+datadir = cwd+"/data/"
+
 try:
 	print('Loading settings conf')
 	config = ConfigParser.ConfigParser()
@@ -10,11 +14,8 @@ try:
 except Exception as e:
 	print('Could not load settings file')
 
-#resolution = (1280, 720)
 location = "menu.main"
 lastlocation = ""
-cwd = os.getcwd()
-datadir = cwd+"/data/"
 frame = 0
 framecount = 0
 framerate = 10

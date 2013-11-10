@@ -64,11 +64,9 @@ class GameClient():
         '''
             Gui
         '''
-        # Chatbox
-        self.chatInputBox.blit()
-        self.chatBox.blit()
+        # Update chatbox
 
-        # Minimap
+        # Update minimap
         self.miniMap.unscaledImage.fill((0,0,0))
         for row in globs.currentregion.renderedmap[rowstart:rowend]:
             columncount = columnstart
@@ -79,7 +77,9 @@ class GameClient():
                 columncount += 1
             rowcount += 1
         self.miniMap.image = pygame.transform.scale(self.miniMap.unscaledImage, (100, 100))
-        self.miniMap.blit()
+
+        # Blit add gui elements
+        self.guiElements.draw(globs.screen)
 
     def blitBackground(self):
         self.screen.blit(self.backgroundSurface, (0,0))
@@ -151,18 +151,26 @@ class GameClient():
             GUI
         '''
         self.buttons = pygame.sprite.Group()
+        self.guiElements = pygame.sprite.Group()
 
         # ChatBox
         self.chatBox = ChatBox(globs.screen, (5, globs.resolution[1]-35-5-90), (300,90), 5)
+        self.guiElements.add(self.chatBox)
 
         # InputBox
         self.chatInputBox = ChatInputBox(globs.screen, (5, globs.resolution[1]-35), (300,30))
         self.buttons.add(self.chatInputBox)
+        self.guiElements.add(self.chatInputBox)
 
 
         # Minimap
         self.miniMap = Sprite(globs.screen, (globs.resolution[0]-115,15), (globs.resolution[0]/50, globs.resolution[1]/50))
         self.miniMap.unscaledImage = pygame.surface.Surface((globs.resolution[0]/50, globs.resolution[1]/50))
+        self.guiElements.add(self.miniMap)
+
+        # System Menu
+        self.systemMenu = SystemMenu(globs.screen)
+        #self.guiElements.add(self.systemMenu)
 
 
 class GameServer():

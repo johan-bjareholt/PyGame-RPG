@@ -51,16 +51,20 @@ class Input:
             location = globs.currentgame
 
         # General
+
+        # What escape does in different locations
         if self.keydown(pygame.K_ESCAPE):
             if globs.focused:
                 globs.focused.unfocus()
             else:
                 if mode == "game":
-                    globs.location = "menu.main"
+                    #globs.location = "menu.main"
+                    globs.currentgame.systemMenu.toggle()
                 elif mode == "menu" and location.__class__.__name__ != "MainMenu":
                     location.backButton.clicked()
                 elif mode == "menu":
                     globs.running = False
+        # Screenshot
         if self.keydown(pygame.K_F12):
             graphics.screenshot()
 
@@ -70,7 +74,7 @@ class Input:
                 X, Y = event.dict['pos']
                 for button in location.buttons:
                     #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
-                    if button.X <= X and button.X+button.image.W >= X and button.Y <= Y and button.Y+button.image.H >= Y:
+                    if button.X <= X and button.X+button.image.get_width() >= X and button.Y <= Y and button.Y+button.image.get_height() >= Y:
                         #print("You pressed da button yeyeyeye!")
                         button.clicked()
             if event.type == pygame.MOUSEMOTION:
