@@ -58,7 +58,6 @@ class Input:
                 globs.focused.unfocus()
             else:
                 if mode == "game":
-                    #globs.location = "menu.main"
                     globs.currentgame.systemMenu.toggle()
                 elif mode == "menu" and location.__class__.__name__ != "MainMenu":
                     location.backButton.clicked()
@@ -103,8 +102,11 @@ class Input:
             # Movement
             force = 25
             if self.pressed[pygame.K_SPACE]:
-                # Up
+                # Jump
                 globs.character.jump()
+            if self.pressed[pygame.K_w]:
+                # Up (Climb)
+                globs.character.climb()
             if self.pressed[pygame.K_s]:
                 # Down
                 pass

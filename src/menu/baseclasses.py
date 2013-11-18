@@ -54,7 +54,7 @@ class Menu(Surface):
 
 
 class Container(Sprite):
-    def __init__(self, parent, xy, wh, bgColor=(235,235,255), text='', 
+    def __init__(self, parent, xy, wh, bgColor=(235,235,255), text='',
                  buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=10):
         Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
         self.text = text

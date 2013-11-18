@@ -16,6 +16,8 @@ class Block(pygame.sprite.Sprite):
 
 		if not 'uncollidable' in flags:
 			globs.currentgame.collidableBlocks.add(self)
+		if 'climbable' in flags:
+			globs.currentgame.climbableBlocks.add(self)
 		if 'actionBlock' in flags:
 			globs.currentgame.actionBlocks.add(self)
 		if 'worldActionBlock' in flags:
@@ -100,6 +102,16 @@ class Block_023(Block):
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,49))
 		pygame.draw.line(self.image, (0,0,0), (49,0), (49,49))
 
+
+class Block_029(Block):
+	def __init__(self, xy):
+		Block.__init__(self, xy, bgColor=(255,0,255), flags=['uncollidable', 'climbable'])
+		self.image.set_colorkey((255,0,255))
+		self.stairs = pygame.image.load(globs.datadir+"/png/stairs.png")
+		self.stairs.convert()
+		self.stairs.convert_alpha()
+
+		self.image.blit(self.stairs, (0,0))
 
 class Block_050(Block):
 	'''

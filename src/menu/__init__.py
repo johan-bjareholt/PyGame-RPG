@@ -82,25 +82,26 @@ class CharacterMenu(Menu):
     def drawMain(self):
         characters = game.characters.listCharacters()
         self.characterContainer = Container(self, ((globs.resolution[0]/2)-200-200, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
-        self.characterButtons = []
 
-        for i, r in enumerate(characters):
-            characterButton = Button(self, (self.characterContainer.xy[0]+25, self.characterContainer.xy[1]+45+(75*i)), (150, 50), text=r, bgColor=(200,200,200))
-            characterButton.character = r
-            self.characterButtons.append(characterButton)
+        if characters:
+            self.characterButtons = []
+            for i, r in enumerate(characters):
+                characterButton = Button(self, (self.characterContainer.xy[0]+25, self.characterContainer.xy[1]+45+(75*i)), (150, 50), text=r, bgColor=(200,200,200))
+                characterButton.character = r
+                self.characterButtons.append(characterButton)
 
-            def characterButton_clicked(self):
-                for button in self.parent.characterButtons:
-                    button.bgColor=(200,200,200)
-                    button.draw()
-                self.bgColor = (255,255,255)
-                self.draw()
-                self.parent.singleplayerButton.draw(bgColor=(255,255,255))
-                globs.charactername = self.character
-                self.parent.blitz()
-            self.characterButtons[i].onClick(characterButton_clicked)
+                def characterButton_clicked(self):
+                    for button in self.parent.characterButtons:
+                        button.bgColor=(200,200,200)
+                        button.draw()
+                    self.bgColor = (255,255,255)
+                    self.draw()
+                    self.parent.singleplayerButton.draw(bgColor=(255,255,255))
+                    globs.charactername = self.character
+                    self.parent.blitz()
+                self.characterButtons[i].onClick(characterButton_clicked)
 
-            self.buttons.add(self.characterButtons[i])
+                self.buttons.add(self.characterButtons[i])
 
         self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.backButton)

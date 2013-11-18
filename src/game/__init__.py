@@ -114,6 +114,8 @@ class GameClient():
         # Create/Clear world sprite groups
         self.worldBlocks = pygame.sprite.Group()
         self.collidableBlocks = pygame.sprite.Group()
+        # Special world blocks
+        self.climbableBlocks = pygame.sprite.Group()
 
         globs.currentregion.renderedmap = []
         # Blit blocks

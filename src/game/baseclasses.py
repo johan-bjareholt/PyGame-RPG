@@ -87,10 +87,10 @@ class SystemMenu(Container):
 		if self.hidden:
 			globs.currentgame.guiElements.add(self)
 			#globs.currentgame.guiElements.add(self.buttons)
-			#globs.currentgame.buttons.add(self.buttons)
+			globs.currentgame.buttons.add(self.buttons)
 			self.hidden = False
 		else:
 			globs.currentgame.guiElements.remove(self)
 			#globs.currentgame.guiElements.remove(self.buttons)
-			#globs.currentgame.buttons.remove(self.buttons)
+			globs.currentgame.buttons.remove(self.buttons)
 			self.hidden = True

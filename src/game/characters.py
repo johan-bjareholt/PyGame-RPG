@@ -10,7 +10,15 @@ basechar = {
 			'Name',
 			'Created'
 		},
-	'Stats':
+	'Attributes':
+		{
+			'Strength',
+			'Agility',
+			'Inteligence',
+			'Vitality',
+			'Magicka'
+		},
+	'Skills':
 		{
 			'Onehanded',
 			'Marksmanship',

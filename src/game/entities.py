@@ -461,6 +461,10 @@ class Character(Entity):
 		#	sprintbonus = 1.1
 		#	self.speedX *= sprintbonus
 
+	def climb(self):
+		if pygame.sprite.spritecollideany(self, globs.currentgame.climbableBlocks):
+			self.speedY = -10
+
 	def jump(self):
 		# If not moving in the Y-axis
 		globs.currentgame.entities.remove(self)
