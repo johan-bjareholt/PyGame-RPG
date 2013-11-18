@@ -81,7 +81,6 @@ class SystemMenu(Container):
 
 	def drawButtons(self):
 		for button in self.buttons:
-			print(button)
 			self.image.blit(button.image, button.localxy)
 
 	def toggle(self):

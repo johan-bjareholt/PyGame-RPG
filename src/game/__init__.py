@@ -4,6 +4,7 @@ from menu.baseclasses import TextBox
 from .worlds import *
 from .worldblocks import *
 from .baseclasses import *
+from .entities import BouncyBall, Zombie
 import globals as globs
 
 
@@ -14,7 +15,11 @@ class GameClient():
 
     def loop(self):
         # Do actions before render
-        globs.character.loop()
+        for entity in self.entities:
+            entity.events()
+        #print(self.bouncyBall.speedY)
+        #print(self.bouncyBall.Y)
+        #globs.character.loop()
 
         '''
             Background and camera
@@ -47,6 +52,7 @@ class GameClient():
             for tile in row[columnstart:columnend]:
                 if tile:
                     self.screen.blit(tile.image, (tile.xy[0]-cameraX, tile.xy[1]-cameraY))
+                    tile.blitDecoration((tile.xy[0]-cameraX, tile.xy[1]-cameraY))
                     #print(str(tile.xy))
                     #print("Blitting {} on {}".format(tile, (tile.xy[0], tile.xy[1]) ))
                     #print("row: {} Column: {}".format(rowcount, columncount))
@@ -57,8 +63,8 @@ class GameClient():
             Entities
         '''
 
-        globs.character.blit(camera=(cameraX, cameraY))
-        #self.screen.blit(globs.character.image, (globs.character.xy[0]-(cameraX), globs.character.xy[1]-(cameraY)))
+        for entity in self.entities:
+            entity.blit()
 
 
         '''
@@ -105,10 +111,9 @@ class GameClient():
         #print(regionkwargs)
         globs.currentregion = Region(*regiondata)
 
-        # Create/Clear sprite groups
+        # Create/Clear world sprite groups
         self.worldBlocks = pygame.sprite.Group()
         self.collidableBlocks = pygame.sprite.Group()
-        ## Different entities
 
         globs.currentregion.renderedmap = []
         # Blit blocks
@@ -135,7 +140,20 @@ class GameClient():
         self.worldEntitiyBlocks = pygame.sprite.Group()
         self.worldEntities = pygame.sprite.Group()
         # General Entities
+        self.players = pygame.sprite.Group()
         self.entities = pygame.sprite.Group()
+
+        self.players.add(globs.character)
+        self.entities.add(globs.character)
+
+        self.bouncyBall = BouncyBall(self, (600,600), radius=30)
+        self.entities.add(self.bouncyBall)
+
+        self.bouncyBall2 = BouncyBall(self, (1000,630), radius=15)
+        self.entities.add(self.bouncyBall2)
+
+        self.zombie = Zombie(self, (2900, 600))
+        self.entities.add(self.zombie)
 
         # Load worldentities
         for worldentity in globs.currentregion.entities:

@@ -26,6 +26,9 @@ class Block(pygame.sprite.Sprite):
 		if alpha:
 			self.image.set_alpha(alpha)
 
+	def blitDecoration(self, xy):
+		pass
+
 class Block_000(Block):
 	'''
 	Stone
@@ -46,6 +49,13 @@ class Block_002(Block):
 	'''
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(50,200,50))
+		self.grass = pygame.image.load(globs.datadir+"/png/short_grass.png")
+		self.grass.convert()
+		self.grass.convert_alpha()
+
+	def blitDecoration(self, xy):
+		#pass
+		globs.screen.blit(self.grass, (xy[0]-5, xy[1]-20))
 
 class Block_010(Block):
 	'''

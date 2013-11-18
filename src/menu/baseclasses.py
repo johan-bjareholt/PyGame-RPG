@@ -96,7 +96,7 @@ class Container(Sprite):
         # Add button to container and return it
         self.buttons.append(newbutton)
         self.updateButtons()
-        print(newbutton.xy)
+        #print(newbutton.xy)
         self.parent.buttons.add(newbutton)
         return newbutton
 
