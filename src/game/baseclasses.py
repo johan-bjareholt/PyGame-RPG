@@ -75,6 +75,7 @@ class SystemMenu(Container):
 
 		def ClickQuit(self):
 			globs.location = "menu.main"
+			globs.focused = None
 		self.newButton('Quit', ClickQuit)
 
 		self.drawButtons()
@@ -85,12 +86,17 @@ class SystemMenu(Container):
 
 	def toggle(self):
 		if self.hidden:
+			globs.focused = self
 			globs.currentgame.guiElements.add(self)
 			#globs.currentgame.guiElements.add(self.buttons)
 			globs.currentgame.buttons.add(self.buttons)
 			self.hidden = False
 		else:
+			self.unfocus()
 			globs.currentgame.guiElements.remove(self)
 			#globs.currentgame.guiElements.remove(self.buttons)
 			globs.currentgame.buttons.remove(self.buttons)
 			self.hidden = True
+
+	def unfocus(self):
+		globs.focused = None

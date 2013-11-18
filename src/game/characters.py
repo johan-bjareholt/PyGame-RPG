@@ -41,7 +41,7 @@ def create(name):
 					value = name
 				elif setting == 'Created':
 					value = datetime.datetime.now()
-			elif section == 'Stats':
+			elif section == 'Attributes' or section == 'Skills':
 				value = 1
 			else:
 				print("Unknown setting {}.{}".format(section, setting))
@@ -57,8 +57,12 @@ def listCharacters():
 	return os.listdir(globs.cwd+'/game/characters/')
 
 def remove(name):
-	location = globs.cwd+'/game/characters/{}'.format(name)
-	os.remove()
+	try:
+		location = globs.cwd+'/game/characters/{}'.format(name)
+		os.remove()
+		return True
+	except Exception as e:
+		return False
 
 def load(name):
 	location = globs.cwd+'/game/characters/{}'.format(name)

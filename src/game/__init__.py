@@ -15,6 +15,8 @@ class GameClient():
 
     def loop(self):
         # Do actions before render
+        for entity in self.collidableEntities:
+            entity.movement()
         for entity in self.entities:
             entity.events()
         #print(self.bouncyBall.speedY)
@@ -26,38 +28,27 @@ class GameClient():
         '''
         self.blitBackground()
 
-        cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
-        if cameraX < 0: cameraX = 0
-        if cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
-        cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
-        if cameraY < 0: cameraY = 0
-        elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
+        cameraX = 0
+        cameraY = 0
+        if not self.smallmapX:
+            cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
+            if cameraX < 0: cameraX = 0
+            elif cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
+        else:
+            cameraY = (globs.resolution[0]/2)-((self.smallmapX*50)/2)
+        if not self.smallmapY:
+            cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
+            if cameraY < 0: cameraY = 0
+            elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
+        else:
+            cameraY = (globs.resolution[1]/2)-((self.smallmapY*50)/2)
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
         '''
             World
         '''
 
-        columnstart = int(cameraX/50)
-        columnend   = int(columnstart+2*(globs.resolution[1]/50))
-
-        rowstart = int(cameraY/50)
-        rowend   = int(rowstart+(globs.resolution[0]/50))
-        #print("X:{} Y:{}".format(cameraX, cameraY))
-        #print("Row: {},{} Column: {},{}".format(rowstart,rowend,columnstart,columnend))
-
-        rowcount = rowstart
-        for row in globs.currentregion.renderedmap[rowstart:rowend]:
-            columncount = columnstart
-            for tile in row[columnstart:columnend]:
-                if tile:
-                    self.screen.blit(tile.image, (tile.xy[0]-cameraX, tile.xy[1]-cameraY))
-                    tile.blitDecoration((tile.xy[0]-cameraX, tile.xy[1]-cameraY))
-                    #print(str(tile.xy))
-                    #print("Blitting {} on {}".format(tile, (tile.xy[0], tile.xy[1]) ))
-                    #print("row: {} Column: {}".format(rowcount, columncount))
-                columncount += 1
-            rowcount += 1
+        self.blitWorld()
 
         '''
             Entities
@@ -73,27 +64,53 @@ class GameClient():
         # Update chatbox
 
         # Update minimap
-        self.miniMap.unscaledImage.fill((0,0,0))
-        for row in globs.currentregion.renderedmap[rowstart:rowend]:
-            columncount = columnstart
-            for tile in row[columnstart:columnend]:
-                if tile:
-                    self.miniMap.unscaledImage.set_at((int((tile.xy[0]-cameraX)/50), int((tile.xy[1]-cameraY)/50)), tile.bgColor)
-                    #self.screen.blit(tile.image, (tile.xy[0]-cameraX, tile.xy[1]-cameraY))
-                columncount += 1
-            rowcount += 1
-        self.miniMap.image = pygame.transform.scale(self.miniMap.unscaledImage, (100, 100))
+        self.blitMinimap()
 
         # Blit add gui elements
         self.guiElements.draw(globs.screen)
 
+    def blitWorld(self):
+        columnstart = int(globs.cameraX/50)
+        columnend   = int(columnstart+2*(globs.resolution[1]/50))
+
+        rowstart = int(globs.cameraY/50)
+        rowend   = int(rowstart+(globs.resolution[0]/50))
+
+        rowcount = rowstart
+        for row in globs.currentregion.renderedmap[rowstart:rowend]:
+            columncount = columnstart
+            for tile in row[columnstart:columnend]:
+                if tile:
+                    self.screen.blit(tile.image, (tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
+                    tile.blitDecoration((tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
+                columncount += 1
+            rowcount += 1
+
+    def blitMinimap(self):
+        columnstart = int(globs.cameraX/50)
+        columnend   = int(columnstart+2*(globs.resolution[1]/50))
+
+        rowstart = int(globs.cameraY/50)
+        rowend   = int(rowstart+(globs.resolution[0]/50))
+
+        self.miniMap.unscaledImage.fill((0,0,0))
+        rowcount = rowstart
+        for row in globs.currentregion.renderedmap[rowstart:rowend]:
+            columncount = columnstart
+            for tile in row[columnstart:columnend]:
+                if tile:
+                    self.miniMap.unscaledImage.set_at((int((tile.xy[0]-globs.cameraX)/50), int((tile.xy[1]-globs.cameraY)/50)), tile.bgColor)
+                columncount += 1
+            rowcount += 1
+        self.miniMap.image = pygame.transform.scale(self.miniMap.unscaledImage, (100, 100))
+
     def blitBackground(self):
         self.screen.blit(self.backgroundSurface, (0,0))
-
 
     def loadRegion(self, regionname, spawnCoordinates=None):
         # (Re)load tiles
         self.loadedTiles = {}
+        globs.cameraX, globs.cameraY = 0, 0
 
         '''
             Background
@@ -135,6 +152,15 @@ class GameClient():
             globs.currentregion.renderedmap.append(renderedRow)
             rowcount += 1
 
+        if len(globs.currentregion) < (globs.resolution[0]/50)+1:
+            self.smallmapX = len(globs.currentregion)
+        else:
+            self.smallmapX = False
+        if len(globs.currentregion[0]) < (globs.resolution[1]/50)+1:
+            self.smallmapY = len(globs.currentregion[0])
+        else:
+            self.smallmapY = False
+
         '''
             Entities
         '''
@@ -144,23 +170,18 @@ class GameClient():
         # General Entities
         self.players = pygame.sprite.Group()
         self.entities = pygame.sprite.Group()
+        self.collidableEntities = pygame.sprite.Group()
+        self.clickableEntities = pygame.sprite.Group()
 
         self.players.add(globs.character)
         self.entities.add(globs.character)
+        self.collidableEntities.add(globs.character)
 
-        self.bouncyBall = BouncyBall(self, (600,600), radius=30)
-        self.entities.add(self.bouncyBall)
 
-        self.bouncyBall2 = BouncyBall(self, (1000,630), radius=15)
-        self.entities.add(self.bouncyBall2)
-
-        self.zombie = Zombie(self, (2900, 600))
-        self.entities.add(self.zombie)
-
-        # Load worldentities
-        for worldentity in globs.currentregion.entities:
-            self.worldEntities.add(
-                worldentity['entity'](self, blockPixel(worldentity['coords'][0], worldentity['coords'][1])))
+        for entity in globs.currentregion.entities:
+            xy = blockPixel(entity[1][0], entity[1][1])
+            entity[0](self, xy)
+            print(entity)
 
         # Move character to spawncoords
         print(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))

@@ -102,10 +102,25 @@ class Block_023(Block):
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,49))
 		pygame.draw.line(self.image, (0,0,0), (49,0), (49,49))
 
+class Block_025(Block):
+	'''
+	Collidable Wood
+	'''
+	def __init__(self, xy):
+		Block.__init__(self, xy, bgColor=(70,60,48), flags=['uncollidable'])
+		pygame.draw.line(self.image, (0,0,0), (0,0), (50,0))
+
+class Block_026(Block):
+	'''
+	Collidable Wood Vertical
+	'''
+	def __init__(self, xy):
+		Block.__init__(self, xy, bgColor=(70,60,48), flags=[])
+		pygame.draw.line(self.image, (0,0,0), (0,0), (0,50))
 
 class Block_029(Block):
 	def __init__(self, xy):
-		Block.__init__(self, xy, bgColor=(255,0,255), flags=['uncollidable', 'climbable'])
+		Block.__init__(self, xy, bgColor=(255,0,255), flags=['climbable'])
 		self.image.set_colorkey((255,0,255))
 		self.stairs = pygame.image.load(globs.datadir+"/png/stairs.png")
 		self.stairs.convert()
@@ -126,3 +141,10 @@ class Block_150(Block):
 	'''
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(255,255,255), alpha=150, flags=['uncollidable'])
+
+class Block_999(Block):
+	'''
+	Void
+	'''
+	def __init__(self, xy):
+		Block.__init__(self, xy, bgColor=(0,0,0))

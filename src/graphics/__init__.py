@@ -13,7 +13,7 @@ from menu import *
 
 from game import GameClient
 from game.worldblocks import *
-from game.entities import *
+from game.entities.character import Character
 from .baseclasses import Text
 
 
@@ -40,6 +40,7 @@ def loadMenus():
 
 def loop():
     mode, sub = globs.location.split('.')
+    #print(globs.location)
     if mode == "menu":
         if globs.lastlocation != globs.location or globs.redraw:
             globs.menus[sub].draw()
@@ -51,9 +52,9 @@ def loop():
         if globs.lastlocation != globs.location:
             if globs.lastlocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
-                globs.character = Character(screen, (0,0))
+                globs.character = Character(screen, (0,0), add=False)
                 #print("Loaded character")
-                globs.currentgame = GameClient(screen)
+            globs.currentgame = GameClient(screen)
             globs.currentgame.loadRegion(sub)
         globs.currentgame.loop()
 

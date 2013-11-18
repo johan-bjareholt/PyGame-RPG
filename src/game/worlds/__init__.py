@@ -26,19 +26,3 @@ class Region(list):
 					self.worldSurface.blit(self.loadedTiles[tile], (self.blockPixel(tilecount, rowcount)))
 			tilecount += 1
 		rowcount += 1
-
-
-
-class WorldEntity(Sprite):
-	def __init__(self, parent, xy, wh, bgColor=None):
-		Sprite.__init__(self, parent, xy, wh, bgColor)
-
-	def action(self):
-		pass
-
-class ExampleEntity(WorldEntity):
-	def __init__(self, parent, xy):
-		WorldEntity.__init__(self, parent, xy, (50,50), bgColor=(30,150,30))
-
-	def action(self):
-		pass

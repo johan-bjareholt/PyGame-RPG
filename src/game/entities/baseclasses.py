@@ -1,14 +1,30 @@
 import pygame
 from graphics.baseclasses import Sprite
 import globals as globs
-import time
-
-import characters
 
 class Entity(Sprite):
-	def __init__(self, parent, xy, wh, bgColor, bounce=0, force=None):
-		self.spawnxy = xy
+	def __init__(self, parent, xy, wh, bgColor, add=True):
 		Sprite.__init__(self, parent, xy, wh, bgColor)
+
+		if add:
+			globs.currentgame.entities.add(self)
+
+	def blit(self):
+		blitxy = (self.xy[0]-globs.cameraX, 
+			      self.xy[1]-globs.cameraY)
+		globs.screen.blit(self.image, blitxy)
+
+	def events(self):
+		pass
+
+class CollidableEntity(Entity):
+	def __init__(self, parent, xy, wh, bgColor, bounce=0.0, force=None, add=True):
+		Entity.__init__(self, parent, xy, wh, bgColor, add)
+
+		if add:
+			globs.currentgame.collidableEntities.add(self)
+
+		self.spawnxy = xy
 
 		self.speedX = 0.0
 		self.speedY = 1.0
@@ -23,16 +39,8 @@ class Entity(Sprite):
 		else:
 			return self.force
 
-	def events(self):
-		self.movement()
-
-	def blit(self):
-		blitxy = (self.xy[0]-globs.cameraX, 
-			      self.xy[1]-globs.cameraY)
-		globs.screen.blit(self.image, blitxy)
-
 	def movement(self):
-		globs.currentgame.entities.remove(self)
+		globs.currentgame.collidableEntities.remove(self)
 
 		# Horizontal
 
@@ -57,11 +65,11 @@ class Entity(Sprite):
 		self.fixOutOfBounds()
 
 		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks) or \
-		   pygame.sprite.spritecollideany(self, globs.currentgame.entities):
+		   pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities):
 		    print("Collision error")
 		    #assert ""
 
-		globs.currentgame.entities.add(self)
+		globs.currentgame.collidableEntities.add(self)
 
 		# Acceleration
 		a = 0.1
@@ -117,7 +125,7 @@ class Entity(Sprite):
 				self.speedY *= -self.bounce
 
 	def entitiesColliding(self):
-		entities = pygame.sprite.spritecollide(self, globs.currentgame.entities, False)
+		entities = pygame.sprite.spritecollide(self, globs.currentgame.collidableEntities, False)
 		return entities
 
 	def blockColliding(self):
@@ -155,7 +163,7 @@ class Entity(Sprite):
 
 	def unstuckEntitiesY(self):
 		collided = True
-		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.entities)
+		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 		if collidedItem:
 			while collided:
 				print("Unstucking " + str(collidedItem) + " in Y")
@@ -173,14 +181,14 @@ class Entity(Sprite):
 					self.unstuckBlocksY()
 					collidedItem.unstuckEntitiesY()
 
-				collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.entities)
+				collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 
 				if not collidedItem:
 					collided = False
 
 	def unstuckEntitiesX(self):
 		collided = True
-		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.entities)
+		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 		if collidedItem:
 			while collided:
 				print("Unstucking " + str(collidedItem) + " in X")
@@ -199,7 +207,7 @@ class Entity(Sprite):
 					self.unstuckBlocksX()
 					collidedItem.unstuckEntitiesX()
 
-				collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.entities)
+				collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 
 				if not collidedItem:
 					collided = False
@@ -287,202 +295,3 @@ class Entity(Sprite):
 		elif self.X < 0:
 			self.move((0, self.xy[1]))
 			self.speedX *= -self.bounce
-
-class BouncyBall(Entity):
-	def __init__(self, parent, xy, radius=12):
-		Entity.__init__(self, parent, xy, (radius*2,radius*2), (255,0,255), bounce=0.8)
-		self.image.set_colorkey((255,0,255))
-		pygame.draw.circle(self.image, (255,0,0), (radius,radius), radius)
-
-
-class Monster(Entity):
-	def __init__(self, parent, xy, wh, attackArea=1200):
-		Entity.__init__(self, parent, xy, wh, (0,255,0))
-		self.attackArea = Sprite(parent, (0,0), (attackArea, attackArea))
-		print(self.attackArea)
-		self.updateAttackArea()
-
-		self.attacking = None
-
-	def events(self):
-		self.movement()
-		self.updateAttackArea()
-		self.runTowardsPlayer()
-
-	def runTowardsPlayer(self):
-		if not self.attacking:
-			closePlayer = pygame.sprite.spritecollideany(self.attackArea, globs.currentgame.players)
-			if closePlayer:
-				self.attacking = closePlayer
-		else:
-			if self.attacking in pygame.sprite.spritecollide(self.attackArea, globs.currentgame.players, False):
-				# X
-				if self.attacking.xy[0] < self.xy[0]:
-					self.speedX -= 1.5
-				elif self.attacking.xy[0] > self.xy[0]:
-					self.speedX += 1.5
-
-				# Y
-				if self.attacking.xy[1] < self.xy[1]-self.attacking.image.get_height():
-					if self.speedY == 0:
-						self.speedY = -12
-			else:
-				self.attacking = None
-
-	def updateAttackArea(self):
-		x = self.xy[0]-(self.attackArea.image.get_width()/2)-(self.image.get_width()/2)
-		y = self.xy[1]-(self.attackArea.image.get_height()/2)-(self.image.get_height()/2)
-		self.attackArea.move((x, y))
-
-
-class Zombie(Monster):
-	def __init__(self, parent, xy):
-		wh = (50,90)
-		Monster.__init__(self, parent, xy, wh)
-		self.image.fill((0,255,0))
-
-
-class Character(Entity):
-	def __init__(self, parent, xy):
-		Entity.__init__(self, parent, xy, (50,90), (255,255,255))
-
-		self.load_attributes()
-
-		self.draw_body()
-
-	def events(self):
-		self.movement()
-		self.update_direction()
-
-	'''
-
-		Body rendering
-
-	'''
-
-	def draw_body(self):
-		#pygame.draw.rect(self.image, (0,0,0), bodyRect)
-
-		self.facefacing = "right"
-		self.bodyfacing = "right"
-		self.legDirection = 1
-
-		headR = 10
-		headY = headR
-		headX = (self.image.get_width()/2)
-
-		pygame.draw.circle(self.image, (0,0,0), (headX, headY), headR)
-
-		self.bodyH = 35
-		self.bodyW = 30
-		self.bodyY = (self.image.get_height()/2)-(self.bodyH/2)
-		self.bodyX = (self.image.get_width()-self.bodyW)/2#(self.image.get_width()/2)-(bodyW/2)
-		bodyColor = (0,0,255)
-
-		self.body = pygame.surface.Surface((self.bodyW, self.bodyH))
-		bodyRect = pygame.Rect((self.bodyX, self.bodyY), (self.bodyW, self.bodyH))
-		self.body.fill(bodyColor)
-
-		self.legsW = 15
-		self.legsH = 20
-		self.legsY = self.bodyY+self.bodyH
-		extrainwards = 2
-		self.legsX1 = self.bodyX+extrainwards
-		self.legsX2 = self.bodyX+self.bodyW-self.legsW-extrainwards
-
-		self.legs = pygame.surface.Surface((self.legsW, self.legsH))
-		#bodyRect = pygame.Rect((self.bodyX, self.bodyY), (self.legsW, self.legsH))
-		self.legsColor = (255,180,140)
-		self.legsColorDark = pygame.color.Color(210,140,100)
-		self.legs.fill(self.legsColor)
-		pygame.draw.rect(self.legs, self.legsColorDark, pygame.Rect((0,0),(self.legsW, self.legsH)), 3)
-
-	def blit(self):
-		camera = (globs.cameraX, globs.cameraY)
-		self.parent.blit(self.image, (self.xy[0]-camera[0], self.xy[1]-camera[1]))
-		#Body
-		self.parent.blit(self.body, (self.xy[0]+self.bodyX-camera[0], self.xy[1]+self.bodyY-camera[1]))
-		# Legs
-		if self.speedX != 0:
-			# Leg 1
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX1-camera[0], self.xy[1]+self.legsY-camera[1]))
-			# Leg 2
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX2-camera[0], self.xy[1]+self.legsY-camera[1]))
-		else:
-			# Leg 1
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX1-camera[0], self.xy[1]+self.legsY-camera[1]))
-			# Leg 2
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX2-camera[0], self.xy[1]+self.legsY-camera[1]))
-
-	def update_direction(self):
-		if self.speedX > 0:
-			self.facefacing = "left"
-			self.bodyfacing = "left"
-		elif self.speedX < 0:
-			self.facefacing = "right"
-			self.bodyfacing = "left"
-		else:
-			self.facefacing = "front"
-
-	'''
-
-		Attributes
-
-		### Stats
-		# Physical attributes
-		# Health, Magicka, Stamina
-		#
-		# Skills
-		# Offensive: Swordfighting, Marksmanship, Destruction
-		# Defensive: Heavy Armor, Light Armor, Restoration
-
-	'''
-
-	def load_attributes(self):
-		self.attributes = characters.load(globs.charactername)
-		print(self.attributes)
-
-	'''
-
-		Movement
-
-	'''
-
-	def run(self, direction):
-		force = 2
-		if direction == "left":
-			globs.character.speedX -= force
-		elif direction == "right":
-			globs.character.speedX += force
-
-	def sprint(self):
-		pass
-		#if self.blockCollidingY(1):
-		#	sprintbonus = 1.1
-		#	self.speedX *= sprintbonus
-
-	def climb(self):
-		if pygame.sprite.spritecollideany(self, globs.currentgame.climbableBlocks):
-			self.speedY = -10
-
-	def jump(self):
-		# If not moving in the Y-axis
-		globs.currentgame.entities.remove(self)
-		if self.onGround():
-			self.speedY = -25
-		globs.currentgame.entities.add(self)
-
-	'''
-
-		Actions
-
-	'''
-
-	def action(self):
-		if pygame.sprite.spritecollideany(self, globs.currentgame.entities):
-			print("Action!")
-
-	def worldAction(self):
-		collisionItem = pygame.sprite.spritecollideany(self, globs.currentgame.worldEntities)
-		if collisionItem:
-			collisionItem.action()

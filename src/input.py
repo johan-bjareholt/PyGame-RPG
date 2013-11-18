@@ -71,10 +71,17 @@ class Input:
             if event.type == pygame.MOUSEBUTTONUP:
                 #print(event.dict['pos'])
                 X, Y = event.dict['pos']
-                for button in location.buttons:
+                if mode == "menu":
+                    buttonlist = location.buttons
+                elif mode == "game":
+                    if globs.focused:
+                        buttonlist = location.buttons
+                    else:
+                        buttonlist = globs.currentgame.clickableEntities
+
+                for button in buttonlist:
                     #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
                     if button.X <= X and button.X+button.image.get_width() >= X and button.Y <= Y and button.Y+button.image.get_height() >= Y:
-                        #print("You pressed da button yeyeyeye!")
                         button.clicked()
             if event.type == pygame.MOUSEMOTION:
                 pass
