@@ -54,7 +54,11 @@ def create(name):
 	    config.write(configfile)
 
 def listCharacters():
-	return os.listdir(globs.cwd+'/game/characters/')
+	characters = os.listdir(globs.cwd+'/game/characters/')
+	for char in characters:
+		if char[0] == '.':
+			characters.remove(char)
+	return characters
 
 def remove(name):
 	try:
