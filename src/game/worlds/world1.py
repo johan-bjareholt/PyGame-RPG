@@ -49,7 +49,7 @@ class StartRegion(Region):
 		]
 
 		wentities = [
-					 [entities.Zombie, (55,5)],
+					 [entities.Zombie, (55,17)],
 					 [entities.BouncyBall, (17,17)],
 					 [entities.BigBouncyBall, (19,17)],
 					 [entities.TeleportationPad,(25,19)]

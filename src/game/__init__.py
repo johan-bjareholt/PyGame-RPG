@@ -28,20 +28,16 @@ class GameClient():
         '''
         self.blitBackground()
 
-        cameraX = 0
-        cameraY = 0
+        # X
+        cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
         if not self.smallmapX:
-            cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
             if cameraX < 0: cameraX = 0
             elif cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
-        else:
-            cameraY = (globs.resolution[0]/2)-((self.smallmapX*50)/2)
+        # Y
+        cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
         if not self.smallmapY:
-            cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
             if cameraY < 0: cameraY = 0
             elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
-        else:
-            cameraY = (globs.resolution[1]/2)-((self.smallmapY*50)/2)
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
         '''

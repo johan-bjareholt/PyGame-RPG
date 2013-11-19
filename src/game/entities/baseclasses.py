@@ -47,10 +47,7 @@ class CollidableEntity(Entity):
 		for speed in self.movementSteps(self.speedX, self.image.get_width()):
 			self.collidingX(speed)
 		# Check if on ground
-		if self.onGround():
-			self.speedX /= 1.15
-		else:
-			self.speedX /= 1.1
+		self.speedX /= 1.15
 
 		# Vertical
 
@@ -63,11 +60,6 @@ class CollidableEntity(Entity):
 
 		# Collision check
 		self.fixOutOfBounds()
-
-		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks) or \
-		   pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities):
-		    print("Collision error")
-		    #assert ""
 
 		globs.currentgame.collidableEntities.add(self)
 
@@ -102,20 +94,30 @@ class CollidableEntity(Entity):
 
 	def collidingX(self, speed):
 		self.move((self.X + speed, self.Y))
+
+		# Entities
 		for entity in self.entitiesColliding():
 			self.entityCollisionX(entity)
 			self.unstuckEntitiesX()
-		if self.blockColliding():
-			self.unstuckBlocksX()
+		
+		# Blocks
+		collidingBlock = self.blockColliding()
+		if collidingBlock:
+			self.unstuckBlocksX(collidingBlock)
 			self.speedX *=self.bounce
 
 	def collidingY(self, speed):
 		self.move((self.X, self.Y + speed))
+
+		# Entities
 		for entity in self.entitiesColliding():
 			self.entityCollisionY(entity)
 			self.unstuckEntitiesY()
-		if self.blockColliding():
-			self.unstuckBlocksY()
+
+		# Blocks
+		collidingBlock = self.blockColliding()
+		if collidingBlock:
+			self.unstuckBlocksY(collidingBlock)
 			# Sets speedY to 0 if bounce is off
 			if self.speedY <= -1:
 				# Jumping
@@ -129,36 +131,57 @@ class CollidableEntity(Entity):
 		return entities
 
 	def blockColliding(self):
-		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks):
-			return True
+		x = self.xy[0]/50
+		maxx = (self.xy[0]+self.image.get_width())/50
+		possible_x = []
+		for iteration in range(x, maxx+1):
+			possible_x.append(iteration)
+		#print(possible_x)
 
-	def unstuckBlocksY(self):
+		y = (self.xy[1])/50
+		maxy = (self.xy[1]+self.image.get_height())/50
+		possible_y = []
+		for iteration in range(y, maxy+1):
+			possible_y.append(iteration)
+		#print(possible_y)
+		for x in possible_x:
+			for y in possible_y:
+				try:
+					block = globs.currentregion.renderedmap[y][x]
+					if block and block.collidable:
+						if self.rect.colliderect(block.rect):
+							return block
+				except IndexError:
+					pass
+
+	def unstuckBlocksY(self, collidedItem=None):
 		collided = True
-		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks)
+		if not collidedItem:
+			collidedItem = self.blockColliding()
+
 		if collidedItem:
 			while collided:
 				#print("Unstucking block " + str(collidedItem))
-				Y = None
 				if self.speedY < 0:
 					Y = collidedItem.xy[1]+collidedItem.image.get_height()
 				elif self.speedY > 0:
 					Y = collidedItem.xy[1]-self.image.get_height()
-				if Y != None:
-					self.move((self.X, Y))
-				else:
-					print("srsly?")
-				collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks)
+				self.move((self.X, Y))
+				collidedItem = self.blockColliding()
 
 				if not collidedItem:
 					collided = False
 
-	def unstuckBlocksX(self):
-		x = None
+	def unstuckBlocksX(self, collidedItem=None):
+		if not collidedItem:
+			x = None
+			collidedItem = self.blockColliding()
+
 		if self.speedX > 0:
-			x = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks).xy[0]-self.image.get_width()
+			x = collidedItem.xy[0]-self.image.get_width()
 			self.move((x, self.Y))
 		elif self.speedX < 0:
-			x = pygame.sprite.spritecollideany(self, globs.currentgame.collidableBlocks).xy[0]+50
+			x = collidedItem.xy[0]+self.image.get_width()
 			self.move((x, self.Y))
 
 	def unstuckEntitiesY(self):
