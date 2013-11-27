@@ -81,7 +81,8 @@ class Input:
 
                 for button in buttonlist:
                     #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
-                    if button.X <= X and button.X+button.image.get_width() >= X and button.Y <= Y and button.Y+button.image.get_height() >= Y:
+                    if button.rect.collidepoint(X, Y):
+                    #if button.X <= X and button.X+button.image.get_width() >= X and button.Y <= Y and button.Y+button.image.get_height() >= Y:
                         button.clicked()
             if event.type == pygame.MOUSEMOTION:
                 pass
