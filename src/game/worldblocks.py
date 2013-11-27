@@ -3,11 +3,11 @@
 import pygame
 import globals as globs
 
-from graphics.baseclasses import Surface
+from graphics.baseclasses import Surface, Sprite
 
-class Block(pygame.sprite.Sprite):
-	def __init__(self, xy, flags=[], wh=(50,50), bgColor=None, alpha=None):
-		pygame.sprite.Sprite.__init__(self)
+class Block(Sprite):
+	def __init__(self, xy, flags=[], wh=(50,50), bgColor=None, alpha=None, parent=None):
+		Sprite.__init__(self, parent, xy, wh)
 		self.image = pygame.Surface(wh)
 		self.xy = xy
 		self.rect = self.image.get_rect(topleft=self.xy)

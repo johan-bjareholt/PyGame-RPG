@@ -5,7 +5,7 @@ from graphics.baseclasses import Sprite
 import globals as globs
 
 class Monster(CollidableEntity):
-	def __init__(self, parent, xy, wh, attackArea=1200):
+	def __init__(self, parent, xy, wh, attackArea=1600):
 		CollidableEntity.__init__(self, parent, xy, wh, (0,255,0))
 		self.attackArea = Sprite(parent, (0,0), (attackArea, attackArea))
 		print(self.attackArea)
@@ -16,27 +16,21 @@ class Monster(CollidableEntity):
 	def events(self):
 		self.movement()
 		self.updateAttackArea()
-		self.runTowardsPlayer()
+		self.updateAttacker()
+		if self.attacking:
+			self.runTowardsPlayer()
 
-	def runTowardsPlayer(self):
+	def updateAttacker(self):
 		if not self.attacking:
 			closePlayer = pygame.sprite.spritecollideany(self.attackArea, globs.currentgame.players)
 			if closePlayer:
 				self.attacking = closePlayer
 		else:
-			if self.attacking in pygame.sprite.spritecollide(self.attackArea, globs.currentgame.players, False):
-				# X
-				if self.attacking.xy[0] < self.xy[0]:
-					self.speedX -= 1.5
-				elif self.attacking.xy[0] > self.xy[0]:
-					self.speedX += 1.5
-
-				# Y
-				if self.attacking.xy[1] < self.xy[1]-self.attacking.image.get_height():
-					if self.speedY == 0:
-						self.speedY = -12
-			else:
+			if not self.attacking in pygame.sprite.spritecollide(self.attackArea, globs.currentgame.players, False):
 				self.attacking = None
+
+	def runTowardsPlayer(self):
+		pass
 
 	def updateAttackArea(self):
 		x = self.xy[0]-(self.attackArea.image.get_width()/2)-(self.image.get_width()/2)
@@ -49,3 +43,15 @@ class Zombie(Monster):
 		wh = (50,90)
 		Monster.__init__(self, parent, xy, wh)
 		self.image.fill((0,255,0))
+
+	def runTowardsPlayer(self):
+		# X
+		if self.attacking.xy[0] < self.xy[0]:
+			self.speedX -= 0.5
+		elif self.attacking.xy[0] > self.xy[0]:
+			self.speedX += 0.5
+
+		# Y
+		if self.attacking.xy[1] < self.xy[1]-self.attacking.image.get_height():
+			if self.speedY == 0:
+				self.speedY = -12

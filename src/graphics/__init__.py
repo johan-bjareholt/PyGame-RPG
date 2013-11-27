@@ -30,7 +30,7 @@ pygame.display.init()
 globs.drawqueue = []
 
 
-def loadMenus():
+def load_menus():
     globs.menus = {}
     globs.menus['main'] = MainMenu()
     globs.menus['settings'] = SettingsMenu()
@@ -56,18 +56,20 @@ def loop():
                 #print("Loaded character")
             globs.currentgame = GameClient(screen)
             globs.currentgame.loadRegion(sub)
+
         globs.currentgame.loop()
 
-    fpsCounter()
+    if globs.config.get("dev", "fpsmeter") == "True":
+        fps_counter()
 
     pygame.display.flip()
 
 
-def fpsCounter():
+def fps_counter():
     globs.fpstext = Text(screen, (0,0), str(globs.clock.get_fps())[:2], 30, color=(150,150,150))
     globs.fpstext.blit()
 
-def initializeScreen():
+def initialize_screen():
     # Set globs.resolution
     if hasattr(globs, "resolution"):
         pass
@@ -96,16 +98,16 @@ def initializeScreen():
     globs.screen = screen
 
     # Reinitialize menus for new resolution
-    loadMenus()
+    load_menus()
 
 def screenshot():
     pygame.image.save(globs.screen, "screenshots/"+time.strftime("%Y-%m-%d %Hh %Mm %Ss")+".png")
 
-def loadCursor(name):
+def load_cursor(name):
     cursor = eval(name)()
     compiledCursor = pygame.cursors.compile(cursor.stringcursor, black=cursor.black, white=cursor.white, xor='o')
     pygame.mouse.set_cursor((8,8),(4,4),*compiledCursor)
 
-globs.initializeScreen = initializeScreen
-initializeScreen()
-loadCursor("CircleCursor_black")
+globs.initialize_screen = initialize_screen
+initialize_screen()
+load_cursor("CircleCursor_black")

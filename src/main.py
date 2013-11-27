@@ -7,6 +7,10 @@ import globals as globs
 
 import cProfile
 
+import input
+import graphics
+import events
+
 running = True
 
 
@@ -18,47 +22,40 @@ logFilename = maindir+"/logs/game/"+time.strftime("%Y-%m-%d %Hh %Mm")+".log"
 logging.basicConfig(filename=logFilename, filemode='w', level=logging.DEBUG, format=logFormat)
 
 
-class Game():
-    def __init__(self):
-        self.logger = logging.getLogger("main")
-        pygame.init()
-        globs.clock = pygame.time.Clock()
-        globs.cwd = os.getcwd()
+def load():
+    logger = logging.getLogger("main")
 
-    def load(self):
-        self.logger.info("Loading game")
-        print("Loading game")
+    logger.info("Loading game")
+    print("Loading game")
 
-        global inputs, graphics, events, globs
-        globs = import_module("globals", __name__)
-        inputs = import_module("input", __name__).Input()
-        graphics = import_module("graphics", __name__)
-        events = import_module("events", __name__).Events()
+    pygame.init()
+    globs.clock = pygame.time.Clock()
+    globs.inputs = input.Input()
+    globs.events = events.Events()
+    globs.graphics = graphics
 
 
-    def run(self):
-        globs.running = True
-        while globs.running:
-            inputs.loop()
-            events.loop()
-            graphics.loop()
-            if inputs.quit():
-                globs.running = False
-            globs.ticktime = globs.clock.tick(60)
-            globs.lastlocation = globs.location
+def run():
+    globs.running = True
+    while globs.running:
+        globs.inputs.loop()
+        globs.events.loop()
+        globs.graphics.loop()
+        if globs.inputs.quit():
+            globs.running = False
+        globs.ticktime = globs.clock.tick(60)
+        globs.lastlocation = globs.location
 
-    def quit(self):
-        pygame.quit()
-        sys.exit()
-        #os._quit(0)
+def quit():
+    pygame.quit()
+    sys.exit()
+    #os._quit(0)
 
 
 
 if __name__ == '__main__':
-    game = Game()
-    game.load()
-
-    inputs.parent = game
-    game.run()
-    #cProfile.run('game.run()')
-    game.quit()
+    load()
+    #inputs.parent = game
+    #game.run()
+    cProfile.run('run()')
+    quit()

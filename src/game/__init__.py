@@ -19,9 +19,6 @@ class GameClient():
             entity.movement()
         for entity in self.entities:
             entity.events()
-        #print(self.bouncyBall.speedY)
-        #print(self.bouncyBall.Y)
-        #globs.character.loop()
 
         '''
             Background and camera
@@ -33,16 +30,23 @@ class GameClient():
         if not self.smallmapX:
             if cameraX < 0: cameraX = 0
             elif cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
+            self.mapalignX = 0
+        else:
+            self.mapalignX = globs.character.xy[0]
         # Y
         cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
         if not self.smallmapY:
             if cameraY < 0: cameraY = 0
             elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
+            self.mapalignY = 0
+        else:
+            self.mapalignY = globs.character.xy[1]
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
         '''
             World
         '''
+        self.updateMapRenderRegion()
 
         self.blitWorld()
 
@@ -65,35 +69,37 @@ class GameClient():
         # Blit add gui elements
         self.guiElements.draw(globs.screen)
 
+        '''
+            Finish
+        '''
+        globs.lastCameraX, globs.lastCameraY = cameraX, cameraY
+
+    def updateMapRenderRegion(self):
+        self.columnstart = int((globs.cameraX-self.mapalignX)/50)
+        self.columnend   = int(self.columnstart+2*(globs.resolution[1]/50))
+
+        self.rowstart = int((globs.cameraY-self.mapalignY)/50)
+        self.rowend   = int(self.rowstart+(globs.resolution[0]/50))
+
     def blitWorld(self):
-        columnstart = int(globs.cameraX/50)
-        columnend   = int(columnstart+2*(globs.resolution[1]/50))
-
-        rowstart = int(globs.cameraY/50)
-        rowend   = int(rowstart+(globs.resolution[0]/50))
-
-        rowcount = rowstart
-        for row in globs.currentregion.renderedmap[rowstart:rowend]:
-            columncount = columnstart
-            for tile in row[columnstart:columnend]:
+        #if globs.lastCameraX != globs.cameraX or globs.lastCameraY != globs.cameraY:
+        rowcount = self.rowstart
+        for row in globs.currentregion.renderedmap[self.rowstart:self.rowend]:
+            columncount = self.columnstart
+            for tile in row[self.columnstart:self.columnend]:
                 if tile:
+
                     self.screen.blit(tile.image, (tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
                     tile.blitDecoration((tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
                 columncount += 1
             rowcount += 1
 
     def blitMinimap(self):
-        columnstart = int(globs.cameraX/50)
-        columnend   = int(columnstart+2*(globs.resolution[1]/50))
-
-        rowstart = int(globs.cameraY/50)
-        rowend   = int(rowstart+(globs.resolution[0]/50))
-
         self.miniMap.unscaledImage.fill((0,0,0))
-        rowcount = rowstart
-        for row in globs.currentregion.renderedmap[rowstart:rowend]:
-            columncount = columnstart
-            for tile in row[columnstart:columnend]:
+        rowcount = self.rowstart
+        for row in globs.currentregion.renderedmap[self.rowstart:self.rowend]:
+            columncount = self.columnstart
+            for tile in row[self.columnstart:self.columnend]:
                 if tile:
                     self.miniMap.unscaledImage.set_at((int((tile.xy[0]-globs.cameraX)/50), int((tile.xy[1]-globs.cameraY)/50)), tile.bgColor)
                 columncount += 1
@@ -107,10 +113,12 @@ class GameClient():
         # (Re)load tiles
         self.loadedTiles = {}
         globs.cameraX, globs.cameraY = 0, 0
+        globs.lastCameraX, globs.lastCameraY = 0, 0
 
         '''
             Background
         '''
+
         # Load world surfaces
         self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
         self.backgroundSurface.fill((100,120,200))

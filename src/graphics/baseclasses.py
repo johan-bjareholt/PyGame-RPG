@@ -74,6 +74,7 @@ class Sprite(pygame.sprite.Sprite):
 
     def blit(self):
         self.parent.blit(self.image, self.xy)
+        self.lastxy = self.xy
 
     def clicked(self):
         print("You just clicked me!")

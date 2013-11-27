@@ -25,7 +25,7 @@ class BigBouncyBall(BouncyBall):
 
 class TeleportationPad(Entity):
 	def __init__(self, parent, xy):
-		Entity.__init__(self, parent, xy, (50,100), (255,1,255))
+		Entity.__init__(self, parent, xy, (50,100), (255,0,255))
 
 		self.clickSprite = Sprite(self, (0,0), (self.image.get_width(), self.image.get_height()))
 		self.clickSprite.clicked = self.clicked
