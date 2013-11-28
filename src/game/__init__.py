@@ -33,6 +33,7 @@ class GameClient():
             self.mapalignX = 0
         else:
             self.mapalignX = globs.character.xy[0]
+            cameraX = (globs.currentregion.pixelWidth/2) - (globs.resolution[0]/2)
         # Y
         cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
         if not self.smallmapY:
@@ -41,6 +42,7 @@ class GameClient():
             self.mapalignY = 0
         else:
             self.mapalignY = globs.character.xy[1]
+            cameraY = (globs.currentregion.pixelHeight/2) - (globs.resolution[1]/2)
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
         '''
@@ -55,7 +57,7 @@ class GameClient():
         '''
 
         for entity in self.entities:
-            entity.blit()
+            entity.worldBlit()
 
 
         '''
@@ -67,7 +69,9 @@ class GameClient():
         self.blitMinimap()
 
         # Blit add gui elements
-        self.guiElements.draw(globs.screen)
+        #self.guiElements.draw(globs.screen)
+        for element in self.guiElements:
+            element.blit(globs.screen)
 
         '''
             Finish
@@ -88,8 +92,8 @@ class GameClient():
             columncount = self.columnstart
             for tile in row[self.columnstart:self.columnend]:
                 if tile:
-
-                    self.screen.blit(tile.image, (tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
+                    tile.worldBlit()
+                    #self.screen.blit(tile.image, (tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
                     tile.blitDecoration((tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
                 columncount += 1
             rowcount += 1
@@ -184,7 +188,7 @@ class GameClient():
 
         for entity in globs.currentregion.entities:
             xy = blockPixel(entity[1][0], entity[1][1])
-            entity[0](self, xy)
+            entity[0](globs.screen, xy)
             print(entity)
 
         # Move character to spawncoords

@@ -62,7 +62,17 @@ def loop():
     if globs.config.get("dev", "fpsmeter") == "True":
         fps_counter()
 
-    pygame.display.flip()
+    if globs.lastlocation != globs.location:
+        pygame.display.update()
+    if globs.config.get("dev", "dirtyrectdebug") == "True":
+        for rect in globs.dirtyrects:
+            pygame.draw.rect(globs.screen, (255,0,255), rect, 2)
+        pygame.display.update()
+    if globs.config.get("dev", "dirtyrects") == "True":
+        pygame.display.update(globs.dirtyrects)
+    else:
+        pygame.display.update()
+    globs.dirtyrects = []
 
 
 def fps_counter():

@@ -24,6 +24,7 @@ class Sprite(pygame.sprite.Sprite):
         self.parent = parent
         self.bgColor = bgColor
         self.colorkey = colorkey
+        self.lastworldrect = pygame.Rect(0,0,0,0)
         if self.bgColor:
             self.image.fill(self.bgColor)
         if colorkey:
@@ -72,9 +73,25 @@ class Sprite(pygame.sprite.Sprite):
         self.X, self.Y = self.xy
         self.rect = self.image.get_rect(topleft=self.xy)
 
-    def blit(self):
-        self.parent.blit(self.image, self.xy)
-        self.lastxy = self.xy
+    def blit(self, screen=None):
+        if not screen:
+            screen = self.parent
+        screen.blit(self.image, self.xy)
+
+        if globs.config.get("dev", "dirtyrects") == "True":
+            globs.dirtyrects.append(self.rect)
+
+    def worldBlit(self):
+        if globs.config.get("dev", "dirtyrects") == "True":
+            self.worldrect = pygame.Rect(self.xy[0]-globs.cameraX, self.xy[1]-globs.cameraY, self.image.get_width(), self.image.get_height())
+
+            rect = self.worldrect.copy()
+            rect = rect.union(self.lastworldrect)
+
+            self.lastworldrect = self.worldrect.copy()
+            globs.dirtyrects.append(rect)
+
+        self.parent.blit(self.image, (self.xy[0]-globs.cameraX, self.xy[1]-globs.cameraY))
 
     def clicked(self):
         print("You just clicked me!")

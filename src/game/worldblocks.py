@@ -12,6 +12,10 @@ class Block(Sprite):
 		self.xy = xy
 		self.rect = self.image.get_rect(topleft=self.xy)
 
+		if not parent:
+			parent = globs.graphics.screen
+		self.parent = parent
+
 		self.bgColor = bgColor
 
 		if not 'uncollidable' in flags:
@@ -54,13 +58,19 @@ class Block_002(Block):
 	'''
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(50,200,50))
-		self.grass = pygame.image.load(globs.datadir+"/png/short_grass.png")
-		self.grass.convert()
-		self.grass.convert_alpha()
+		grasswh = (60,25)
+		self.grass = Sprite(globs.screen, self.xy, grasswh, bgColor=(255,0,255))
+		self.grass.image = pygame.image.load(globs.datadir+"/png/short_grass.png")
+		self.grass.image.convert()
+		self.grass.image.convert_alpha()
 
 	def blitDecoration(self, xy):
 		#pass
-		globs.screen.blit(self.grass, (xy[0]-5, xy[1]-20))
+		self.grass.move((self.xy[0]-5, self.xy[1]-20))
+		self.grass.worldBlit()
+		#rect = pygame.Rect(xy[0]-5, xy[1]-20, self.grass.get_width(), self.grass.get_height())
+		#globs.dirtyrects.append(rect)
+		#globs.screen.blit(self.grass, (xy[0]-5, xy[1]-20))
 
 class Block_010(Block):
 	'''

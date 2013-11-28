@@ -20,6 +20,8 @@ frame = 0
 framecount = 0
 framerate = 10
 
+dirtyrects = []
+
 online = False
 
 redraw = False

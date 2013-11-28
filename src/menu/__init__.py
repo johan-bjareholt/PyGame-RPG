@@ -209,7 +209,7 @@ class SettingsMenu(Menu):
             def resButton_clicked(self):
                 globs.resolution = resolutions[self.resolution]
                 globs.redraw = True
-                globs.initializeScreen()
+                globs.initialize_screen()
             resButton = self.resolutionContainer.newButton("{}x{}".format(r[0], r[1]), resButton_clicked)
             resButton.resolution = i
 
