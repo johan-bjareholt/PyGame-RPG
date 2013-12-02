@@ -2,6 +2,7 @@ import os, sys, time
 import threading
 import logging
 import socket
+import json
 
 import globals as globs
 
@@ -40,11 +41,15 @@ class Main():
         try:
             while self.running:
                 time.sleep(1)
+        except KeyboardInterrupt:
+            tcp.close()
+            udp.close()
         except Exception as e:
             print(e)
 
-        tcp.join()
-        udp.join()
+        #tcp.join()
+        #udp.join()
+
 
         sys.exit()
 
@@ -77,7 +82,8 @@ class Client(threading.Thread):
 
     def run(self):
         # Listen for TCP connections
-        self.sendTcpData("welcome")
+        ping = json.dumps({'conn': 'ping'})
+        self.sendTcpData(ping)
         while self.connected:
             data = self.conn.recv(2048)
             for command in data.split(';'):
@@ -115,12 +121,23 @@ class Client(threading.Thread):
         udp.sock.sendto(message, address)
         self.log.debug('UDP: Client:{} - sent:{}'.format(self.username, message))
 
-
-class TcpHandler(threading.Thread):
-    def __init__(self):
+class TrafficHandler(threading.Thread):
+    def __init__(self, name):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger('tcp')
+        self.name = name
+        self.log = logging.getLogger(self.name)
+        self.log.setLevel(logging.DEBUG)
         self.daemon = True
+
+    def close(self):
+        print("Closing " + self.name)
+        self.sock.close()
+        print("Done closing "+self.name)
+
+
+class TcpHandler(TrafficHandler):
+    def __init__(self):
+        TrafficHandler.__init__(self, 'tcp')
 
         # Create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -138,13 +155,9 @@ class TcpHandler(threading.Thread):
             self.log.info('Client {} connected!'.format(address))
             Client(conn, address)
 
-class UdpHandler(threading.Thread):
+class UdpHandler(TrafficHandler):
     def __init__(self):
-        threading.Thread.__init__(self)
-        self.log = logging.getLogger('udp')
-        self.log.setLevel(logging.DEBUG)
-        self.daemon = True
-
+        TrafficHandler.__init__(self, 'udp')
         # Create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 

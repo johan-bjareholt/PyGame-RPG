@@ -11,7 +11,6 @@ class Input:
     def __init__(self):
         self.logger = logging.getLogger("input")
         self.logger.info("Loading input")
-        print("Loading input")
 
         self.empty_pressed = pygame.key.get_pressed()
 
@@ -34,7 +33,7 @@ class Input:
         pygame.event.pump()
         ## All events
         self.events = pygame.event.get()
-        self.logger.debug(self.events)
+        #self.logger.debug(self.events)
         ## Pressed keys
         self.lastpressed = self.pressed
         self.pressed = pygame.key.get_pressed()

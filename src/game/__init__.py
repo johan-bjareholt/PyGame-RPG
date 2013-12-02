@@ -23,8 +23,43 @@ class GameClient():
         '''
             Background and camera
         '''
-        self.blitBackground()
+        self.blit_background()
 
+        self.updateCamera()
+
+        '''
+            World
+        '''
+        self.update_map_render_size()
+
+        self.blit_world()
+
+        '''
+            Entities
+        '''
+
+        for entity in self.entities:
+            entity.worldBlit()
+
+
+        '''
+            Gui
+        '''
+        # Update minimap
+        self.blitMinimap()
+
+        # Blit add gui elements
+        for element in self.guiElements:
+            element.blit(globs.screen)
+
+    def update_map_render_size(self):
+        self.columnstart = int((globs.cameraX-self.mapalignX)/50)
+        self.columnend   = int(self.columnstart+2*(globs.resolution[1]/50))
+
+        self.rowstart = int((globs.cameraY-self.mapalignY)/50)
+        self.rowend   = int(self.rowstart+(globs.resolution[0]/50))
+
+    def updateCamera(self):
         # X
         cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
         if not self.smallmapX:
@@ -45,47 +80,7 @@ class GameClient():
             cameraY = (globs.currentregion.pixelHeight/2) - (globs.resolution[1]/2)
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
-        '''
-            World
-        '''
-        self.updateMapRenderRegion()
-
-        self.blitWorld()
-
-        '''
-            Entities
-        '''
-
-        for entity in self.entities:
-            entity.worldBlit()
-
-
-        '''
-            Gui
-        '''
-        # Update chatbox
-
-        # Update minimap
-        self.blitMinimap()
-
-        # Blit add gui elements
-        #self.guiElements.draw(globs.screen)
-        for element in self.guiElements:
-            element.blit(globs.screen)
-
-        '''
-            Finish
-        '''
-        globs.lastCameraX, globs.lastCameraY = cameraX, cameraY
-
-    def updateMapRenderRegion(self):
-        self.columnstart = int((globs.cameraX-self.mapalignX)/50)
-        self.columnend   = int(self.columnstart+2*(globs.resolution[1]/50))
-
-        self.rowstart = int((globs.cameraY-self.mapalignY)/50)
-        self.rowend   = int(self.rowstart+(globs.resolution[0]/50))
-
-    def blitWorld(self):
+    def blit_world(self):
         #if globs.lastCameraX != globs.cameraX or globs.lastCameraY != globs.cameraY:
         rowcount = self.rowstart
         for row in globs.currentregion.renderedmap[self.rowstart:self.rowend]:
@@ -110,10 +105,10 @@ class GameClient():
             rowcount += 1
         self.miniMap.image = pygame.transform.scale(self.miniMap.unscaledImage, (100, 100))
 
-    def blitBackground(self):
+    def blit_background(self):
         self.screen.blit(self.backgroundSurface, (0,0))
 
-    def loadRegion(self, regionname, spawnCoordinates=None):
+    def load(self, regionname, spawnCoordinates=None):
         # (Re)load tiles
         self.loadedTiles = {}
         globs.cameraX, globs.cameraY = 0, 0
@@ -132,7 +127,8 @@ class GameClient():
         '''
         # Load
         world, region = regionname.split('_')
-        regiondata = self.gameserver.getRegion(region)
+
+        regiondata = self.gameserver.get_region(region)
         #print(regionkwargs)
         globs.currentregion = Region(*regiondata)
 
@@ -143,7 +139,7 @@ class GameClient():
         self.climbableBlocks = pygame.sprite.Group()
 
         globs.currentregion.renderedmap = []
-        # Blit blocks
+        # Load blocks
         rowcount = 1
         for row in globs.currentregion:
             columncount = 1
@@ -228,10 +224,23 @@ class GameServer():
         self.world = world
         #self.region = eval(world + '.' + region + '()')
 
-    def getRegion(self, regionname):
-        if not regionname in self.regions:
-            self.regions[regionname] = eval(self.world + '.' + regionname + '()')
-        return self.regions[regionname].name, self.regions[regionname].spawnCoordinates, self.regions[regionname], self.regions[regionname].entities
+        # Events
+        self.eventlist = []
+
+    def pump_events(self):
+        for event in eventlist:
+            pass
+
+    def get_region(self, regionname):
+        if not globs.connection:
+            if not regionname in self.regions:
+                self.regions[regionname] = eval(self.world + '.' + regionname + '()')
+            return self.regions[regionname].name, self.regions[regionname].spawnCoordinates, self.regions[regionname], self.regions[regionname].entities
+        else:
+            globs.network.game.get_region()
+            while not globs.regiondata:
+                time.sleep(0.2)
+            return globs.regiondata
 
 def blockPixel(column, row):
     return (column*50-50, row*50-50)

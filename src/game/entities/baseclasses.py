@@ -64,7 +64,9 @@ class CollidableEntity(Entity):
 		globs.currentgame.collidableEntities.add(self)
 
 		# Acceleration
-		a = 0.1
+		#a = 0.1
+		a = globs.clock.get_time()/150.0
+		print(a)
 		if self.speedY < 0:
 			# Jumping
 			self.accelerateY(-a)
@@ -110,9 +112,11 @@ class CollidableEntity(Entity):
 		self.move((self.X, self.Y + speed))
 
 		# Entities
-		for entity in self.entitiesColliding():
-			self.entityCollisionY(entity)
+		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities):
 			self.unstuckEntitiesY()
+		#for entity in self.entitiesColliding():
+		#	self.entityCollisionY(entity)
+		#	self.unstuckEntitiesY()
 
 		# Blocks
 		collidingBlock = self.blockColliding()
@@ -161,7 +165,7 @@ class CollidableEntity(Entity):
 
 		if collidedItem:
 			while collided:
-				#print("Unstucking block " + str(collidedItem))
+				print("Unstucking " + str(self) + " from block " + str(collidedItem))
 				if self.speedY < 0:
 					Y = collidedItem.xy[1]+collidedItem.image.get_height()
 				elif self.speedY > 0:
@@ -189,7 +193,8 @@ class CollidableEntity(Entity):
 		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 		if collidedItem:
 			while collided:
-				print("Unstucking " + str(collidedItem) + " in Y")
+				self.entityCollisionY(collidedItem)
+				print("Unstucking " + str(self) + " from entity " + str(collidedItem) + " in Y")
 				print("s1: {} s2: {} xy1: {} xy2:{}".format(self.speedY, collidedItem.speedY, self.xy, collidedItem.xy))
 				Y = self.Y
 				if (self.xy[1]+self.image.get_height())/2 > (collidedItem.xy[1]+collidedItem.image.get_height())/2:
@@ -214,7 +219,7 @@ class CollidableEntity(Entity):
 		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 		if collidedItem:
 			while collided:
-				print("Unstucking " + str(collidedItem) + " in X")
+				print("Unstucking " + str(self) + " from entity " + str(collidedItem) + " in X")
 				print("s1: {} s2: {} xy1: {} xy2:{}".format(self.speedX, collidedItem.speedX, self.xy, collidedItem.xy))
 				X = self.X
 				if (self.xy[0]+self.image.get_width())/2 < (collidedItem.xy[0]+collidedItem.image.get_width())/2:
@@ -280,12 +285,17 @@ class CollidableEntity(Entity):
 		p2 = abs(collidedItem.get_force()[1])
 
 		bounce = self.bounce
-		if self.bounce:
-			bounce = self.bounce
-			if collidedItem.bounce:
-				bounce *= (1+collidedItem.bounce)
-		elif collidedItem.bounce:
-			bounce = collidedItem.bounce
+		if self.onGround:
+			bounce = 0
+		elif collidedItem.onGround():
+			bounce = 1
+		else:
+			if self.bounce:
+				bounce = self.bounce
+				if collidedItem.bounce:
+					bounce *= (1+collidedItem.bounce)
+			elif collidedItem.bounce:
+				bounce = collidedItem.bounce
 
 		if p1 < p2:
 			self.speedY *= bounce

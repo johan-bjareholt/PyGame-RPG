@@ -6,8 +6,8 @@ class Surface(pygame.Surface):
     '''
     Base class for surfaces
     '''
-    def __init__(self, wh, transparent=False):
-        if transparent:
+    def __init__(self, wh, transparent=False, rleaccel=False):
+        if transparent or rleaccel:
             pygame.Surface.__init__(self, wh, pygame.RLEACCEL)
         else:
             pygame.Surface.__init__(self, wh)
@@ -17,9 +17,9 @@ class Sprite(pygame.sprite.Sprite):
     '''
     Base class for sprites
     '''
-    def __init__(self, parent, xy, wh, bgColor=None, colorkey=(255,0,255)):
+    def __init__(self, parent, xy, wh, bgColor=None, colorkey=(255,0,255), rleaccel=False):
         pygame.sprite.Sprite.__init__(self)
-        self.image = Surface(wh)
+        self.image = Surface(wh, rleaccel=rleaccel)
         self.move(xy)
         self.parent = parent
         self.bgColor = bgColor

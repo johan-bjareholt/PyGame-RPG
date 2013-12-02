@@ -261,11 +261,18 @@ class MultiplayerConnectMenu(Menu):
         self.connectButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 40), text="Connect", bgColor=(255,255,255), fontsize=30)
         # OnClick action
         def connectButton_clicked(self):
-            pass
+            address = self.parent.ipBox.inputText.split(":")[0]
+            try:
+                port = [self.parent.ipBox.inputText.split(":")[1]]
+            except IndexError:
+                port = []
+            globs.connection = globs.network.ClientConn(address, *port)
+            globs.connection.start()
         self.connectButton.clicked = types.MethodType(connectButton_clicked, self.connectButton)
         self.buttons.add(self.connectButton)
 
-        self.ipBox = InputBox(self, (((globs.resolution[0]/2)-125),(globs.resolution[1])-150), (250,40), question="Address: ", fontSize=30)
+        self.ipBox = InputBox(self, (((globs.resolution[0]/2)-125),(globs.resolution[1])-150), (250,30), question="Address: ", fontSize=30)
+        self.ipBox.inputText = "127.0.0.1"
         self.ipBox.draw()
         self.buttons.add(self.ipBox)
 

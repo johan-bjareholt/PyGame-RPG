@@ -23,6 +23,7 @@ framerate = 10
 dirtyrects = []
 
 online = False
+connection = None
 
 redraw = False
 focused = None

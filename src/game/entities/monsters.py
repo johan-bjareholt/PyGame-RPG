@@ -47,9 +47,11 @@ class Zombie(Monster):
 	def runTowardsPlayer(self):
 		# X
 		if self.attacking.xy[0] < self.xy[0]:
-			self.speedX -= 0.5
+			self.speedX -= (globs.clock.get_time()/20.0)
 		elif self.attacking.xy[0] > self.xy[0]:
-			self.speedX += 0.5
+			self.speedX += (globs.clock.get_time()/20.0)
+		#print(globs.clock.get_time()/20.0)
+		#print(self.speedX)
 
 		# Y
 		if self.attacking.xy[1] < self.xy[1]-self.attacking.image.get_height():

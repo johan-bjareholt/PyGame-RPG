@@ -3,6 +3,8 @@ import logging
 import threading
 import socket
 
+import globals as globs
+
 maindir = os.path.dirname(os.getcwd())
 # Logging
 logFormat = '%(asctime)-15s %(levelname)s %(name)s:%(lineno)s\t  %(message)s'
@@ -14,28 +16,29 @@ netlog = logging.getLogger('netlog')
 
 
 
-
-
-class ClientConn():
+class ClientConn(threading.Thread):
     def __init__(self, addr='127.0.0.1', port=2500):
-        global address
-        address = (addr, port)
+        threading.Thread.__init__(self)
+        globs.address = (addr, port)
+        self.daemon = True
 
         self.tcp = TcpHandler()
         self.udp = UdpHandler()
 
-    def start(self):
-        self.udp.start()
-        self.tcp.start()
-
+    def run(self):
         try:
+            self.udp.start()
+            self.tcp.start()
             while True:
                 time.sleep(1)
+        except KeyboardInterrupt:
+            self.udp.sock.close()
+            self.tcp.sock.close()
         except Exception as e:
             print(e)
 
-        self.tcp.join()
-        self.udp.join()
+        #self.tcp.join()
+        #self.udp.join()
 
         sys.exit()
 
@@ -50,6 +53,10 @@ class NetworkHandler(threading.Thread):
     def load(self):
         pass
 
+    def close(self):
+        self.sock.close()
+        print("Closed " + self.protocol + " socket")
+
     def listen(self):
         pass
 
@@ -61,25 +68,26 @@ class NetworkHandler(threading.Thread):
             netlog.error("Could not parse: {} \nError: {}".format(data, e), exc_info=True)
 
     def parse(self, data):
+        pass
         # TCP
-        if self.__name__ == "TcpHandler":
-            pass
+        #if self.__name__ == "TcpHandler":
+        #    pass
         # TCP
-        elif self.__name__ == "UdpHandler":
-            pass
+        #elif self.__name__ == "UdpHandler":
+        #    pass
 
 
 class TcpHandler(NetworkHandler):
     def load(self):
         self.protocol = "TCP"
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def listen(self):
-        return self.socket.recv(2048)
+        return self.sock.recv(2048)
 
     def run(self):
         netlog.info("Starting tcp socket!")
-        self.socket.connect(address)
+        self.sock.connect(globs.address)
 
         # Lobby and game section
         while self.running:
@@ -95,17 +103,17 @@ class TcpHandler(NetworkHandler):
         self.socket.close()
 
     def sendData(self, data):
-        self.socket.send(data)
+        self.sock.send(data)
         netlog.debug(self.protocol+":Sent: " + data)
 
 
 class UdpHandler(NetworkHandler):
     def load(self):
         self.protocol = "UDP"
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def listen(self):
-        return self.socket.recvfrom(2048)
+        return self.sock.recvfrom(2048)
 
     def run(self):
         netlog.info("Starting udp socket!")
@@ -119,7 +127,7 @@ class UdpHandler(NetworkHandler):
                         self.sendData(response)
 
     def sendData(self, data):
-        self.socket.sendto(data, address)
+        self.sock.sendto(data, globs.address)
         netlog.debug(self.protocol+":Sent: " + data)
 
 

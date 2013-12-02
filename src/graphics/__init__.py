@@ -19,7 +19,6 @@ from .baseclasses import Text
 
 logger = logging.getLogger("gfx")
 
-print("Loading graphics")
 logger.info("Loading graphics")
 
 # Clock for fps and events triggered by frames
@@ -55,7 +54,7 @@ def loop():
                 globs.character = Character(screen, (0,0), add=False)
                 #print("Loaded character")
             globs.currentgame = GameClient(screen)
-            globs.currentgame.loadRegion(sub)
+            globs.currentgame.load(sub)
 
         globs.currentgame.loop()
 

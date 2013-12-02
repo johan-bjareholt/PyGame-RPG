@@ -9,7 +9,8 @@ import cProfile
 
 import input
 import graphics
-import events
+#import events
+import network
 
 running = True
 
@@ -26,20 +27,20 @@ def load():
     logger = logging.getLogger("main")
 
     logger.info("Loading game")
-    print("Loading game")
 
     pygame.init()
     globs.clock = pygame.time.Clock()
     globs.inputs = input.Input()
-    globs.events = events.Events()
+    #globs.events = events.Events()
     globs.graphics = graphics
+    globs.network = network
 
 
 def run():
     globs.running = True
     while globs.running:
         globs.inputs.loop()
-        globs.events.loop()
+        #globs.events.loop()
         globs.graphics.loop()
         if globs.inputs.quit():
             globs.running = False

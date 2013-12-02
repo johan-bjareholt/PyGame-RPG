@@ -115,7 +115,7 @@ class Character(CollidableEntity):
 	'''
 
 	def run(self, direction):
-		force = 2
+		force = (globs.clock.get_time()/10.0)
 		if direction == "left":
 			globs.character.speedX -= force
 		elif direction == "right":

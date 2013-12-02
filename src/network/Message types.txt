@@ -1,0 +1,54 @@
+Message types:
+TCP, UDP
+
+Message categories:
+
+conn
+ - For establishing a connection
+lobby
+ - For logging in to a account, sending character information and such
+chat
+ - For sending and recieving chat messages
+game
+ - Moving sprites, adding entities, loading world etc.
+
+{
+	'conn'
+	{
+		'welcome',
+		'disconnect'
+		'ping'
+	},
+	'lobby'
+	{
+		'login',
+	},
+	'chat'
+	{
+		'send',
+		'recieve'
+	},
+	'game'
+	{
+		'region'
+		{
+			'recieve'
+			{
+				name, spawnCoordinates, blocks, entities
+			},
+			'send'
+			{
+				name, spawnCoordinates, blocks, entities
+			}
+		}
+		'entity'
+		{
+			entityid
+			{
+				{
+					'move',
+				}
+			}
+		}
+	}
+}
