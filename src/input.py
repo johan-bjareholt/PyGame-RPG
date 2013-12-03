@@ -1,4 +1,5 @@
 import logging
+import string
 import pygame
 
 import main
@@ -6,6 +7,33 @@ import globals as globs
 import graphics
 
 location = globs.location
+
+shiftsymbols = {
+    '1':'!',
+    '2':'"',
+    '3':'#',
+    '4':'$',
+    '5':'%',
+    '6':'&',
+    '7':'/',
+    '8':'(',
+    '9':')',
+    '0':'=',
+    '+':'?'
+}
+altsymbols = {
+    '1':'!',
+    '2':'@',
+    '3':'#',
+    '4':'$',
+    '5':'%',
+    '6':'&',
+    '7':'{',
+    '8':'[',
+    '9':']',
+    '0':'}',
+    '+':'\\'
+}
 
 class Input:
     def __init__(self):
@@ -97,13 +125,15 @@ class Input:
         elif mode == 'game':
             if self.newly_pressed[pygame.K_e]:
                 # entityAction
-                globs.character.action()
+                pass
+                #globs.character.action()
             if self.newly_pressed[pygame.K_w]:
                 # entityAction
                 globs.character.worldAction()
 
             if self.newly_pressed[pygame.K_RETURN]:
-                globs.currentgame.chatInputBox.clicked()
+                if self.keydown(pygame.K_RETURN):
+                    globs.currentgame.chatInputBox.clicked()
 
 
             # Movement
@@ -136,10 +166,20 @@ class Input:
                 elif inkey == pygame.K_RETURN:
                     globs.focused.unfocus()
                 elif inkey <= 127:
+                    character = ""
                     if self.pressed[pygame.K_LSHIFT] or self.pressed[pygame.K_RSHIFT]:
-                        globs.focused.inputText += chr(inkey).capitalize()
+                        if chr(inkey) in string.ascii_lowercase:
+                            character = chr(inkey).capitalize()
+                        else:
+                            character = shiftsymbols[chr(inkey)]
+                    elif self.pressed[pygame.K_RALT] or self.pressed[pygame.K_LALT]:
+                        if chr(inkey) in string.ascii_lowercase:
+                            character = chr(inkey).capitalize()
+                        else:
+                            character = altsymbols[chr(inkey)]
                     else:
-                        globs.focused.inputText += chr(inkey) 
+                        character = chr(inkey) 
+                    globs.focused.inputText += character
                     globs.focused.draw()
 
     def keydown(self, key):

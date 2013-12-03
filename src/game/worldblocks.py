@@ -8,9 +8,6 @@ from graphics.baseclasses import Surface, Sprite
 class Block(Sprite):
 	def __init__(self, xy, flags=[], wh=(50,50), bgColor=None, alpha=None, parent=None):
 		Sprite.__init__(self, parent, xy, wh)
-		self.image = pygame.Surface(wh)
-		self.xy = xy
-		self.rect = self.image.get_rect(topleft=self.xy)
 
 		if not parent:
 			parent = globs.graphics.screen
@@ -59,14 +56,14 @@ class Block_002(Block):
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(50,200,50))
 		grasswh = (60,25)
-		self.grass = Sprite(globs.screen, self.xy, grasswh, bgColor=(255,0,255))
+		self.grass = Sprite(globs.screen, self.rect.topleft, grasswh, bgColor=(255,0,255))
 		self.grass.image = pygame.image.load(globs.datadir+"/png/short_grass.png")
 		self.grass.image.convert()
 		self.grass.image.convert_alpha()
 
 	def blitDecoration(self, xy):
 		#pass
-		self.grass.move((self.xy[0]-5, self.xy[1]-20))
+		self.grass.rect.topleft = (self.rect.x-5, self.rect.y-20)
 		self.grass.worldBlit()
 		#rect = pygame.Rect(xy[0]-5, xy[1]-20, self.grass.get_width(), self.grass.get_height())
 		#globs.dirtyrects.append(rect)

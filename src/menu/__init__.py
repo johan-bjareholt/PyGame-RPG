@@ -54,7 +54,7 @@ class MainMenu(Menu):
 
         # Initialize Title text
         self.titleText = Text(self, (0,0), "My RPG Game", 50)
-        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), (globs.resolution[1]/2)-200)
+        self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), (globs.resolution[1]/2)-200)
 
         # Draw title
         self.titleText.draw()
@@ -86,7 +86,7 @@ class CharacterMenu(Menu):
         if characters:
             self.characterButtons = []
             for i, r in enumerate(characters):
-                characterButton = Button(self, (self.characterContainer.xy[0]+25, self.characterContainer.xy[1]+45+(75*i)), (150, 50), text=r, bgColor=(200,200,200))
+                characterButton = Button(self, (self.characterContainer.rect.topleft[0]+25, self.characterContainer.rect.topleft[1]+45+(75*i)), (150, 50), text=r, bgColor=(200,200,200))
                 characterButton.character = r
                 self.characterButtons.append(characterButton)
 
@@ -127,7 +127,7 @@ class CharacterMenu(Menu):
 
         # Initialize Title text
         self.titleText = Text(self, (0,0), "Select your character", 35)
-        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
+        self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
         # Draw title
         self.titleText.draw()
@@ -153,7 +153,7 @@ class CreateCharacterMenu(Menu):
         self.createCharacterButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="New Character", bgColor=(255,255,255))
         # OnClick action
         def createCharacterButton_clicked(self):
-            if len(self.parent.nameBox.inputText)>=5:
+            if len(self.parent.nameBox.inputText)>=5 and len(self.parent.nameBox.inputText)<=15:
                 game.characters.create(self.parent.nameBox.inputText)
                 globs.charactername = self.parent.nameBox.inputText
                 globs.location = "game.world1_StartRegion"
@@ -166,7 +166,13 @@ class CreateCharacterMenu(Menu):
 
         # Initialize Title text
         self.titleText = Text(self, (0,0), "Create your character", 35)
-        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
+        self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
+
+        w = 280
+        h = 60
+        self.textBox = TextBox(self, ((globs.resolution[0]/2)-(w/2),500), (w,h), 2, alpha=120)
+        self.textBox.text = "Name has to be between 5 and 15 characters long"
+        self.textBox.draw()
 
         # Draw title
         self.titleText.draw()
@@ -179,6 +185,7 @@ class CreateCharacterMenu(Menu):
         self.buttons.draw(self)
         # Blit title text
         self.titleText.blit()
+        self.textBox.blit()
 
 class SettingsMenu(Menu):
     '''
@@ -192,7 +199,7 @@ class SettingsMenu(Menu):
     def drawMain(self):
         # Initialize Title text
         self.settingsText = Text(self, (0,0), "Settings", 50)
-        self.settingsText.xy = ((globs.resolution[0]/2)-(self.settingsText.image.get_width()/2), (globs.resolution[1]/2)-200)
+        self.settingsText.rect.topleft = ((globs.resolution[0]/2)-(self.settingsText.image.get_width()/2), (globs.resolution[1]/2)-200)
 
         # Backbutton
         self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
@@ -214,14 +221,14 @@ class SettingsMenu(Menu):
             resButton.resolution = i
 
         self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (300,250), text="Versions")
-        self.pythonVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
-        self.pygameVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
-        self.sdlVersionText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)
-        self.videoDriverText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+140), "Video driver: {0}".format(pygame.display.get_driver()), 20)
-        self.displayInfoText = Text(self, (self.versionContainer.xy[0]+20,self.versionContainer.xy[1]+170), "Hardware acceleration: {0}".format(bool(pygame.display.Info().hw)), 20)
+        self.pythonVersionText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
+        self.pygameVersionText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
+        self.sdlVersionText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)
+        self.videoDriverText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+140), "Video driver: {0}".format(pygame.display.get_driver()), 20)
+        self.displayInfoText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+170), "Hardware acceleration: {0}".format(bool(pygame.display.Info().hw)), 20)
 
         # Fullscreen button
-        self.fullscreenButton = ToggleButton(self, (self.versionContainer.xy[0], self.versionContainer.xy[1]+self.versionContainer.image.get_height()+20), (230, 50), text="Fullscreen")
+        self.fullscreenButton = ToggleButton(self, (self.versionContainer.rect.topleft[0], self.versionContainer.rect.topleft[1]+self.versionContainer.image.get_height()+20), (230, 50), text="Fullscreen")
 
         def fullscreenButton_clicked(self):
             globs.fullscreen = not globs.fullscreen
@@ -271,14 +278,16 @@ class MultiplayerConnectMenu(Menu):
         self.connectButton.clicked = types.MethodType(connectButton_clicked, self.connectButton)
         self.buttons.add(self.connectButton)
 
-        self.ipBox = InputBox(self, (((globs.resolution[0]/2)-125),(globs.resolution[1])-150), (250,30), question="Address: ", fontSize=30)
+        h = 30
+        w = 300
+        self.ipBox = InputBox(self, (((globs.resolution[0]/2)-(w/2)),(globs.resolution[1])-150), (w,h), question="Address: ")
         self.ipBox.inputText = "127.0.0.1"
         self.ipBox.draw()
         self.buttons.add(self.ipBox)
 
         # Initialize Title text
         self.titleText = Text(self, (0,0), "Connect", 35)
-        self.titleText.xy = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
+        self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
         # Draw title
         self.titleText.draw()

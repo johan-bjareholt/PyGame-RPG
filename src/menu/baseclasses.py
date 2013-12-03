@@ -70,18 +70,16 @@ class Container(Sprite):
 
     def drawText(self):
         self.textSprite = Text(self, (10,10), self.text, 25)
-        self.image.blit(self.textSprite.image, self.textSprite.xy)
+        self.image.blit(self.textSprite.image, self.textSprite.rect.topleft)
 
     def updateButtons(self):
         for button in range(len(self.buttons)):
             self.buttons[button].localxy = (self.buttonSpacing, 
-                                           ((self.textSprite.image.get_height()+self.textSprite.xy[1])+
+                                           ((self.textSprite.image.get_height()+self.textSprite.rect.topleft[1])+
                                            (self.buttonSpacing*button)+(self.buttonH*button)))
 
-            self.buttons[button].globalxy = ((self.buttons[button].localxy[0]+self.xy[0] ,
-                                              self.buttons[button].localxy[1]+self.xy[1]))
-
-            self.buttons[button].move(self.buttons[button].globalxy)
+            self.buttons[button].rect.topleft = ((self.buttons[button].localxy[0]+self.rect.topleft[0] ,
+                                              self.buttons[button].localxy[1]+self.rect.topleft[1]))
 
     def newButton(self, text, function):
         # Set variables
@@ -183,8 +181,8 @@ class ToggleButton(Button):
         self.draw()
 
 class TextBox(Sprite):
-    def __init__(self, parent, xy, wh, rows, spacing=3, font='andale', fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None):
-        Sprite.__init__(self, parent, xy, wh, bgColor)
+    def __init__(self, parent, xy, wh, rows, spacing=3, font='calibri', fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, reverse=False):
+        Sprite.__init__(self, parent, xy, wh, bgColor, alpha=alpha)
         self.font = font
         self.bgColor = bgColor
         self.fgColor = fgColor
@@ -193,6 +191,7 @@ class TextBox(Sprite):
         self.focus = False
         self.rows = rows
         self.spacing = spacing
+        self.reverse = reverse
 
         self.loadFont()
         self.draw()
@@ -207,10 +206,9 @@ class TextBox(Sprite):
     def loadFont(self):
         '''
             It is recommended to use monospace fonts in the TextBox
-            The default is AndaleMono
         '''
         totalspacing = self.spacing*self.rows+self.spacing
-        self.fontSize = (self.image.get_height()-totalspacing)/self.rows
+        self.fontSize = ((self.image.get_height()-totalspacing)/self.rows)-self.spacing
         #self.fontSize = self.image.get_height()-4
         self.font = getFont(self.font, self.fontSize)
 
@@ -219,28 +217,39 @@ class TextBox(Sprite):
         charwidth = self.font.size('a')[0]
         chars_per_row = (self.image.get_width()/charwidth)
 
-        entries = reversed(self.text.split('\n'))
+        entries = self.text.split('\n')
+        if self.reverse:
+            entries = reversed(entries)
         entrynum = len(self.text.split('\n'))
-        rownum = self.rows-1
+        if self.reverse:
+            rownum = self.rows-1
+        else:
+            rownum = 0
         for entry in entries:
-            entrynum -= 1
+            if self.reverse:entrynum -= 1
+            else: entrynum += 1
             for row in range((len(entry)/chars_per_row)+1):
                 text = entry[row*chars_per_row:(row+1)*chars_per_row]
                 if text:
                     print(text)
                     rendered_text = self.font.render(text, True, pygame.color.Color(self.fgColor[0], self.fgColor[1], self.fgColor[2]))
                     self.image.blit(rendered_text, (self.spacing, self.spacing+(rownum*self.spacing)+(rownum*self.fontSize)))
-                    rownum -= 1
+                    if self.reverse:
+                        rownum -= 1
+                    else:
+                        rownum += 1
 
     def drawFrame(self):
         pass
 
 class InputBox(Sprite):
-    def __init__(self, parent, xy, wh, question="", fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, fontSize=None):
+    def __init__(self, parent, xy, wh, question="", fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, font='droidsansmono', fontSize=None, spacing=2):
         Sprite.__init__(self, parent, xy, wh, bgColor)
         self.bgColor = bgColor
         self.fgColor = fgColor
         self.alpha = alpha
+        self.font = font
+        self.spacing = spacing
         self.question = question
         self.inputText = ""
         self.fontSize = fontSize
@@ -257,15 +266,18 @@ class InputBox(Sprite):
 
     def loadFont(self):
         if not self.fontSize:
-            self.fontSize = self.image.get_height()-4
-        self.font = getFont('calibri', self.fontSize)
+            self.fontSize = self.image.get_height()-(self.spacing*2)
+        self.font = getFont(self.font, self.fontSize)
 
     def drawText(self):
         text = self.question + self.inputText
+        maxchars = self.image.get_width()/self.font.size("a")[0]
+        startchar = len(text)-maxchars
+        if startchar < 0: 
+            startchar = 0
+        text = text[startchar:]
         rendered_text = self.font.render(text, True, pygame.color.Color(self.fgColor[0], self.fgColor[1], self.fgColor[2]))
-        #"Singleplayer", True, pygame.color.Color(0, 0, 0)
-        #self.blit(rendered_text, (self.XY_textStart, self.XY_textStart))
-        self.image.blit(rendered_text, ((self.image.get_height()-self.fontSize)/2, (self.image.get_height()-self.fontSize)/2))
+        self.image.blit(rendered_text, (self.spacing*2, -self.spacing))
 
     def drawFrame(self):
         pass

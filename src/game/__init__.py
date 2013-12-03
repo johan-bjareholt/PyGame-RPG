@@ -3,7 +3,7 @@ from graphics.baseclasses import Surface, Sprite
 from menu.baseclasses import TextBox
 from .worlds import *
 from .worldblocks import *
-from .baseclasses import *
+from .gui import *
 from .entities import BouncyBall, Zombie
 import globals as globs
 
@@ -25,7 +25,7 @@ class GameClient():
         '''
         self.blit_background()
 
-        self.updateCamera()
+        self.update_camera()
 
         '''
             World
@@ -46,7 +46,7 @@ class GameClient():
             Gui
         '''
         # Update minimap
-        self.blitMinimap()
+        self.blit_minimap()
 
         # Blit add gui elements
         for element in self.guiElements:
@@ -59,24 +59,24 @@ class GameClient():
         self.rowstart = int((globs.cameraY-self.mapalignY)/50)
         self.rowend   = int(self.rowstart+(globs.resolution[0]/50))
 
-    def updateCamera(self):
+    def update_camera(self):
         # X
-        cameraX = globs.character.xy[0]-(globs.resolution[0]/2)
+        cameraX = globs.character.rect.x-(globs.resolution[0]/2)
         if not self.smallmapX:
             if cameraX < 0: cameraX = 0
             elif cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
             self.mapalignX = 0
         else:
-            self.mapalignX = globs.character.xy[0]
+            self.mapalignX = globs.character.rect.x
             cameraX = (globs.currentregion.pixelWidth/2) - (globs.resolution[0]/2)
         # Y
-        cameraY = globs.character.xy[1]-(globs.resolution[1]/2)
+        cameraY = globs.character.rect.y-(globs.resolution[1]/2)
         if not self.smallmapY:
             if cameraY < 0: cameraY = 0
             elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
             self.mapalignY = 0
         else:
-            self.mapalignY = globs.character.xy[1]
+            self.mapalignY = globs.character.rect.y
             cameraY = (globs.currentregion.pixelHeight/2) - (globs.resolution[1]/2)
         globs.cameraX, globs.cameraY = cameraX, cameraY
 
@@ -89,18 +89,18 @@ class GameClient():
                 if tile:
                     tile.worldBlit()
                     #self.screen.blit(tile.image, (tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
-                    tile.blitDecoration((tile.xy[0]-globs.cameraX, tile.xy[1]-globs.cameraY))
+                    tile.blitDecoration((tile.rect.x-globs.cameraX, tile.rect.y-globs.cameraY))
                 columncount += 1
             rowcount += 1
 
-    def blitMinimap(self):
+    def blit_minimap(self):
         self.miniMap.unscaledImage.fill((0,0,0))
         rowcount = self.rowstart
         for row in globs.currentregion.renderedmap[self.rowstart:self.rowend]:
             columncount = self.columnstart
             for tile in row[self.columnstart:self.columnend]:
                 if tile:
-                    self.miniMap.unscaledImage.set_at((int((tile.xy[0]-globs.cameraX)/50), int((tile.xy[1]-globs.cameraY)/50)), tile.bgColor)
+                    self.miniMap.unscaledImage.set_at((int((tile.rect.x-globs.cameraX)/50), int((tile.rect.y-globs.cameraY)/50)), tile.bgColor)
                 columncount += 1
             rowcount += 1
         self.miniMap.image = pygame.transform.scale(self.miniMap.unscaledImage, (100, 100))
@@ -188,8 +188,9 @@ class GameClient():
             print(entity)
 
         # Move character to spawncoords
-        print(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
-        globs.character.move(blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
+        spawn = (blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
+        print(spawn)
+        globs.character.rect.move_ip(*spawn)
 
 
         '''

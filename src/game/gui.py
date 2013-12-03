@@ -31,7 +31,7 @@ class ChatInputBox(InputBox):
 
 class ChatBox(TextBox):
 	def __init__(self, parent, xy, wh, rows):
-		TextBox.__init__(self, parent, xy, wh, rows, bgColor=(0,0,0), fgColor=(255,255,255), alpha=120)
+		TextBox.__init__(self, parent, xy, wh, rows, bgColor=(0,0,0), fgColor=(255,255,255), alpha=120, font='droidsansmono')
 		self.baseAlpha = 120
 		self.focusedAlpha = 180
 
@@ -45,7 +45,7 @@ class ChatBox(TextBox):
 		rownum = self.rows-1
 		for entry in entries:
 			entrynum -= 1
-			for row in range(((len(entry)/chars_per_row)+1)):
+			for row in reversed(range(((len(entry)/chars_per_row)+1))):
 				text = entry[row*chars_per_row:(row+1)*chars_per_row]
 				if text:
 					#print(text)

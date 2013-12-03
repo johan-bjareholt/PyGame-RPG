@@ -37,9 +37,9 @@ class TeleportationPad(Entity):
 		self.updateClickPosition()
 
 	def updateClickPosition(self):
-		xy = (self.xy[0]-globs.cameraX, 
-			  self.xy[1]-globs.cameraY)
-		self.clickSprite.move(xy)
+		x = self.rect.x-globs.cameraX
+		y = self.rect.y-globs.cameraY
+		self.clickSprite.rect.move(x, y)
 
 	def clicked(self):
 		globs.location = "game.world1_House"

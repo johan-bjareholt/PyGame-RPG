@@ -33,9 +33,9 @@ class Monster(CollidableEntity):
 		pass
 
 	def updateAttackArea(self):
-		x = self.xy[0]-(self.attackArea.image.get_width()/2)-(self.image.get_width()/2)
-		y = self.xy[1]-(self.attackArea.image.get_height()/2)-(self.image.get_height()/2)
-		self.attackArea.move((x, y))
+		x = self.rect.x-(self.attackArea.image.get_width()/2)-(self.image.get_width()/2)
+		y = self.rect.y-(self.attackArea.image.get_height()/2)-(self.image.get_height()/2)
+		self.attackArea.rect.topleft = (x, y)
 
 
 class Zombie(Monster):
@@ -46,14 +46,14 @@ class Zombie(Monster):
 
 	def runTowardsPlayer(self):
 		# X
-		if self.attacking.xy[0] < self.xy[0]:
+		if self.attacking.rect.x < self.rect.x:
 			self.speedX -= (globs.clock.get_time()/20.0)
-		elif self.attacking.xy[0] > self.xy[0]:
+		elif self.attacking.rect.x > self.rect.x:
 			self.speedX += (globs.clock.get_time()/20.0)
 		#print(globs.clock.get_time()/20.0)
 		#print(self.speedX)
 
 		# Y
-		if self.attacking.xy[1] < self.xy[1]-self.attacking.image.get_height():
+		if self.attacking.rect.y < self.rect.y-self.attacking.image.get_height():
 			if self.speedY == 0:
 				self.speedY = -12

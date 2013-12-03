@@ -3,16 +3,11 @@ from graphics.baseclasses import Sprite
 import globals as globs
 
 class Entity(Sprite):
-	def __init__(self, parent, xy, wh, bgColor, add=True):
+	def __init__(self, parent, xy, wh, bgColor=None, add=True):
 		Sprite.__init__(self, parent, xy, wh, bgColor)
 
 		if add:
 			globs.currentgame.entities.add(self)
-
-	def blit(self):
-		blitxy = (self.xy[0]-globs.cameraX, 
-			      self.xy[1]-globs.cameraY)
-		globs.screen.blit(self.image, blitxy)
 
 	def events(self):
 		pass
@@ -58,7 +53,7 @@ class CollidableEntity(Entity):
 			self.collidingY(speed)
 
 
-		# Collision check
+		# Out of bounds fix
 		self.fixOutOfBounds()
 
 		globs.currentgame.collidableEntities.add(self)
@@ -66,7 +61,7 @@ class CollidableEntity(Entity):
 		# Acceleration
 		#a = 0.1
 		a = globs.clock.get_time()/150.0
-		print(a)
+		#print(a)
 		if self.speedY < 0:
 			# Jumping
 			self.accelerateY(-a)
@@ -78,6 +73,9 @@ class CollidableEntity(Entity):
 
 	def accelerateY(self, percentage):
 		self.speedY *= (1+percentage)
+		#print("acceleration: "+str(1+percentage) + "\t" + str(self))
+		#print("Speed: "+str(self.speedY)+ "\t" + str(self))
+		#print("xy: " + str(self.rect.topleft) + "\t" + str(self))
 
 	def movementSteps(self, speed, height):
 		mylist = []
@@ -95,7 +93,7 @@ class CollidableEntity(Entity):
 		return mylist
 
 	def collidingX(self, speed):
-		self.move((self.X + speed, self.Y))
+		self.rect.x += speed
 
 		# Entities
 		for entity in self.entitiesColliding():
@@ -109,14 +107,14 @@ class CollidableEntity(Entity):
 			self.speedX *=self.bounce
 
 	def collidingY(self, speed):
-		self.move((self.X, self.Y + speed))
+		self.rect.y += speed
 
 		# Entities
-		if pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities):
-			self.unstuckEntitiesY()
-		#for entity in self.entitiesColliding():
-		#	self.entityCollisionY(entity)
+		#if pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities):
 		#	self.unstuckEntitiesY()
+		for entity in self.entitiesColliding():
+			self.entityCollisionY(entity)
+			self.unstuckEntitiesY()
 
 		# Blocks
 		collidingBlock = self.blockColliding()
@@ -135,15 +133,15 @@ class CollidableEntity(Entity):
 		return entities
 
 	def blockColliding(self):
-		x = self.xy[0]/50
-		maxx = (self.xy[0]+self.image.get_width())/50
+		x = self.rect.x/50
+		maxx = (self.rect.x+self.image.get_width())/50
 		possible_x = []
 		for iteration in range(x, maxx+1):
 			possible_x.append(iteration)
 		#print(possible_x)
 
-		y = (self.xy[1])/50
-		maxy = (self.xy[1]+self.image.get_height())/50
+		y = (self.rect.y)/50
+		maxy = (self.rect.y+self.image.get_height())/50
 		possible_y = []
 		for iteration in range(y, maxy+1):
 			possible_y.append(iteration)
@@ -165,12 +163,15 @@ class CollidableEntity(Entity):
 
 		if collidedItem:
 			while collided:
-				print("Unstucking " + str(self) + " from block " + str(collidedItem))
+				#print("Unstucking " + str(self) + " from block " + str(collidedItem) + " in Y")
 				if self.speedY < 0:
-					Y = collidedItem.xy[1]+collidedItem.image.get_height()
+					Y = collidedItem.rect.y+collidedItem.image.get_height()
 				elif self.speedY > 0:
-					Y = collidedItem.xy[1]-self.image.get_height()
-				self.move((self.X, Y))
+					Y = collidedItem.rect.y-self.image.get_height()
+				else:
+					self.unstuckBlocksX()
+					Y = self.rect.y
+				self.rect.y = Y
 				collidedItem = self.blockColliding()
 
 				if not collidedItem:
@@ -182,29 +183,27 @@ class CollidableEntity(Entity):
 			collidedItem = self.blockColliding()
 
 		if self.speedX > 0:
-			x = collidedItem.xy[0]-self.image.get_width()
-			self.move((x, self.Y))
+			x = collidedItem.rect.x-self.image.get_width()
 		elif self.speedX < 0:
-			x = collidedItem.xy[0]+self.image.get_width()
-			self.move((x, self.Y))
+			x = collidedItem.rect.x+self.image.get_width()
+		self.rect.x = x
 
 	def unstuckEntitiesY(self):
 		collided = True
 		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.collidableEntities)
 		if collidedItem:
 			while collided:
-				self.entityCollisionY(collidedItem)
 				print("Unstucking " + str(self) + " from entity " + str(collidedItem) + " in Y")
-				print("s1: {} s2: {} xy1: {} xy2:{}".format(self.speedY, collidedItem.speedY, self.xy, collidedItem.xy))
-				Y = self.Y
-				if (self.xy[1]+self.image.get_height())/2 > (collidedItem.xy[1]+collidedItem.image.get_height())/2:
+				print("s1: {} s2: {} xy1: {} xy2:{}".format(self.speedY, collidedItem.speedY, self.rect.topleft, collidedItem.rect.topleft))
+				Y = self.rect.y
+				if (self.rect.y+self.image.get_height())/2 > (collidedItem.rect.y+collidedItem.image.get_height())/2:
 					print("3")
 					Y = self.underOf(collidedItem)
-				elif (self.xy[1]+self.image.get_height())/2 < (collidedItem.xy[1]+collidedItem.image.get_height())/2:
+				elif (self.rect.y+self.image.get_height())/2 < (collidedItem.rect.y+collidedItem.image.get_height())/2:
 					print("4")
 					Y = self.aboveOf(collidedItem)
 
-				self.move((self.X, Y))
+				self.rect.y = Y
 				if self.blockColliding():
 					self.unstuckBlocksY()
 					collidedItem.unstuckEntitiesY()
@@ -220,16 +219,16 @@ class CollidableEntity(Entity):
 		if collidedItem:
 			while collided:
 				print("Unstucking " + str(self) + " from entity " + str(collidedItem) + " in X")
-				print("s1: {} s2: {} xy1: {} xy2:{}".format(self.speedX, collidedItem.speedX, self.xy, collidedItem.xy))
-				X = self.X
-				if (self.xy[0]+self.image.get_width())/2 < (collidedItem.xy[0]+collidedItem.image.get_width())/2:
+				print("s1: {} s2: {} xy1: {} xy2:{}".format(self.speedX, collidedItem.speedX, self.rect.topleft, collidedItem.rect.topleft))
+				X = self.rect.x
+				if (self.rect.x+self.image.get_width())/2 < (collidedItem.rect.x+collidedItem.image.get_width())/2:
 					print("3")
 					X = self.leftOf(collidedItem)
-				elif (self.xy[0]+self.image.get_width())/2 > (collidedItem.xy[0]+collidedItem.image.get_width())/2:
+				elif (self.rect.x+self.image.get_width())/2 > (collidedItem.rect.x+collidedItem.image.get_width())/2:
 					print("4")
 					X = self.rightOf(collidedItem)
 
-				self.move((X, self.Y))
+				self.rect.x = X
 
 				if self.blockColliding():
 					self.unstuckBlocksX()
@@ -241,32 +240,50 @@ class CollidableEntity(Entity):
 					collided = False
 
 	def onGround(self):
-		self.move((self.X, self.Y+1))
+		self.rect.y += 1
 		if self.blockColliding() or self.entitiesColliding()!=[]:
 			onground = True
 		else:
 			onground = False
-		self.move((self.X, self.Y-1))
+		self.rect.y -= 1
 		return onground
 
+	def bySide(self):
+		self.rect.x += 1
+		byside = False
+		if self.blockColliding(): #or self.entitiesColliding()!=[self]:
+			byside = True
+		self.rect.y -= 2
+		if self.blockColliding(): #or self.entitiesColliding()!=[self]:
+			byside = True
+		self.rect.y += 1
+		return byside
+
 	def aboveOf(self, item):
-		return item.xy[1]-self.image.get_height()
+		return item.rect.y-self.image.get_height()
 
 	def underOf(self, item):
-		return item.xy[1]+item.image.get_height()
+		return item.rect.y+item.image.get_height()
 
 	def leftOf(self, item):
-		return item.xy[0]-self.image.get_width()
+		return item.rect.x-self.image.get_width()
 
 	def rightOf(self, item):
-		return item.xy[0]+item.image.get_width()
+		return item.rect.x+item.image.get_width()
 
 	def entityCollisionX(self, collidedItem):
 		print(self.speedY)
 
-
 		p1 = self.get_force()[0]
 		p2 = collidedItem.get_force()[0]
+		if self.bySide():
+			p1 = p2
+			p2 = 0
+			print("By side!")
+		elif collidedItem.bySide():
+			p1 = 0
+			p2 = p1
+			print("By side!")
 
 		f1 = (p2/self.mass)/2
 		f2 = (p1/collidedItem.mass)/2
@@ -286,9 +303,9 @@ class CollidableEntity(Entity):
 
 		bounce = self.bounce
 		if self.onGround:
-			bounce = 0
-		elif collidedItem.onGround():
 			bounce = 1
+		elif collidedItem.onGround():
+			bounce = 0
 		else:
 			if self.bounce:
 				bounce = self.bounce
@@ -309,22 +326,22 @@ class CollidableEntity(Entity):
 		# Out of bounds Y
 
 		# Reaches bottom boundary
-		if self.Y > globs.currentregion.pixelHeight-self.image.get_height():
-			self.move((self.xy[0], globs.currentregion.pixelHeight-self.image.get_height()))
+		if self.rect.y > globs.currentregion.pixelHeight-self.image.get_height():
+			self.rect.topleft = (self.rect.x, globs.currentregion.pixelHeight-self.image.get_height())
 			self.speedX *= -self.bounce
 		# Reaches top boundary
-		elif self.Y < 0:
-			self.move((self.xy[0], 0))
+		elif self.rect.y < 0:
+			self.rect.topleft = (self.rect.x, 0)
 			self.speedY = 1
 
 
 		# Out of bounds X
 
 		# Reaches left boundary
-		if self.X > globs.currentregion.pixelWidth-self.image.get_width():
-			self.move((globs.currentregion.pixelWidth-self.image.get_width(), self.xy[1]))
+		if self.rect.x > globs.currentregion.pixelWidth-self.image.get_width():
+			self.rect.topleft = (globs.currentregion.pixelWidth-self.image.get_width(), self.rect.y)
 			self.speedX *= -self.bounce
 		# Reaches right boundary
-		elif self.X < 0:
-			self.move((0, self.xy[1]))
+		elif self.rect.x < 0:
+			self.rect.topleft = (0, self.rect.y)
 			self.speedX *= -self.bounce

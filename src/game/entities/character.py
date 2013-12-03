@@ -2,6 +2,7 @@ import pygame
 import globals as globs
 
 from game.entities.baseclasses import CollidableEntity
+from game.entities.weapons import *
 
 import game.characters as chars
 
@@ -11,10 +12,13 @@ class Character(CollidableEntity):
 
 		self.load_attributes()
 
+		self.weapon = Sword(parent, self, 10, 5)
+
 		self.draw_body()
 
 	def events(self):
 		self.update_direction()
+
 
 	'''
 
@@ -25,9 +29,7 @@ class Character(CollidableEntity):
 	def draw_body(self):
 		#pygame.draw.rect(self.image, (0,0,0), bodyRect)
 
-		self.facefacing = "right"
-		self.bodyfacing = "right"
-		self.legDirection = 1
+		self.facing = "front"
 
 		headR = 10
 		headY = headR
@@ -59,32 +61,26 @@ class Character(CollidableEntity):
 		self.legs.fill(self.legsColor)
 		pygame.draw.rect(self.legs, self.legsColorDark, pygame.Rect((0,0),(self.legsW, self.legsH)), 3)
 
-	def blit(self):
-		camera = (globs.cameraX, globs.cameraY)
-		self.parent.blit(self.image, (self.xy[0]-camera[0], self.xy[1]-camera[1]))
+	def worldBlit(self):
+		xy = (self.rect.x-globs.cameraX, self.rect.y-globs.cameraY)
+		self.parent.blit(self.image, xy)
 		#Body
-		self.parent.blit(self.body, (self.xy[0]+self.bodyX-camera[0], self.xy[1]+self.bodyY-camera[1]))
+		self.parent.blit(self.body, (self.rect.x+self.bodyX-globs.cameraX, self.rect.y+self.bodyY-globs.cameraY))
 		# Legs
-		if self.speedX != 0:
-			# Leg 1
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX1-camera[0], self.xy[1]+self.legsY-camera[1]))
-			# Leg 2
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX2-camera[0], self.xy[1]+self.legsY-camera[1]))
-		else:
-			# Leg 1
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX1-camera[0], self.xy[1]+self.legsY-camera[1]))
-			# Leg 2
-			self.parent.blit(self.legs, (self.xy[0]+self.legsX2-camera[0], self.xy[1]+self.legsY-camera[1]))
+		# Leg 1
+		self.parent.blit(self.legs, (self.rect.x+self.legsX1-globs.cameraX, self.rect.y+self.legsY-globs.cameraY))
+		# Leg 2
+		self.parent.blit(self.legs, (self.rect.x+self.legsX2-globs.cameraX, self.rect.y+self.legsY-globs.cameraY))
+
+		self.weapon.blit()
 
 	def update_direction(self):
 		if self.speedX > 0:
-			self.facefacing = "left"
-			self.bodyfacing = "left"
+			self.facing = "left"
 		elif self.speedX < 0:
-			self.facefacing = "right"
-			self.bodyfacing = "left"
+			self.facing = "right"
 		else:
-			self.facefacing = "front"
+			self.facing = "front"
 
 	'''
 
@@ -139,13 +135,11 @@ class Character(CollidableEntity):
 		globs.currentgame.collidableEntities.add(self)
 
 	'''
-
 		Actions
-
 	'''
 
 	def action(self):
-		if pygame.sprite.spritecollideany(self, globs.currentgame.entities):
+		if pygame.spritecollideany(self, globs.currentgame.entities):
 			print("Action!")
 
 	def worldAction(self):

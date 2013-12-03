@@ -49,11 +49,11 @@ def loop():
 
     elif mode == "game":
         if globs.lastlocation != globs.location:
+            globs.currentgame = GameClient(screen)
             if globs.lastlocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
                 globs.character = Character(screen, (0,0), add=False)
                 #print("Loaded character")
-            globs.currentgame = GameClient(screen)
             globs.currentgame.load(sub)
 
         globs.currentgame.loop()
