@@ -19,7 +19,10 @@ shiftsymbols = {
     '8':'(',
     '9':')',
     '0':'=',
-    '+':'?'
+    '+':'?',
+
+    '.':':',
+    ',':';',
 }
 altsymbols = {
     '1':'!',
@@ -32,7 +35,7 @@ altsymbols = {
     '8':'[',
     '9':']',
     '0':'}',
-    '+':'\\'
+    '+':'\\',
 }
 
 class Input:
@@ -135,6 +138,9 @@ class Input:
                 if self.keydown(pygame.K_RETURN):
                     globs.currentgame.chatInputBox.clicked()
 
+            if pygame.mouse.get_pressed()[0]:
+                globs.character.weapon.attack()
+
 
             # Movement
             force = 25
@@ -171,12 +177,18 @@ class Input:
                         if chr(inkey) in string.ascii_lowercase:
                             character = chr(inkey).capitalize()
                         else:
-                            character = shiftsymbols[chr(inkey)]
+                            try:
+                                character = shiftsymbols[chr(inkey)]
+                            except KeyError:
+                                character = chr(inkey)
                     elif self.pressed[pygame.K_RALT] or self.pressed[pygame.K_LALT]:
                         if chr(inkey) in string.ascii_lowercase:
                             character = chr(inkey).capitalize()
                         else:
-                            character = altsymbols[chr(inkey)]
+                            try:
+                                character = altsymbols[chr(inkey)]
+                            except KeyError:
+                                character = chr(inkey)
                     else:
                         character = chr(inkey) 
                     globs.focused.inputText += character

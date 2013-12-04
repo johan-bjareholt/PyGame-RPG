@@ -8,12 +8,13 @@ import game.characters as chars
 
 class Character(CollidableEntity):
 	def __init__(self, parent, xy, add):
-		CollidableEntity.__init__(self, parent, xy, (50,90), (255,255,255), add=add)
+		CollidableEntity.__init__(self, parent, xy, (40,90), (255,0,255), add=add)
 
 		self.load_attributes()
 
-		self.weapon = Sword(parent, self, 10, 5)
+		self.weapon = LongSword(parent, self)
 
+		self.facing = "left"
 		self.draw_body()
 
 	def events(self):
@@ -27,50 +28,22 @@ class Character(CollidableEntity):
 	'''
 
 	def draw_body(self):
-		#pygame.draw.rect(self.image, (0,0,0), bodyRect)
-
-		self.facing = "front"
-
-		headR = 10
-		headY = headR
-		headX = (self.image.get_width()/2)
-
-		pygame.draw.circle(self.image, (0,0,0), (headX, headY), headR)
-
-		self.bodyH = 35
-		self.bodyW = 30
-		self.bodyY = (self.image.get_height()/2)-(self.bodyH/2)
-		self.bodyX = (self.image.get_width()-self.bodyW)/2#(self.image.get_width()/2)-(bodyW/2)
-		bodyColor = (0,0,255)
-
-		self.body = pygame.surface.Surface((self.bodyW, self.bodyH))
-		bodyRect = pygame.Rect((self.bodyX, self.bodyY), (self.bodyW, self.bodyH))
-		self.body.fill(bodyColor)
-
-		self.legsW = 15
-		self.legsH = 20
-		self.legsY = self.bodyY+self.bodyH
-		extrainwards = 2
-		self.legsX1 = self.bodyX+extrainwards
-		self.legsX2 = self.bodyX+self.bodyW-self.legsW-extrainwards
-
-		self.legs = pygame.surface.Surface((self.legsW, self.legsH))
-		#bodyRect = pygame.Rect((self.bodyX, self.bodyY), (self.legsW, self.legsH))
-		self.legsColor = (255,180,140)
-		self.legsColorDark = pygame.color.Color(210,140,100)
-		self.legs.fill(self.legsColor)
-		pygame.draw.rect(self.legs, self.legsColorDark, pygame.Rect((0,0),(self.legsW, self.legsH)), 3)
+		# Body
+		self.basebody = pygame.image.load(globs.datadir+"png/body/base.png")
+		self.basebody = self.basebody.convert_alpha()
+		self.image.blit(self.basebody, (0,0))
+		# Feet
+		self.lfoot = pygame.image.load(globs.datadir+"png/body/foot.png")
+		self.lfoot = self.basebody.convert_alpha()
+		# Left foot
+		#self.image.blit(self.lfoot, (5,80))
+		# Right foot
+		#self.rfoot = pygame.transform.flip(self.lfoot, True, False)
+		#self.image.blit(self.rfoot, (40-5-12,80))
 
 	def worldBlit(self):
 		xy = (self.rect.x-globs.cameraX, self.rect.y-globs.cameraY)
 		self.parent.blit(self.image, xy)
-		#Body
-		self.parent.blit(self.body, (self.rect.x+self.bodyX-globs.cameraX, self.rect.y+self.bodyY-globs.cameraY))
-		# Legs
-		# Leg 1
-		self.parent.blit(self.legs, (self.rect.x+self.legsX1-globs.cameraX, self.rect.y+self.legsY-globs.cameraY))
-		# Leg 2
-		self.parent.blit(self.legs, (self.rect.x+self.legsX2-globs.cameraX, self.rect.y+self.legsY-globs.cameraY))
 
 		self.weapon.blit()
 
@@ -79,8 +52,6 @@ class Character(CollidableEntity):
 			self.facing = "left"
 		elif self.speedX < 0:
 			self.facing = "right"
-		else:
-			self.facing = "front"
 
 	'''
 

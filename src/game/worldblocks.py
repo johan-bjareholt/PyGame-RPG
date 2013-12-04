@@ -57,17 +57,13 @@ class Block_002(Block):
 		Block.__init__(self, xy, bgColor=(50,200,50))
 		grasswh = (60,25)
 		self.grass = Sprite(globs.screen, self.rect.topleft, grasswh, bgColor=(255,0,255))
-		self.grass.image = pygame.image.load(globs.datadir+"/png/short_grass.png")
+		self.grass.image = pygame.image.load(globs.datadir+"/png/blocks/002_decoration.png")
 		self.grass.image.convert()
 		self.grass.image.convert_alpha()
 
 	def blitDecoration(self, xy):
-		#pass
 		self.grass.rect.topleft = (self.rect.x-5, self.rect.y-20)
 		self.grass.worldBlit()
-		#rect = pygame.Rect(xy[0]-5, xy[1]-20, self.grass.get_width(), self.grass.get_height())
-		#globs.dirtyrects.append(rect)
-		#globs.screen.blit(self.grass, (xy[0]-5, xy[1]-20))
 
 class Block_010(Block):
 	'''
@@ -127,19 +123,6 @@ class Block_026(Block):
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(70,60,48), flags=[])
 		pygame.draw.line(self.image, (0,0,0), (0,0), (0,50))
-
-class Block_029(Block):
-	'''
-	Stairs
-	'''
-	def __init__(self, xy):
-		Block.__init__(self, xy, bgColor=(255,0,255), flags=['climbable', 'uncollidable'])
-		self.image.set_colorkey((255,0,255))
-		self.stairs = pygame.image.load(globs.datadir+"/png/stairs.png")
-		self.stairs.convert()
-		self.stairs.convert_alpha()
-
-		self.image.blit(self.stairs, (0,0))
 
 class Block_050(Block):
 	'''

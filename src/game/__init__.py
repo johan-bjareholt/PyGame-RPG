@@ -53,11 +53,16 @@ class GameClient():
             element.blit(globs.screen)
 
     def update_map_render_size(self):
-        self.columnstart = int((globs.cameraX-self.mapalignX)/50)
-        self.columnend   = int(self.columnstart+2*(globs.resolution[1]/50))
-
-        self.rowstart = int((globs.cameraY-self.mapalignY)/50)
-        self.rowend   = int(self.rowstart+(globs.resolution[0]/50))
+        if not self.smallmapY:
+            self.columnstart = int((globs.cameraX-self.mapalignX)/50)
+            self.columnend   = int(self.columnstart+2*(globs.resolution[1]/50))
+        else:
+            self.columnstart, self.columnend = 0, globs.resolution[1]/50
+        if not self.smallmapY:
+            self.rowstart = int((globs.cameraY-self.mapalignY)/50)
+            self.rowend   = int(self.rowstart+(globs.resolution[0]/50))
+        else:
+            self.rowstart, self.rowend = 0, globs.resolution[0]/50
 
     def update_camera(self):
         # X
@@ -173,20 +178,19 @@ class GameClient():
         self.worldEntities = pygame.sprite.Group()
         # General Entities
         self.players = pygame.sprite.Group()
-        self.entities = pygame.sprite.Group()
+        self.entities = pygame.sprite.LayeredUpdates()
         self.collidableEntities = pygame.sprite.Group()
         self.clickableEntities = pygame.sprite.Group()
+
+        for entity in globs.currentregion.entities:
+            print(entity)
+            xy = blockPixel(entity[1][0], entity[1][1])
+            entity[0](globs.screen, xy, *entity[2:])
+
 
         self.players.add(globs.character)
         self.entities.add(globs.character)
         self.collidableEntities.add(globs.character)
-
-
-        for entity in globs.currentregion.entities:
-            xy = blockPixel(entity[1][0], entity[1][1])
-            entity[0](globs.screen, xy)
-            print(entity)
-
         # Move character to spawncoords
         spawn = (blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
         print(spawn)
