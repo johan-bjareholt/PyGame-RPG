@@ -1,7 +1,7 @@
 import pygame
 import globals as globs
 
-from menu.baseclasses import InputBox, TextBox, Container
+from menu.baseclasses import InputBox, TextBox, ButtonContainer
 
 class ChatInputBox(InputBox):
 	def __init__(self, parent, xy, wh):
@@ -56,13 +56,13 @@ class ChatBox(TextBox):
 	def addEntry(self, name, message):
 		self.text += "\n{}: {}".format(name, message)
 
-class SystemMenu(Container):
+class SystemMenu(ButtonContainer):
 	def __init__(self, asd):
 		text = "System Menu"
 		wh = (200,300)
 		xy = ((globs.resolution[0]/2)-(wh[0]/2), (globs.resolution[1]/2)-(wh[1]/2))
 		self.hidden = True
-		Container.__init__(self, globs.screen, xy, wh, text=text,
+		ButtonContainer.__init__(self, globs.screen, xy, wh, text=text,
                 		   bgColor=(235,235,235), buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=15)
 		self.parent = globs.currentgame
 

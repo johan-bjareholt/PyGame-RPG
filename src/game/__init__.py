@@ -38,7 +38,7 @@ class GameClient():
             Entities
         '''
 
-        for entity in self.entities:
+        for entity in self.entities.sprites():
             entity.worldBlit()
 
 
@@ -120,31 +120,27 @@ class GameClient():
         globs.lastCameraX, globs.lastCameraY = 0, 0
 
         '''
-            Background
-        '''
-
-        # Load world surfaces
-        self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
-        self.backgroundSurface.fill((100,120,200))
-
-        '''
             Load region
         '''
         # Load
         world, region = regionname.split('_')
 
         regiondata = self.gameserver.get_region(region)
-        #print(regionkwargs)
         globs.currentregion = Region(*regiondata)
 
-        # Create/Clear world sprite groups
+        ''' Draw background '''
+        background = globs.currentregion.background
+        self.backgroundSurface = Surface((globs.resolution[0], globs.resolution[1]))
+        self.backgroundSurface.fill(background)
+
+        ''' Set up block groups '''
         self.worldBlocks = pygame.sprite.Group()
         self.collidableBlocks = pygame.sprite.Group()
         # Special world blocks
         self.climbableBlocks = pygame.sprite.Group()
 
+        ''' Load blocks '''
         globs.currentregion.renderedmap = []
-        # Load blocks
         rowcount = 1
         for row in globs.currentregion:
             columncount = 1
@@ -160,7 +156,7 @@ class GameClient():
                 columncount += 1
             globs.currentregion.renderedmap.append(renderedRow)
             rowcount += 1
-
+        ''' See if region is small enough to turn on small region mode '''
         if len(globs.currentregion) < (globs.resolution[0]/50)+1:
             self.smallmapX = len(globs.currentregion)
         else:
@@ -171,38 +167,49 @@ class GameClient():
             self.smallmapY = False
 
         '''
+
             Entities
+
         '''
+
+        ''' Set up entity groups '''
         # World entities
         self.worldEntitiyBlocks = pygame.sprite.Group()
         self.worldEntities = pygame.sprite.Group()
         # General Entities
         self.players = pygame.sprite.Group()
-        self.entities = pygame.sprite.LayeredUpdates()
+        self.lethals = pygame.sprite.Group()
+        self.entities = pygame.sprite.LayeredUpdates(default_layer=0)
         self.collidableEntities = pygame.sprite.Group()
         self.clickableEntities = pygame.sprite.Group()
 
+        ''' Spawn entities '''
         for entity in globs.currentregion.entities:
             print(entity)
             xy = blockPixel(entity[1][0], entity[1][1])
             entity[0](globs.screen, xy, *entity[2:])
 
-
+        ''' Spawn character '''
         self.players.add(globs.character)
         self.entities.add(globs.character)
         self.collidableEntities.add(globs.character)
+        self.entities.change_layer(globs.character, 8)
         # Move character to spawncoords
         spawn = (blockPixel(globs.currentregion.spawnCoordinates[0], globs.currentregion.spawnCoordinates[1]))
         print(spawn)
         globs.character.rect.move_ip(*spawn)
+        print(self.entities.layers())
 
 
         '''
             GUI
         '''
+
+        ''' Set up GUI groups '''
         self.buttons = pygame.sprite.Group()
         self.guiElements = pygame.sprite.Group()
 
+        ''' Load GUI elements '''
         # ChatBox
         self.chatBox = ChatBox(globs.screen, (5, globs.resolution[1]-35-5-90), (300,90), 5)
         self.guiElements.add(self.chatBox)
@@ -220,7 +227,6 @@ class GameClient():
 
         # System Menu
         self.systemMenu = SystemMenu(globs.screen)
-        #self.guiElements.add(self.systemMenu)
 
 
 class GameServer():
@@ -240,7 +246,7 @@ class GameServer():
         if not globs.connection:
             if not regionname in self.regions:
                 self.regions[regionname] = eval(self.world + '.' + regionname + '()')
-            return self.regions[regionname].name, self.regions[regionname].spawnCoordinates, self.regions[regionname], self.regions[regionname].entities
+            return self.regions[regionname].name, self.regions[regionname].spawnCoordinates, self.regions[regionname], self.regions[regionname].entities, self.regions[regionname].background
         else:
             globs.network.game.get_region()
             while not globs.regiondata:

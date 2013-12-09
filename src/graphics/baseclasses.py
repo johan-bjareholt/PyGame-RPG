@@ -96,7 +96,7 @@ class Sprite(pygame.sprite.Sprite):
 
 class Text(Sprite):
     def __init__(self, parent, xy, text, size, color=(0, 0, 0), font="calibri"):
-        self.font = getFont(font, size)
+        self.font = globs.getFont(font, size)
         self.color = color
         self.text = text
         self.draw()
@@ -106,8 +106,3 @@ class Text(Sprite):
 
     def draw(self):
         self.renderedText = self.font.render(self.text, True, pygame.color.Color(self.color[0], self.color[1], self.color[2]))
-
-
-def getFont(name, fontsize):
-    fontlocation = globs.cwd + "/data/fonts/" + name + ".ttf"
-    return pygame.font.Font(fontlocation, fontsize)

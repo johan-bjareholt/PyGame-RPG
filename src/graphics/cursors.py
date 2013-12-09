@@ -7,6 +7,7 @@ class Cursor:
 class CircleCursor_white(Cursor):
     def __init__(self):
         Cursor.__init__(self)
+        self.size = (8,8)
         self.stringcursor = (
             "  ....  ",
             " .XXXX. ",
@@ -20,6 +21,7 @@ class CircleCursor_white(Cursor):
 class CircleCursor_black(Cursor):
     def __init__(self):
         Cursor.__init__(self)
+        self.size = (8,8)
         self.stringcursor = (
             "  XXXX  ",
             " X....X ",
@@ -33,6 +35,7 @@ class CircleCursor_black(Cursor):
 class ClassicCursor_black(Cursor):
     def __init__(self):
         Cursor.__init__(self)
+        self.size = (24, 24)
         self.stringcursor = (
             "XX                      ",
             "XXX                     ",
@@ -55,6 +58,36 @@ class ClassicCursor_black(Cursor):
             "      XX..XX            ",
             "       XXXX             ",
             "       XX               ",
+            "                        ",
+            "                        ",
+            "                        ")
+
+class SwordCursor_black(Cursor):
+    def __init__(self):
+        Cursor.__init__(self)
+        self.size = (24, 24)
+        self.stringcursor = (
+            "..                      ",
+            ".XX.                    ",
+            " .XX.                   ",
+            "  .XX.                  ",
+            "   .XX.                 ",
+            "    .XX.                ",
+            "     .XX.               ",
+            "      .XX.    .         ",
+            "       .XX.  .X.        ",
+            "        .XX..XX.        ",
+            "         .XXXX.         ",
+            "          .XX.          ",
+            "         .XX.X.         ",
+            "        .XX. .X.        ",
+            "         ..   .X.       ",
+            "               .X       ",
+            "                        ",
+            "                        ",
+            "                        ",
+            "                        ",
+            "                        ",
             "                        ",
             "                        ",
             "                        ")

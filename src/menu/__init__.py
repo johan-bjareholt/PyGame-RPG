@@ -81,7 +81,7 @@ class CharacterMenu(Menu):
 
     def drawMain(self):
         characters = game.characters.listCharacters()
-        self.characterContainer = Container(self, ((globs.resolution[0]/2)-200-200, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
+        self.characterContainer = ButtonContainer(self, ((globs.resolution[0]/2)-200-200, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
 
         if characters:
             self.characterButtons = []
@@ -208,7 +208,7 @@ class SettingsMenu(Menu):
         # Create resolution buttons and container
         resolutions = [(960,540),(1280,720),(1600,900),(1920,1080),(3200,1024)]
         # Container
-        self.resolutionContainer = Container(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*65)+50), text="Display", buttonSpacing=20)
+        self.resolutionContainer = ButtonContainer(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*65)+50), text="Display", buttonSpacing=20)
         self.resolutionButtons = []
         # create each button
 
@@ -217,6 +217,8 @@ class SettingsMenu(Menu):
                 globs.resolution = resolutions[self.resolution]
                 globs.redraw = True
                 globs.initialize_screen()
+                globs.config.set("video", "resolution", self.text)
+                globs.write_config()
             resButton = self.resolutionContainer.newButton("{}x{}".format(r[0], r[1]), resButton_clicked)
             resButton.resolution = i
 
@@ -232,8 +234,10 @@ class SettingsMenu(Menu):
 
         def fullscreenButton_clicked(self):
             globs.fullscreen = not globs.fullscreen
-            globs.initializeScreen()
+            globs.initialize_screen()
             globs.redraw = True
+            globs.config.set("video", "fullscreen", globs.fullscreen)
+            globs.write_config()
         self.fullscreenButton.onClick(fullscreenButton_clicked)
 
         self.buttons.add(self.fullscreenButton)

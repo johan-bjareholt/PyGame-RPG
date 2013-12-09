@@ -4,9 +4,10 @@ from graphics.baseclasses import Sprite
 
 
 class Region(list):
-	def __init__(self, name, spawn, world, entities):
+	def __init__(self, name, spawn, world, entities, background):
 		self.spawnCoordinates = spawn
 		self.name = name
+		self.background = background
 		self[:] = world
 		self.entities = entities
 

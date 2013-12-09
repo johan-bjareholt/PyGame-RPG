@@ -115,8 +115,14 @@ def screenshot():
 def load_cursor(name):
     cursor = eval(name)()
     compiledCursor = pygame.cursors.compile(cursor.stringcursor, black=cursor.black, white=cursor.white, xor='o')
-    pygame.mouse.set_cursor((8,8),(4,4),*compiledCursor)
+    pygame.mouse.set_cursor(cursor.size,(4,4),*compiledCursor)
 
+def getFont(name, fontsize):
+    fontlocation = globs.cwd + "/data/fonts/" + name + ".ttf"
+    return pygame.font.Font(fontlocation, fontsize)
+
+globs.getFont = getFont
 globs.initialize_screen = initialize_screen
+globs.load_cursor = load_cursor
 initialize_screen()
 load_cursor("CircleCursor_black")

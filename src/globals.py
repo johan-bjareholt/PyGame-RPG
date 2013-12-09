@@ -7,12 +7,18 @@ cwd = os.getcwd()
 maindir = os.path.dirname(cwd)
 datadir = cwd+"/data/"
 
-try:
-	print('Loading settings conf')
-	config = ConfigParser.ConfigParser()
-	config.read("settings.conf")
-except Exception as e:
-	print('Could not load settings file')
+config = ConfigParser.RawConfigParser()
+def read_config():
+	try:
+		print('Loading settings conf')
+		config.read("settings.conf")
+	except Exception as e:
+		print('Could not load settings file')
+def write_config():
+	with open('settings.conf', 'wb') as configfile:
+		config.write(configfile)
+
+read_config()
 
 location = "menu.main"
 lastlocation = ""

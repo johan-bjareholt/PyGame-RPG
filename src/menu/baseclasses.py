@@ -50,10 +50,39 @@ class Menu(Surface):
         self.blitMain()
 
 
-
-
-
 class Container(Sprite):
+    def __init__(self, parent, xy, wh, bgColor=(235,235,235), text='', textsize=10, spacing=2):
+        Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
+        self.text = text
+        self.spacing = spacing
+        self.entries = []
+
+    def draw(self):
+        x = 10
+        y = self.spacing
+
+        # Draw text
+        self.textSprite = Text(self, x, y, self.textsize)
+
+        x += self.textsize + self.spacing
+
+        # Draw entries
+        for entry in self.entries:
+            entry.localxy = (y, x)
+            entry.rect.topleft = (x+self.rect.x, y+self.rect.y)
+            x += entry.rect.x + self.spacing
+
+    def addEntry(self, sprite, w=None, h=None):
+        if not w:
+            w = self.image.get_width()-(self.buttonSpacing*2)
+        if not h:
+            h = 35
+
+        self.entries.append(sprite)
+
+
+
+class ButtonContainer(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(235,235,255), text='',
                  buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=10):
         Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
@@ -123,7 +152,7 @@ class Button(Sprite):
             if not self.fontsize:
                 self.fontsize = (self.image.get_height()/2)+2
             # Load font
-            self.font = getFont(self.fontname, self.fontsize)
+            self.font = globs.getFont(self.fontname, self.fontsize)
             self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
             # Center text
             x = (self.image.get_width()-self.renderedText.get_width())/2
@@ -154,7 +183,7 @@ class ToggleButton(Button):
             if not self.fontsize:
                 self.fontsize = (self.image.get_height()/2)+2
             # Load font
-            self.font = getFont(self.fontname, self.fontsize)
+            self.font = globs.getFont(self.fontname, self.fontsize)
             self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
             # Center text
             x = self.image.get_height()/4
@@ -210,7 +239,7 @@ class TextBox(Sprite):
         totalspacing = self.spacing*self.rows+self.spacing
         self.fontSize = ((self.image.get_height()-totalspacing)/self.rows)-self.spacing
         #self.fontSize = self.image.get_height()-4
-        self.font = getFont(self.font, self.fontSize)
+        self.font = globs.getFont(self.font, self.fontSize)
 
     def drawText(self):
         charcount = self.text.count('')
@@ -267,7 +296,7 @@ class InputBox(Sprite):
     def loadFont(self):
         if not self.fontSize:
             self.fontSize = self.image.get_height()-(self.spacing*2)
-        self.font = getFont(self.font, self.fontSize)
+        self.font = globs.getFont(self.font, self.fontSize)
 
     def drawText(self):
         text = self.question + self.inputText
@@ -313,7 +342,3 @@ class BackButton(Button):
         globs.location = self.back
         if globs.focused:
             globs.focused.unfocus()
-
-def getFont(name, fontsize):
-    fontlocation = globs.cwd + "/data/fonts/" + name + ".ttf"
-    return pygame.font.Font(fontlocation, fontsize)

@@ -66,6 +66,29 @@ class DeadTree(Entity):
 		self.image.blit(tree, (0,0))
 
 
+class Sign(Entity):
+	def __init__(self, parent, xy, text):
+		Entity.__init__(self, parent, xy, (100,100), (255,0,255))
+		globs.currentgame.climbableBlocks.add(self)
+		#self.image.fill((255,255,255))
+		self.text = text
+		self.draw()
+
+	def draw(self):
+		self.image.fill((255,0,255))
+		self.image.set_colorkey((255,0,255))
+		sign = pygame.image.load(globs.datadir+"/png/entities/sign.png").convert_alpha()
+		self.image.blit(sign, (0,0))
+
+		signtopleft = (7,10)
+		signbottomright = (93,70)
+
+		font = globs.getFont("calibri", 12)
+		for line, linetext in enumerate(self.text.split("\n")):
+			renderedtext = font.render(linetext, True, pygame.color.Color(0, 0, 0))
+			self.image.blit(renderedtext, ((self.image.get_width()/2)-(renderedtext.get_width()/2),signtopleft[1]+3+(line*12)))
+
+
 class TeleportationPad(Entity):
 	def __init__(self, parent, xy, location):
 		Entity.__init__(self, parent, xy, (50,100), (255,0,255))

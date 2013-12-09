@@ -126,10 +126,12 @@ class Input:
 
         # In Game
         elif mode == 'game':
-            if self.newly_pressed[pygame.K_e]:
-                # entityAction
-                pass
-                #globs.character.action()
+            if self.newly_pressed[pygame.K_q] and self.keyup(pygame.K_q):
+                # Equip/unequip weapon
+                if globs.character.weapon.equipped:
+                    globs.character.weapon.unequip()
+                else:
+                    globs.character.weapon.equip()
             if self.newly_pressed[pygame.K_w]:
                 # entityAction
                 globs.character.worldAction()
