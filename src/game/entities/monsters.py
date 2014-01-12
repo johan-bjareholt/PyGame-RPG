@@ -1,87 +1,45 @@
 import pygame
-from game.entities.baseclasses import CollidableEntity, Entity
+from game.entities.baseclasses import LivingEntity, Entity
 from graphics.baseclasses import Sprite
+from game.entities.weapons import Sword
 
 import globals as globs
 
-class Monster(CollidableEntity):
-	def __init__(self, parent, xy, wh, attackArea=1600):
-		CollidableEntity.__init__(self, parent, xy, wh, (0,255,0))
+class Monster(LivingEntity):
+	def __init__(self, xy, wh, health, attackArea=1600):
+		LivingEntity.__init__(self, xy, wh, (0,255,0), health)
 
-		self.attackArea = Sprite(parent, (0,0), (attackArea, attackArea))
-		print(self.attackArea)
+		self.attackArea = Sprite((0,0), (attackArea, attackArea))
+		#print(self.attackArea)
 		self.updateAttackArea()
+
+		globs.currentgame.monsters.add(self)
 
 		self.maxhealth = 100
 		self.health = self.maxhealth
 		self.lasthealth = None
+		self.owner = None
 		self.hitted = []
 
 		self.attacking = None
 
 		# Initialize healthbar
-		self.healthbar = Entity(self.parent, (0,0), (self.image.get_width(), 5), add=False)
+		self.healthbar = Entity((0,0), (self.image.get_width(), 5), add=False)
 
-	def drawHealthbar(self):
-		self.healthbar.image.fill((0,0,0))
-
-		healthpercentage = float(self.health)/self.maxhealth
-
-		w = self.healthbar.rect.w * healthpercentage
-		newrect = pygame.Rect(0, 0, w, self.healthbar.rect.h)
-		self.healthbar.image.fill((255,0,0), newrect)
-
-
-	def blitHealthbar(self):
-		xy = (self.rect.x, self.rect.y-10)
-
-		if self.health != self.lasthealth:
-			self.drawHealthbar()
-		self.lasthealth = self.health
-
-		self.healthbar.rect = self.healthbar.image.get_rect(topleft=xy)
-		self.healthbar.worldBlit()
-
-	def worldBlit(self):
-		CollidableEntity.worldBlit(self)
-		self.blitHealthbar()
-
+	def blit(self):
+		if self.weapon:
+			self.weapon.blit()
+		self.worldBlit()
 
 	def events(self):
 		self.movement()
-		self.updateAttackArea()
 		self.checkHurt()
+		self.weapon.isHurting()
 		if not self.isAlive():
 			self.die()
 		self.updateAttacker()
 		if self.attacking:
 			self.runTowardsPlayer()
-
-	def isAlive(self):
-		if self.health <= 0:
-			return False
-		return True
-
-	def die(self):
-		self.kill()
-
-	def checkHurt(self):
-		collidedItem = pygame.sprite.spritecollideany(self, globs.currentgame.lethals)
-		if collidedItem:
-			if not collidedItem.owner in self.hitted:
-				print("hitted!")
-				# Push
-				speedX = collidedItem.push
-				if collidedItem.owner.facing == "right":
-					speedX = -speedX
-				self.speedX += speedX
-
-				# Remove health
-				self.health -= collidedItem.damage
-
-				# Needed so he is not hurt every frame the player is colliding with the lethal item
-				self.hitted.append(collidedItem.owner)
-				collidedItem.hitting.append(self)
 
 	def updateAttacker(self):
 		if not self.attacking:
@@ -95,6 +53,13 @@ class Monster(CollidableEntity):
 	def runTowardsPlayer(self):
 		pass
 
+	def updateHurtArea(self):
+		x = self.rect.x - (self.hurtAreaSize/2)
+		y = self.rect.y - (self.hurtAreaSize/2)
+		self.rect.topleft = (x,y)
+		print("x:" + str(x) + " y:" + str(y))
+		self.hurtArea.worldBlit()
+
 	def updateAttackArea(self):
 		x = self.rect.x-(self.attackArea.image.get_width()/2)-(self.image.get_width()/2)
 		y = self.rect.y-(self.attackArea.image.get_height()/2)-(self.image.get_height()/2)
@@ -102,10 +67,14 @@ class Monster(CollidableEntity):
 
 
 class Zombie(Monster):
-	def __init__(self, parent, xy):
+	def __init__(self, xy):
 		wh = (50,90)
-		Monster.__init__(self, parent, xy, wh)
+		health = 100
+		Monster.__init__(self, xy, wh, health)
 		self.image.fill((0,255,0))
+		self.facing = "right"
+
+		self.weapon = Sword(self)
 
 	def runTowardsPlayer(self):
 		# X

@@ -10,6 +10,11 @@ basechar = {
 			'Name',
 			'Created'
 		},
+	'Appearance':
+		{
+			'HairColor',
+			'EyeColor'
+		},
 	'Attributes':
 		{
 			'Strength',
@@ -55,10 +60,6 @@ basechar = {
 			'18',
 			'19',
 			'20',
-			'21',
-			'22',
-			'23',
-			'24',
 		}
 }
 

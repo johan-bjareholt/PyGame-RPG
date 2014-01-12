@@ -1,18 +1,14 @@
 from graphics.baseclasses import *
 import types
+from importlib import import_module
 
 
-class Menu(Surface):
+class Menu:
     '''
     Base class for the menus
     '''
     def __init__(self, bgImage="/menubackground.jpg", bgColor=(0, 0, 0), font="calibri"):
-        Surface.__init__(self, globs.resolution)
-
-        self.background = self.subsurface((0, 0), globs.resolution)
-        self.main = self.subsurface((0, 0), globs.resolution)
-        self.foreground = self.subsurface((0, 0), globs.resolution)
-
+        self.background = Surface(globs.resolution)
         self.buttons = pygame.sprite.Group()
 
         # Background initialization
@@ -23,47 +19,41 @@ class Menu(Surface):
 
         self.fontname = font
 
-    # Background layer
+        self.drawBackground()
+
+    # Background
     def drawBackground(self):
         if self.backgroundImage:
-            self.background.blit(self.backgroundImage, (0, 0))
+            globs.screen.blit(self.backgroundImage, (0, 0))
         else:
-            self.background.fill(self.backgroundColor)
-
-    def blitBackground(self):
-        pass
-
-    # Main layer
-    def drawMain(self):
-        pass
+            globs.screen.fill(self.backgroundColor)
 
     def blitMain(self):
         pass
 
     # Main commands
     def draw(self):
-        self.drawBackground()
-        self.drawMain()
+        pass
 
-    def blitz(self):
-        self.blitBackground()
-        self.blitMain()
+    def blit(self):
+        pass
 
 
 class Container(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(235,235,235), text='', textsize=10, spacing=2):
-        Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
+        Sprite.__init__(self, xy, wh)
         self.text = text
+        self.bgColor = bgColor
         self.spacing = spacing
         self.entries = []
 
     def draw(self):
+        self.image.fill((255,255,255))
         x = 10
         y = self.spacing
 
         # Draw text
-        self.textSprite = Text(self, x, y, self.textsize)
-
+        self.textSprite = Text(self, x+self.rect.x, y+self.rect.x, self.textsize)
         x += self.textsize + self.spacing
 
         # Draw entries
@@ -85,7 +75,9 @@ class Container(Sprite):
 class ButtonContainer(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(235,235,255), text='',
                  buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=10):
-        Sprite.__init__(self, parent, xy, wh, bgColor=bgColor)
+        Sprite.__init__(self, xy, wh)
+        self.parent = parent
+        self.image.fill(bgColor)
         self.text = text
 
         self.buttons = []
@@ -98,7 +90,7 @@ class ButtonContainer(Sprite):
         self.updateButtons()
 
     def drawText(self):
-        self.textSprite = Text(self, (10,10), self.text, 25)
+        self.textSprite = Text((10,10), self.text, 25)
         self.image.blit(self.textSprite.image, self.textSprite.rect.topleft)
 
     def updateButtons(self):
@@ -124,14 +116,20 @@ class ButtonContainer(Sprite):
         self.buttons.append(newbutton)
         self.updateButtons()
         #print(newbutton.xy)
-        self.parent.buttons.add(newbutton)
+        if globs.location.split('.')[0] == "menu":
+            globs.menus[globs.location.split('.')[1]].buttons.add(newbutton)
+        else:
+            globs.currentgame.buttons.add(newbutton)
         return newbutton
 
 class Button(Sprite):
-    def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None, borderRadius=5):
-        Sprite.__init__(self, parent, xy, wh, bgColor)
+    def __init__(self, parent, xy, wh, bgColor=(255, 255, 255), fgColor=(0, 0, 0), text=None, font="calibri", fontsize=None, textColor=(0, 0, 0), borderRadius=5):
+        Sprite.__init__(self, xy, wh)
+        self.parent = parent
 
+        self.bgColor = bgColor
         self.fgColor = fgColor
+        self.textColor = textColor
         self.text = text
         self.fontname = font
         self.fontsize = fontsize
@@ -148,17 +146,20 @@ class Button(Sprite):
             self.cutBorderRadius(self.borderRadius)
         # Apply text
         if self.text:
-            # Adapt fontsize
-            if not self.fontsize:
-                self.fontsize = (self.image.get_height()/2)+2
-            # Load font
-            self.font = globs.getFont(self.fontname, self.fontsize)
-            self.renderedText = self.font.render(self.text, True, pygame.color.Color(0, 0, 0))
-            # Center text
-            x = (self.image.get_width()-self.renderedText.get_width())/2
-            y = (self.image.get_height()-self.fontsize)/2
-            # Blit to sprites surface
-            self.image.blit(self.renderedText, (x, y))
+            self.drawText()
+
+    def drawText(self):
+        # Adapt fontsize
+        if not self.fontsize:
+            self.fontsize = (self.image.get_height()/2)+2
+        # Load font
+        self.font = globs.getFont(self.fontname, self.fontsize)
+        self.renderedText = self.font.render(self.text, True, self.textColor)
+        # Center text
+        x = (self.image.get_width()-self.renderedText.get_width())/2
+        y = (self.image.get_height()-self.fontsize)/2
+        # Blit to sprites surface
+        self.image.blit(self.renderedText, (x, y))
 
     def onClick(self, function):
         self.clicked = types.MethodType(function, self)
@@ -210,8 +211,8 @@ class ToggleButton(Button):
         self.draw()
 
 class TextBox(Sprite):
-    def __init__(self, parent, xy, wh, rows, spacing=3, font='calibri', fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, reverse=False):
-        Sprite.__init__(self, parent, xy, wh, bgColor, alpha=alpha)
+    def __init__(self, xy, wh, rows, spacing=3, font='calibri', fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, reverse=False):
+        Sprite.__init__(self, xy, wh)
         self.font = font
         self.bgColor = bgColor
         self.fgColor = fgColor
@@ -272,8 +273,8 @@ class TextBox(Sprite):
         pass
 
 class InputBox(Sprite):
-    def __init__(self, parent, xy, wh, question="", fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, font='droidsansmono', fontSize=None, spacing=2):
-        Sprite.__init__(self, parent, xy, wh, bgColor)
+    def __init__(self, xy, wh, question="", fgColor=(0, 0, 0), bgColor=(255, 255, 255), alpha=None, font='droidsansmono', fontSize=None, spacing=2):
+        Sprite.__init__(self, xy, wh)
         self.bgColor = bgColor
         self.fgColor = fgColor
         self.alpha = alpha
@@ -323,6 +324,194 @@ class InputBox(Sprite):
     def unfocus(self):
         globs.focused = None
 
+class CharacterPreview(Sprite):
+    def __init__(self, xy, wh):
+        Sprite.__init__(self, xy, wh)
+        self.image.fill((0,0,0))
+        self.character_wh = (40,90)
+
+        self.appearance = { 'hairstyle': "hair1", 'haircolor': (160,100,80), 'eyecolor': (0,0,0) }
+        character_module = import_module("game.entities.character")
+        self.Character = character_module.Character
+
+        self.draw()
+
+    def draw(self):
+        self.image.fill((255,255,255))
+        self.draw_character()
+
+    def draw_character(self):
+        self.character = self.Character((0,0), add=False, custom_appearance=self.appearance)
+        #print(self.character.appearance)
+        #self.character.rect.topleft = (x,y)
+        tempSurface = Surface(self.character_wh)
+        tempSurface.fill((255,255,255))
+        self.character.blit(blitsurface=tempSurface)
+
+        scaledCharacter = Surface((self.character_wh[0]*2, self.character_wh[1]*2))
+        pygame.transform.scale2x(tempSurface, scaledCharacter)
+
+        x = (self.rect.w/2) - (self.character_wh[0])
+        y = (self.rect.h/2) - (self.character_wh[1])
+        self.image.blit(scaledCharacter, (x,y))
+
+
+class ListSelector(Sprite):
+    def __init__(self, parent, xy, wh, selectionlist, text="Change this text", fontSize=None, spacing=5, bgColor=(0,0,0), fgColor=(255,255,255), alpha=250):
+        Sprite.__init__(self, xy, wh)
+        self.selectionlist = selectionlist
+        self.parent = parent
+        self.currentselection = 0
+        self.text = text
+        self.fontSize = fontSize
+        self.fontFamily = 'calibri'
+        self.bgColor = bgColor
+        self.fgColor = fgColor
+        self.alpha = alpha
+        self.spacing = spacing
+        self.currentcolor = (0,0,0)
+
+        self.buttons = []
+
+        self.loadFont()
+        self.draw()
+        self.draw_arrows()
+
+    def draw(self):
+        self.image.fill(self.bgColor)
+        if self.alpha:
+            self.image.set_alpha(self.alpha)
+        print("Alpha:" +str(self.image.get_alpha()))
+        self.draw_text()
+        for button in self.buttons:
+            print(button)
+            print(button.rect.topleft)
+            globs.screen.blit(button.image, button.rect.topleft)
+
+    def draw_arrows(self):
+        r = (self.rect.h/2)-self.spacing*2
+        wh = (r,r)
+        # Button next
+        xy = (self.rect.x+self.spacing,
+              self.rect.y+self.rect.h/2)
+        button1 = Button(self.parent, xy, wh, text="<", bgColor=(255,255,255), borderRadius=3)
+        button1.container = self
+        button1.increment = -1
+        # Button previous
+        xy = (self.rect.x+self.spacing+r,
+              self.rect.y+self.rect.h/2)
+        button2 = Button(self.parent, xy, wh, text=">", bgColor=(255,255,255), borderRadius=3)
+        button2.container = self
+        button2.increment = 1
+        # Button setup
+        self.buttons.append(button1)
+        self.buttons.append(button2)
+        for button in self.buttons:
+            def createCharacterButton_clicked(self):
+                self.container.currentselection += self.increment
+                if self.container.currentselection < 0:
+                    self.container.currentselection = 0
+                elif self.container.currentselection >= len(self.container.selectionlist):
+                    self.container.currentselection = len(self.container.selectionlist)-1
+                self.container.draw()
+                #self.container.blit()
+                try:
+                    self.parent.characterPreview.appearance["hairstyle"] = self.container.selectionlist[self.container.currentselection]
+                except IndexError:
+                    self.container.currentselection -= self.increment
+                self.parent.characterPreview.draw()
+                print(str(self.increment) + " " + str(self.container.currentselection))
+            button.onClick(createCharacterButton_clicked)
+
+            button.parent.buttons.add(button)
+
+    def draw_text(self):
+        # Hairstyle text
+        self.rendered_text_title = self.font.render(self.text, True, self.fgColor)
+        self.rendered_text_title_xy = (self.rect.x+self.spacing, self.rect.y+self.spacing)
+        # Hair name
+        self.rendered_text_hairname = self.font.render(self.selectionlist[self.currentselection], True, self.fgColor)
+        self.rendered_text_hairname_xy = (self.rect.x+self.rect.w/2-self.rendered_text_hairname.get_width()/2, self.rect.y+self.rect.w/2)
+        print(self.rendered_text_hairname_xy)
+        print(self.selectionlist[self.currentselection])
+
+    def loadFont(self):
+        if not self.fontSize:
+            self.fontSize = (self.image.get_height()/2)-(self.spacing*4)
+        self.font = globs.getFont(self.fontFamily, self.fontSize)
+
+    def blit(self):
+        Sprite.blit(self)
+        globs.screen.blit(self.rendered_text_title, self.rendered_text_title_xy)
+        globs.screen.blit(self.rendered_text_hairname, self.rendered_text_hairname_xy)
+
+
+
+class ColorSelector(Sprite):
+    def __init__(self, xy, wh, text="Change this text", fontSize=None, spacing=5, bgColor=(0,0,0), fgColor=(255,255,255), alpha=250):
+        Sprite.__init__(self, xy, wh)
+        self.text = text
+        self.fontSize = fontSize
+        self.fontFamily = 'calibri'
+        self.bgColor = bgColor
+        self.fgColor = fgColor
+        self.alpha = alpha
+        self.spacing = spacing
+        self.currentcolor = (0,0,0)
+
+        self.buttons = []
+
+        self.loadFont()
+        self.draw()
+
+    def draw(self):
+        self.image.fill(self.bgColor)
+        if self.alpha:
+            self.image.set_alpha(self.alpha)
+        print("Alpha:" +str(self.image.get_alpha()))
+        self.draw_currentcolor()
+        self.draw_text()
+
+    def draw_currentcolor(self):
+        self.currentcolor_image = Surface((self.rect.h-self.spacing*2, self.rect.h-self.spacing*2))
+        self.currentcolor_image_xy = (self.rect.x+self.spacing, self.rect.y+self.spacing)
+        self.currentcolor_image.fill(self.currentcolor)
+
+    def add_color(self, parent, color):
+        r = (self.rect.h/2)-self.spacing*2
+        xy = (self.currentcolor_image_xy[0]+self.currentcolor_image.get_width()+self.spacing+(len(self.buttons)*(r+self.spacing)),
+              self.rect.y+self.rect.h/2)
+        wh = (r,r)
+
+        button = Button(parent, xy, wh, bgColor=color, borderRadius=wh[0]/2)
+        button.container = self
+
+        def createCharacterButton_clicked(self):
+            self.container.currentcolor = self.bgColor
+            self.container.draw()
+            #self.container.blit()
+            self.parent.characterPreview.appearance["haircolor"] = self.bgColor
+            self.parent.characterPreview.draw()
+        button.onClick(createCharacterButton_clicked)
+
+        self.buttons.append(button)
+        parent.buttons.add(button)
+
+    def draw_text(self):
+        self.rendered_text = self.font.render(self.text, True, self.fgColor)
+        self.rendered_text_xy = (self.currentcolor_image_xy[0]+self.currentcolor_image.get_width()+self.spacing, self.rect.y+self.spacing)
+
+    def loadFont(self):
+        if not self.fontSize:
+            self.fontSize = (self.image.get_height()/2)-(self.spacing*4)
+        self.font = globs.getFont(self.fontFamily, self.fontSize)
+
+    def blit(self):
+        Sprite.blit(self)
+        globs.screen.blit(self.currentcolor_image, self.currentcolor_image_xy)
+        globs.screen.blit(self.rendered_text, self.rendered_text_xy)
+
+
 class QuitButton(Button):
     def __init__(self, parent, xy, wh):
         Button.__init__(self, parent, xy, wh, (255, 255, 255), (0, 0, 0), "Quit", "calibri")
@@ -333,7 +522,7 @@ class QuitButton(Button):
 
 
 class BackButton(Button):
-    def __init__(self, back, parent, xy, wh):
+    def __init__(self, parent, back, xy, wh):
         Button.__init__(self, parent, xy, wh, (255, 255, 255), (0, 0, 0), "Back", "calibri")
         self.back = back
         self.draw()

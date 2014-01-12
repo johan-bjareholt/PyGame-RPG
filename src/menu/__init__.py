@@ -18,7 +18,7 @@ class MainMenu(Menu):
     def __init__(self):
         Menu.__init__(self)
 
-    def drawMain(self):
+    def draw(self):
         # Initialize Singleplayer button
         self.singleplayerButton = Button(self, ((globs.resolution[0]/2)-(200/2), (globs.resolution[1]/2)-100), (200, 50), text="Singleplayer")
         # OnClick action
@@ -53,7 +53,7 @@ class MainMenu(Menu):
         self.buttons.add(self.quitButton)
 
         # Initialize Title text
-        self.titleText = Text(self, (0,0), "My RPG Game", 50)
+        self.titleText = Text((0,0), "My RPG Game", 50)
         self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), (globs.resolution[1]/2)-200)
 
         # Draw title
@@ -64,9 +64,9 @@ class MainMenu(Menu):
         self.multiplayerButton.draw()
         self.settingsButton.draw()
 
-    def blitMain(self):
+    def blit(self):
         # Blit all buttons
-        self.buttons.draw(self)
+        self.buttons.draw(globs.screen)
         # Blit title text
         self.titleText.blit()
 
@@ -79,7 +79,7 @@ class CharacterMenu(Menu):
     def __init__(self):
         Menu.__init__(self)
 
-    def drawMain(self):
+    def draw(self):
         characters = game.characters.listCharacters()
         self.characterContainer = ButtonContainer(self, ((globs.resolution[0]/2)-200-200, (globs.resolution[1]/2)-50), (200,(len(characters)*75)+50), text="Characters")
 
@@ -98,16 +98,13 @@ class CharacterMenu(Menu):
                     self.draw()
                     self.parent.singleplayerButton.draw(bgColor=(255,255,255))
                     globs.charactername = self.character
-                    self.parent.blitz()
+                    self.parent.blit()
                 self.characterButtons[i].onClick(characterButton_clicked)
 
                 self.buttons.add(self.characterButtons[i])
 
-        self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.backButton = BackButton(self, "menu.main", (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.backButton)
-
-
-
 
         # Initialize Singleplayer button
         self.singleplayerButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="Start Game", bgColor=(175,175,175))
@@ -126,7 +123,7 @@ class CharacterMenu(Menu):
         self.buttons.add(self.createCharacterButton)
 
         # Initialize Title text
-        self.titleText = Text(self, (0,0), "Select your character", 35)
+        self.titleText = Text((0,0), "Select your character", 35)
         self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
         # Draw title
@@ -136,11 +133,11 @@ class CharacterMenu(Menu):
         self.singleplayerButton.draw()
         #self.settingsButton.draw()
 
-    def blitMain(self):
+    def blit(self):
         # Blit character container
         self.characterContainer.blit()
         # Blit all buttons
-        self.buttons.draw(self)
+        self.buttons.draw(globs.screen)
         # Blit title text
         self.titleText.blit()
 
@@ -149,7 +146,7 @@ class CreateCharacterMenu(Menu):
     def __init__(self):
         Menu.__init__(self)
 
-    def drawMain(self):
+    def draw(self):
         self.createCharacterButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="New Character", bgColor=(255,255,255))
         # OnClick action
         def createCharacterButton_clicked(self):
@@ -160,29 +157,54 @@ class CreateCharacterMenu(Menu):
         self.createCharacterButton.onClick(createCharacterButton_clicked)
         self.buttons.add(self.createCharacterButton)
 
-        self.nameBox = InputBox(self, (((globs.resolution[0]/2)-125),(globs.resolution[1])-150), (250,25), question="Name: ")
+        x = ((globs.resolution[0]/2)-125)
+        y = (globs.resolution[1])-150
+        self.nameBox = InputBox((x,y), (250,25), question="Name: ")
         self.nameBox.draw()
         self.buttons.add(self.nameBox)
 
         # Initialize Title text
-        self.titleText = Text(self, (0,0), "Create your character", 35)
+        self.titleText = Text((0,0), "Create your character", 35)
         self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
         w = 280
         h = 60
-        self.textBox = TextBox(self, ((globs.resolution[0]/2)-(w/2),500), (w,h), 2, alpha=120)
+        self.textBox = TextBox(((globs.resolution[0]/2)-(w/2),500), (w,h), 2, alpha=120)
         self.textBox.text = "Name has to be between 5 and 15 characters long"
         self.textBox.draw()
+
+        wh = (140, 200)
+        xy = ((globs.resolution[0]/2)-(wh[0]/2),(globs.resolution[1]/2)-(wh[1]/2))
+        self.characterPreview = CharacterPreview(xy, wh)
+
+        hairstyles = ["hair1", "mohawk"]
+        x = 800
+        y = 200
+        self.hairStyleSelector = ListSelector(self, (x,y), (215,50), selectionlist=hairstyles, text="Hairstyle", spacing=2)
+
+        x = 800
+        y = 300
+        self.hairColorSelector = ColorSelector((x,y), (215,50), text="Haircolor", spacing=2)
+        self.hairColorSelector.add_color(self, (220,170,100))
+        self.hairColorSelector.add_color(self, (180,120,90))
+        self.hairColorSelector.add_color(self, (160,100,80))
+        self.hairColorSelector.add_color(self, (120,50,30))
+        self.hairColorSelector.add_color(self, (180,50,30))
+        self.hairColorSelector.add_color(self, (50,255,50))
+        self.hairColorSelector.add_color(self, (50,50,255))
 
         # Draw title
         self.titleText.draw()
 
-        self.backButton = BackButton("menu.characters", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.backButton = BackButton(self, "menu.characters", (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.backButton)
 
-    def blitMain(self):
+    def blit(self):
         # Blit all buttons
-        self.buttons.draw(self)
+        self.hairStyleSelector.blit()
+        self.hairColorSelector.blit()
+        self.buttons.draw(globs.screen)
+        self.characterPreview.blit()
         # Blit title text
         self.titleText.blit()
         self.textBox.blit()
@@ -196,13 +218,13 @@ class SettingsMenu(Menu):
     def __init__(self):
         Menu.__init__(self)
 
-    def drawMain(self):
+    def draw(self):
         # Initialize Title text
-        self.settingsText = Text(self, (0,0), "Settings", 50)
+        self.settingsText = Text((0,0), "Settings", 50)
         self.settingsText.rect.topleft = ((globs.resolution[0]/2)-(self.settingsText.image.get_width()/2), (globs.resolution[1]/2)-200)
 
         # Backbutton
-        self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.backButton = BackButton(self, "menu.main", (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.backButton)
 
         # Create resolution buttons and container
@@ -223,11 +245,11 @@ class SettingsMenu(Menu):
             resButton.resolution = i
 
         self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (300,250), text="Versions")
-        self.pythonVersionText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
-        self.pygameVersionText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
-        self.sdlVersionText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)
-        self.videoDriverText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+140), "Video driver: {0}".format(pygame.display.get_driver()), 20)
-        self.displayInfoText = Text(self, (self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+170), "Hardware acceleration: {0}".format(bool(pygame.display.Info().hw)), 20)
+        self.pythonVersionText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
+        self.pygameVersionText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
+        self.sdlVersionText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)
+        self.videoDriverText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+140), "Video driver: {0}".format(pygame.display.get_driver()), 20)
+        self.displayInfoText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+170), "Hardware acceleration: {0}".format(bool(pygame.display.Info().hw)), 20)
 
         # Fullscreen button
         self.fullscreenButton = ToggleButton(self, (self.versionContainer.rect.topleft[0], self.versionContainer.rect.topleft[1]+self.versionContainer.image.get_height()+20), (230, 50), text="Fullscreen")
@@ -246,7 +268,7 @@ class SettingsMenu(Menu):
         # Draw title
         self.settingsText.draw()
 
-    def blitMain(self):
+    def blit(self):
         # Blit resolutionContainer
         self.resolutionContainer.blit()
 
@@ -259,7 +281,7 @@ class SettingsMenu(Menu):
         self.displayInfoText.blit()
 
         # Blit all buttons
-        self.buttons.draw(self)
+        self.buttons.draw(globs.screen)
 
         # Blit title text
         self.settingsText.blit()
@@ -268,7 +290,7 @@ class MultiplayerConnectMenu(Menu):
     def __init__(self):
         Menu.__init__(self)
 
-    def drawMain(self):
+    def draw(self):
         self.connectButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 40), text="Connect", bgColor=(255,255,255), fontsize=30)
         # OnClick action
         def connectButton_clicked(self):
@@ -290,17 +312,17 @@ class MultiplayerConnectMenu(Menu):
         self.buttons.add(self.ipBox)
 
         # Initialize Title text
-        self.titleText = Text(self, (0,0), "Connect", 35)
+        self.titleText = Text((0,0), "Connect", 35)
         self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
         # Draw title
         self.titleText.draw()
 
-        self.backButton = BackButton("menu.main", self, (25, (globs.resolution[1])-50-25), (100, 50))
+        self.backButton = BackButton(self, "menu.main", (25, (globs.resolution[1])-50-25), (100, 50))
         self.buttons.add(self.backButton)
 
-    def blitMain(self):
+    def blit(self):
         # Blit all buttons
-        self.buttons.draw(self)
+        self.buttons.draw(globs.screen)
         # Blit title text
         self.titleText.blit()

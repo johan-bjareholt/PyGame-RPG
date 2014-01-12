@@ -30,29 +30,30 @@ globs.drawqueue = []
 
 
 def load_menus():
-    globs.menus = {}
-    globs.menus['main'] = MainMenu()
-    globs.menus['settings'] = SettingsMenu()
-    globs.menus['characters'] = CharacterMenu()
-    globs.menus['characterCreator'] = CreateCharacterMenu()
-    globs.menus['multiplayerConnectMenu'] = MultiplayerConnectMenu()
+    menus = {}
+    menus['main'] = MainMenu()
+    menus['settings'] = SettingsMenu()
+    menus['characters'] = CharacterMenu()
+    menus['characterCreator'] = CreateCharacterMenu()
+    menus['multiplayerConnectMenu'] = MultiplayerConnectMenu()
+    globs.menus = menus
 
 def loop():
     mode, sub = globs.location.split('.')
     #print(globs.location)
     if mode == "menu":
         if globs.lastlocation != globs.location or globs.redraw:
+            globs.menus[sub].drawBackground()
             globs.menus[sub].draw()
             globs.redraw = False
-        globs.menus[sub].blitz()
-        screen.blit(globs.menus[sub], (0, 0))
+        globs.menus[sub].blit()
 
     elif mode == "game":
         if globs.lastlocation != globs.location:
             globs.currentgame = GameClient(screen)
             if globs.lastlocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
-                globs.character = Character(screen, (0,0), add=False)
+                globs.character = Character((0,0), add=False)
                 #print("Loaded character")
             globs.currentgame.load(sub)
 
@@ -75,7 +76,7 @@ def loop():
 
 
 def fps_counter():
-    globs.fpstext = Text(screen, (0,0), str(globs.clock.get_fps())[:2], 30, color=(150,150,150))
+    globs.fpstext = Text((0,0), str(globs.clock.get_fps())[:2], 30, color=(150,150,150))
     globs.fpstext.blit()
 
 def initialize_screen():

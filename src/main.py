@@ -56,7 +56,6 @@ def quit():
 
 if __name__ == '__main__':
     load()
-    #inputs.parent = game
     run()
     #cProfile.run('run()')
     quit()

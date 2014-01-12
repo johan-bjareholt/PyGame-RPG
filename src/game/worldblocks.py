@@ -6,12 +6,8 @@ import globals as globs
 from graphics.baseclasses import Surface, Sprite
 
 class Block(Sprite):
-	def __init__(self, xy, flags=[], wh=(50,50), bgColor=None, alpha=None, parent=None):
-		Sprite.__init__(self, parent, xy, wh)
-
-		if not parent:
-			parent = globs.graphics.screen
-		self.parent = parent
+	def __init__(self, xy, flags=[], wh=(50,50), bgColor=None, alpha=None):
+		Sprite.__init__(self, xy, wh)
 
 		self.bgColor = bgColor
 
@@ -56,7 +52,8 @@ class Block_002(Block):
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(50,200,50))
 		grasswh = (60,25)
-		self.grass = Sprite(globs.screen, self.rect.topleft, grasswh, bgColor=(255,0,255))
+		self.grass = Sprite(self.rect.topleft, grasswh)
+		self.grass.image.set_colorkey((255,0,255))
 		self.grass.image = pygame.image.load(globs.datadir+"/png/blocks/002_decoration.png")
 		self.grass.image.convert()
 		self.grass.image.convert_alpha()

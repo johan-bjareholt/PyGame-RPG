@@ -19,16 +19,12 @@ class Sprite(pygame.sprite.Sprite):
     '''
     Base class for sprites
     '''
-    def __init__(self, parent, xy, wh, bgColor=None, colorkey=(255,0,255), rleaccel=False, alpha=None):
+    def __init__(self, xy, wh, colorkey=(255,0,255), rleaccel=False, alpha=None):
         pygame.sprite.Sprite.__init__(self)
         self.image = Surface(wh, rleaccel=rleaccel, transparent=alpha)
         self.rect = self.image.get_rect(topleft=xy)
-        self.parent = parent
-        self.bgColor = bgColor
         self.colorkey = colorkey
         self.lastworldrect = pygame.Rect(0,0,0,0)
-        if self.bgColor:
-            self.image.fill(self.bgColor)
         if colorkey:
             self.image.set_colorkey(self.colorkey)
 
@@ -71,15 +67,14 @@ class Sprite(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, self.bgColor, (self.image.get_width()-radius, self.image.get_height()-radius), radius)
 
     def blit(self, screen=None):
-        if not screen:
-            screen = self.parent
-        screen.blit(self.image, self.rect.topleft)
+        globs.screen.blit(self.image, self.rect.topleft)
 
         if globs.config.get("dev", "dirtyrects") == "True":
             globs.dirtyrects.append(self.rect)
 
     def worldBlit(self):
-        if globs.config.get("dev", "dirtyrects") == "True":
+        #if globs.config.get("dev", "dirtyrects") == "True":
+        if globs.dirtyrects:
             self.worldrect = pygame.Rect(self.rect.x-globs.cameraX, self.rect.y-globs.cameraY, self.image.get_width(), self.image.get_height())
 
             rect = self.worldrect.copy()
@@ -88,21 +83,21 @@ class Sprite(pygame.sprite.Sprite):
             self.lastworldrect = self.worldrect.copy()
             globs.dirtyrects.append(rect)
 
-        self.parent.blit(self.image, (self.rect.x-globs.cameraX, self.rect.y-globs.cameraY))
+        globs.screen.blit(self.image, (self.rect.x-globs.cameraX, self.rect.y-globs.cameraY))
 
     def clicked(self):
         print("You just clicked me!")
 
 
 class Text(Sprite):
-    def __init__(self, parent, xy, text, size, color=(0, 0, 0), font="calibri"):
+    def __init__(self, xy, text, size, color=(0, 0, 0), font="calibri"):
         self.font = globs.getFont(font, size)
         self.color = color
         self.text = text
         self.draw()
         wh = self.renderedText.get_size()
-        Sprite.__init__(self, parent, xy, wh)
+        Sprite.__init__(self, xy, wh)
         self.image = self.renderedText
 
     def draw(self):
-        self.renderedText = self.font.render(self.text, True, pygame.color.Color(self.color[0], self.color[1], self.color[2]))
+        self.renderedText = self.font.render(self.text, True, self.color)

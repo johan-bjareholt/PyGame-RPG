@@ -3,9 +3,11 @@ from graphics.baseclasses import Sprite
 import globals as globs
 
 class Entity(Sprite):
-	def __init__(self, parent, xy, wh, bgColor=None, add=True):
-		Sprite.__init__(self, parent, xy, wh, bgColor)
+	def __init__(self, xy, wh, bgColor=None, add=True):
+		Sprite.__init__(self, xy, wh)
 
+		if bgColor:
+			self.image.fill(bgColor)
 		if add:
 			globs.currentgame.entities.add(self)
 
@@ -14,8 +16,8 @@ class Entity(Sprite):
 
 
 class CollidableEntity(Entity):
-	def __init__(self, parent, xy, wh, bgColor, bounce=0.0, force=None, add=True):
-		Entity.__init__(self, parent, xy, wh, bgColor, add)
+	def __init__(self, xy, wh, bgColor, bounce=0.0, force=None, add=True):
+		Entity.__init__(self, xy, wh, bgColor, add)
 
 		if add:
 			globs.currentgame.collidableEntities.add(self)
@@ -343,3 +345,77 @@ class CollidableEntity(Entity):
 		elif self.rect.x < 0:
 			self.rect.topleft = (0, self.rect.y)
 			self.speedX *= -self.bounce
+
+	def onCollide(self):
+		pass
+
+
+class LivingEntity(CollidableEntity):
+	def __init__(self, xy, wh, health, add=True):
+		CollidableEntity.__init__(self, xy, wh, (255,0,255), add=add)
+
+		#self.attackArea = Sprite(parent, (0,0), (attackArea, attackArea))
+		#print(self.attackArea)
+		#self.updateAttackArea()
+
+		self.maxhealth = health
+		self.health = self.maxhealth
+		self.lasthealth = None
+		self.hitted = []
+
+		if add:
+			globs.currentgame.living_entities.add(self)
+
+		# Initialize healthbar
+		self.healthbar = Sprite((0,0), (self.image.get_width(), 5))
+
+	def drawHealthbar(self):
+		self.healthbar.image.fill((0,0,0))
+
+		healthpercentage = float(self.health)/self.maxhealth
+
+		w = self.healthbar.rect.w * healthpercentage
+		newrect = pygame.Rect(0, 0, w, self.healthbar.rect.h)
+		self.healthbar.image.fill((255,0,0), newrect)
+
+
+	def blitHealthbar(self):
+		xy = (self.rect.x, self.rect.y-10)
+
+		if self.health != self.lasthealth:
+			self.drawHealthbar()
+		self.lasthealth = self.health
+
+		self.healthbar.rect = self.healthbar.image.get_rect(topleft=xy)
+		self.healthbar.worldBlit()
+
+	def worldBlit(self):
+		CollidableEntity.worldBlit(self)
+		self.blitHealthbar()
+
+	def isAlive(self):
+		if self.health <= 0:
+			return False
+		return True
+
+	def die(self):
+		self.kill()
+		print(str(self) + " died")
+		for item in self.hitted:
+			item.hitting = None
+		print(self.hitted)
+
+	def checkHurt(self):
+		pass
+
+		#collidedItems = pygame.sprite.spritecollide(self, globs.currentgame.lethals, False)
+		#for collidedItem in collidedItems:
+		#	print(collidedItem)
+		#	if collidedItem and collidedItem.owner != self and collidedItem != self:
+		#		print(collidedItem.__class__)
+		#		print("hitted!")
+		#		collidedItem.hit(self)
+
+		#		# Needed so he is not hurt every frame the player is colliding with the lethal item
+		#		self.hitted.append(collidedItem.owner)
+		#		collidedItem.hitting.append(self)

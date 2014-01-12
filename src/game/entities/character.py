@@ -1,24 +1,42 @@
 import pygame
 import globals as globs
 
-from game.entities.baseclasses import CollidableEntity, Entity
+from game.entities.baseclasses import LivingEntity, Entity
 from game.entities.weapons import *
 
 import game.characters as chars
 
-class Character(CollidableEntity):
-	def __init__(self, parent, xy, add):
-		CollidableEntity.__init__(self, parent, xy, (40,90), (255,0,255), add=add)
+class Character(LivingEntity):
+	def __init__(self, xy, add, custom_appearance=None):
+		health = 0
+		LivingEntity.__init__(self, xy, (40,90), health, add=add)
 
-		self.load_attributes()
-
-		self.weapon = LongSword(parent, self)
-
+		if globs.charactername:
+			self.load()
+		else:
+			self.weapon = None
+		if custom_appearance:
+			self.set_appearance(**custom_appearance)
 		self.facing = "left"
 		self.draw_body()
 
+	def load(self):
+		self.load_attributes()
+		self.load_appearance()
+		self.health = 50
+
+		self.weapon = Bow(self)
+
 	def events(self):
 		self.update_direction()
+
+		self.checkHurt()
+		self.weapon.isHurting()
+		if not self.isAlive():
+			self.die()
+
+		globs.currentgame.healthbar.update(self.health, self.maxhealth)
+		globs.currentgame.manabar.update(self.mana, self.maxmana)
 
 
 	'''
@@ -36,76 +54,65 @@ class Character(CollidableEntity):
 		# Feet
 		self.lfoot = pygame.image.load(globs.datadir+"png/body/foot.png").convert_alpha()
 		self.rfoot = pygame.transform.flip(self.lfoot, True, False)
-		# Left foot
-		#self.image.blit(self.lfoot, (5,80))
-		# Left foot right
-		#self.image.blit(self.rfoot, (5+6,80))
-		# Right foot
-		#self.image.blit(self.rfoot, (40-5-12,80))
-		# Right foot left
-		#self.image.blit(self.lfoot, (40-5-12-6,80))
 
 		# Pants
 		self.pants = pygame.image.load(globs.datadir+"/png/equipment/briefs.png").convert_alpha()
 		self.image.blit(self.pants, (8,52))
 
 		#Hair
-		self.hair = Entity(self.parent, (self.rect.x, self.rect.y-10), (10,10), add=False)
-		self.hair.image = pygame.image.load(globs.datadir+"/png/body/hair/hair1.png").convert_alpha()
-		pixelarray = pygame.PixelArray(self.hair.image)
-		color = (160,100,80)
-		darkercolor = (color[0]-40, color[1]-40, color[2]-40)
+		hairstyle = self.appearance["hairstyle"]
+		haircolor = self.appearance["haircolor"]
+		self.hair = pygame.image.load(globs.datadir+"/png/body/hair/"+hairstyle+".png").convert_alpha()
+		pixelarray = pygame.PixelArray(self.hair)
+		darkercolor = (haircolor[0]-30, haircolor[1]-30, haircolor[2]-30)
 		pixelarray.replace((0,0,0),darkercolor) # Outerpixels
-		pixelarray.replace((255,255,255), color) # Innerpixels
-		self.hair.image = pixelarray.make_surface()
+		pixelarray.replace((255,255,255), haircolor) # Innerpixels
+		self.hair = pixelarray.make_surface()
 		self.hairr = self.hair
-		self.hairr = pygame.transform.flip(self.hairr.image, True, False)
+		self.hairr = pygame.transform.flip(self.hairr, True, False)
 
-	def worldBlit(self):
-		xy = (self.rect.x-globs.cameraX, self.rect.y-globs.cameraY)
+	def blit(self, camera=(0,0), blitsurface=None):
+		if not blitsurface:
+			blitsurface = globs.screen
+		xy = (self.rect.x-camera[0], self.rect.y-camera[1])
 
 		# Weapon 
-		self.weapon.blit()
+		if self.weapon:
+			self.weapon.blit()
 
 		# Body
-		self.parent.blit(self.image, xy)
+		blitsurface.blit(self.image, xy)
 
 		# Hair
-		self.hair.rect = self.hair.image.get_rect(topleft=(self.rect.x, self.rect.y-10))
-		self.hair.worldBlit()
+		blitsurface.blit(self.hair, (xy[0], xy[1]-10))
 
 		# Feet
-
-		# Left foot
-		#globs.screen.blit(self.lfoot, (self.rect.x+5,self.rect.y+80))
-		# Left foot right
-		#globs.screen.blit(self.rfoot, (self.rect.x+5+6,self.rect.y+80))
-		# Right foot
-		#globs.screen.blit(self.rfoot, (self.rect.x+40-5-12,self.rect.y+80))
-		# Right foot left
-		#globs.screen.blit(self.lfoot, (self.rect.x+40-5-12-6,self.rect.y+80))
-
 		if self.speedX > 0:
 			# Right foot
-			globs.screen.blit(self.rfoot, (self.rect.x+40-5-12-globs.cameraX,
-										   self.rect.y+80-globs.cameraY))
+			blitsurface.blit(self.rfoot, (xy[0]+40-5-12,
+										   xy[1]+80))
 			# Left foot right
-			globs.screen.blit(self.rfoot, (self.rect.x+5+5-globs.cameraX,
-										   self.rect.y+80-globs.cameraY))
+			blitsurface.blit(self.rfoot, (xy[0]+5+5,
+										   xy[1]+80))
 		elif self.speedX < 0:
 			# Left foot
-			globs.screen.blit(self.lfoot, (self.rect.x+5-globs.cameraX,
-										   self.rect.y+80-globs.cameraY))
+			blitsurface.blit(self.lfoot, (xy[0]+5,
+										   xy[1]+80))
 			# Right foot left
-			globs.screen.blit(self.lfoot, (self.rect.x+40-5-12-5-globs.cameraX,
-										   self.rect.y+80-globs.cameraY))
+			blitsurface.blit(self.lfoot, (xy[0]+40-5-12-5,
+										   xy[1]+80))
 		else:
 			# Right foot
-			globs.screen.blit(self.rfoot, (self.rect.x+40-5-12-globs.cameraX,
-										   self.rect.y+80-globs.cameraY))
+			blitsurface.blit(self.rfoot, (xy[0]+40-5-12,
+										   xy[1]+80))
 			# Left foot
-			globs.screen.blit(self.lfoot, (self.rect.x+5-globs.cameraX,
-										   self.rect.y+80-globs.cameraY))
+			blitsurface.blit(self.lfoot, (xy[0]+5,
+										   xy[1]+80))	
+
+	def worldBlit(self):
+		#print(globs.cameraX, globs.cameraY)
+		self.blit(camera=(globs.cameraX, globs.cameraY))
+
 
 	def update_direction(self):
 		if self.speedX > 0:
@@ -135,6 +142,17 @@ class Character(CollidableEntity):
 		self.mana = self.maxmana
 		print(self.stats)
 
+	def load_appearance(self):
+		hairstyle = "hair1"
+		haircolor = (160,100,80)
+		eyecolor = (0,0,0)
+		self.set_appearance(hairstyle, haircolor, eyecolor)
+
+	def set_appearance(self, hairstyle, haircolor, eyecolor):
+		self.appearance = {"hairstyle": hairstyle,
+						   "haircolor": haircolor,
+						   "eyecolor": eyecolor}
+
 	'''
 
 		Movement
@@ -143,6 +161,7 @@ class Character(CollidableEntity):
 
 	def run(self, direction):
 		force = (globs.clock.get_time()/10.0)
+		#print(force)
 		if direction == "left":
 			globs.character.speedX -= force
 		elif direction == "right":

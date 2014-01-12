@@ -1,4 +1,5 @@
 import os
+import sys
 import ConfigParser
 
 print("Initializing globals")
@@ -13,12 +14,20 @@ def read_config():
 		print('Loading settings conf')
 		config.read("settings.conf")
 	except Exception as e:
-		print('Could not load settings file')
+		sys.exit('Could not load settings file')
+
+def load_config():
+	if config.get("dev", "dirtyrects") == "True":
+		dirtyrects = True
+	else:
+		dirtyrects = False
+
 def write_config():
 	with open('settings.conf', 'wb') as configfile:
 		config.write(configfile)
 
 read_config()
+load_config()
 
 location = "menu.main"
 lastlocation = ""
@@ -27,6 +36,8 @@ framecount = 0
 framerate = 10
 
 dirtyrects = []
+
+charactername = ""
 
 online = False
 connection = None

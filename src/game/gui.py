@@ -1,11 +1,13 @@
 import pygame
 import globals as globs
 
-from menu.baseclasses import InputBox, TextBox, ButtonContainer
+from menu.baseclasses import InputBox, TextBox, ButtonContainer, Button
 
 class ChatInputBox(InputBox):
-	def __init__(self, parent, xy, wh):
-		InputBox.__init__(self, parent, xy, wh, question=">", fgColor=(255,255,255), bgColor=(0,0,0), alpha=120)
+	def __init__(self, xy, wh):
+		InputBox.__init__(self, xy, wh, question=">", fgColor=(255,255,255), bgColor=(0,0,0), alpha=120)
+		globs.currentgame.buttons.add(self)
+		globs.currentgame.guiElements.add(self)
 		self.baseAlpha = 120
 		self.focusedAlpha = 180
 
@@ -30,10 +32,11 @@ class ChatInputBox(InputBox):
 		globs.currentgame.chatBox.draw()
 
 class ChatBox(TextBox):
-	def __init__(self, parent, xy, wh, rows):
-		TextBox.__init__(self, parent, xy, wh, rows, bgColor=(0,0,0), fgColor=(255,255,255), alpha=120, font='droidsansmono')
+	def __init__(self, xy, wh, rows):
+		TextBox.__init__(self, xy, wh, rows, bgColor=(0,0,0), fgColor=(255,255,255), alpha=120, font='droidsansmono')
 		self.baseAlpha = 120
 		self.focusedAlpha = 180
+		globs.currentgame.guiElements.add(self)
 
 	def drawText(self):
 		charcount = self.text.count('')
@@ -57,13 +60,14 @@ class ChatBox(TextBox):
 		self.text += "\n{}: {}".format(name, message)
 
 class SystemMenu(ButtonContainer):
-	def __init__(self, asd):
+	def __init__(self, parent):
 		text = "System Menu"
 		wh = (200,300)
 		xy = ((globs.resolution[0]/2)-(wh[0]/2), (globs.resolution[1]/2)-(wh[1]/2))
 		self.hidden = True
-		ButtonContainer.__init__(self, globs.screen, xy, wh, text=text,
-                		   bgColor=(235,235,235), buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=15)
+		self.bgColor = (235,235,235)
+		ButtonContainer.__init__(self, parent, xy, wh, text=text,
+                		   bgColor=self.bgColor, buttonBgColor=(255,255,255), buttonFgColor=(0,0,0), buttonH=50, buttonSpacing=15)
 		self.parent = globs.currentgame
 
 		self.cutBorderRadius(15)
@@ -100,3 +104,34 @@ class SystemMenu(ButtonContainer):
 
 	def unfocus(self):
 		globs.focused = None
+
+class ResourceBar(Button):
+	def __init__(self, xy, wh, bgColor, fgColor, textColor=(0,0,0)):
+		self.last = None
+		self.percentageShow = False
+		Button.__init__(self, globs.screen, xy, wh, bgColor=bgColor, fgColor=fgColor, text="testing", fontsize=15, borderRadius=5)
+		self.image.set_alpha(200)
+
+	def update(self, value, maxvalue):
+		self.maxvalue = maxvalue
+		if self.last != value:
+			self.last = value
+			self.image.fill(self.bgColor)
+
+			percentage = self.last/float(self.maxvalue)
+			#print(healthpercentage)
+
+			healthImage = pygame.Surface((self.image.get_width()*percentage, self.image.get_height()))
+			healthImage.fill(self.fgColor)
+
+			self.image.blit(healthImage, (0, 0))
+
+			if self.percentageShow:
+				self.text = str(percentage*100) + "%"
+			else:
+				self.text = "{}/{}".format(value, maxvalue)
+			self.drawText()
+
+	def clicked(self):
+		self.last = None
+		self.percentageShow != self.percentageShow

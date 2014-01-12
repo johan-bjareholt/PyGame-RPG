@@ -108,6 +108,7 @@ class Input:
                         buttonlist = location.buttons
                     else:
                         buttonlist = globs.currentgame.clickableEntities
+                        globs.character.weapon.unattack()
 
                 for button in buttonlist:
                     #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))

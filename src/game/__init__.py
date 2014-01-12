@@ -41,7 +41,6 @@ class GameClient():
         for entity in self.entities.sprites():
             entity.worldBlit()
 
-
         '''
             Gui
         '''
@@ -66,7 +65,7 @@ class GameClient():
 
     def update_camera(self):
         # X
-        cameraX = globs.character.rect.x-(globs.resolution[0]/2)
+        cameraX = globs.character.rect.x-(globs.resolution[0]/2)+(globs.character.rect.w/2)
         if not self.smallmapX:
             if cameraX < 0: cameraX = 0
             elif cameraX > globs.currentregion.pixelWidth-globs.resolution[0]: cameraX = globs.currentregion.pixelWidth-(globs.resolution[0])
@@ -75,7 +74,7 @@ class GameClient():
             self.mapalignX = globs.character.rect.x
             cameraX = (globs.currentregion.pixelWidth/2) - (globs.resolution[0]/2)
         # Y
-        cameraY = globs.character.rect.y-(globs.resolution[1]/2)
+        cameraY = globs.character.rect.y-(globs.resolution[1]/2)+(globs.character.rect.h/2)
         if not self.smallmapY:
             if cameraY < 0: cameraY = 0
             elif cameraY > globs.currentregion.pixelHeight-globs.resolution[1]: cameraY = globs.currentregion.pixelHeight-(globs.resolution[1])
@@ -179,7 +178,9 @@ class GameClient():
         # General Entities
         self.players = pygame.sprite.Group()
         self.lethals = pygame.sprite.Group()
+        self.monsters = pygame.sprite.Group()
         self.entities = pygame.sprite.LayeredUpdates(default_layer=0)
+        self.living_entities = pygame.sprite.Group()
         self.collidableEntities = pygame.sprite.Group()
         self.clickableEntities = pygame.sprite.Group()
 
@@ -187,7 +188,7 @@ class GameClient():
         for entity in globs.currentregion.entities:
             print(entity)
             xy = blockPixel(entity[1][0], entity[1][1])
-            entity[0](globs.screen, xy, *entity[2:])
+            entity[0](xy, *entity[2:])
 
         ''' Spawn character '''
         self.players.add(globs.character)
@@ -211,22 +212,33 @@ class GameClient():
 
         ''' Load GUI elements '''
         # ChatBox
-        self.chatBox = ChatBox(globs.screen, (5, globs.resolution[1]-35-5-90), (300,90), 5)
-        self.guiElements.add(self.chatBox)
+        self.chatBox = ChatBox((5, globs.resolution[1]-35-5-90), (300,90), 5)
 
         # InputBox
-        self.chatInputBox = ChatInputBox(globs.screen, (5, globs.resolution[1]-35), (300,30))
-        self.buttons.add(self.chatInputBox)
-        self.guiElements.add(self.chatInputBox)
+        self.chatInputBox = ChatInputBox((5, globs.resolution[1]-35), (300,30))
 
 
         # Minimap
-        self.miniMap = Sprite(globs.screen, (globs.resolution[0]-115,15), (globs.resolution[0]/50, globs.resolution[1]/50))
+        self.miniMap = Sprite((globs.resolution[0]-115,15), (globs.resolution[0]/50, globs.resolution[1]/50))
         self.miniMap.unscaledImage = pygame.surface.Surface((globs.resolution[0]/50, globs.resolution[1]/50))
         self.guiElements.add(self.miniMap)
 
+        # Healthbar
+        xy = (10,10)
+        wh = (100,25)
+        self.healthbar = ResourceBar(xy, wh, bgColor=(20,20,20), fgColor=(255,0,0))
+        self.guiElements.add(self.healthbar)
+        self.buttons.add(self.healthbar)
+
+        # Manabar
+        xy = (10,40)
+        wh = (100,25)
+        self.manabar = ResourceBar(xy, wh, bgColor=(20,20,20), fgColor=(0,0,255))
+        self.guiElements.add(self.manabar)
+        self.buttons.add(self.manabar)
+
         # System Menu
-        self.systemMenu = SystemMenu(globs.screen)
+        self.systemMenu = SystemMenu(self)
 
 
 class GameServer():
