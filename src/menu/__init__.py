@@ -147,41 +147,29 @@ class CreateCharacterMenu(Menu):
         Menu.__init__(self)
 
     def draw(self):
-        self.createCharacterButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="New Character", bgColor=(255,255,255))
-        # OnClick action
-        def createCharacterButton_clicked(self):
-            if len(self.parent.nameBox.inputText)>=5 and len(self.parent.nameBox.inputText)<=15:
-                game.characters.create(self.parent.nameBox.inputText)
-                globs.charactername = self.parent.nameBox.inputText
-                globs.location = "game.world1_StartRegion"
-        self.createCharacterButton.onClick(createCharacterButton_clicked)
-        self.buttons.add(self.createCharacterButton)
-
-        x = ((globs.resolution[0]/2)-125)
-        y = (globs.resolution[1])-150
-        self.nameBox = InputBox((x,y), (250,25), question="Name: ")
-        self.nameBox.draw()
-        self.buttons.add(self.nameBox)
-
         # Initialize Title text
         self.titleText = Text((0,0), "Create your character", 35)
         self.titleText.rect.topleft = ((globs.resolution[0]/2)-(self.titleText.image.get_width()/2), 100)
 
+        # Text box
         w = 280
         h = 60
         self.textBox = TextBox(((globs.resolution[0]/2)-(w/2),500), (w,h), 2, alpha=120)
         self.textBox.text = "Name has to be between 5 and 15 characters long"
         self.textBox.draw()
 
+        #Character preview
         wh = (140, 200)
         xy = ((globs.resolution[0]/2)-(wh[0]/2),(globs.resolution[1]/2)-(wh[1]/2))
         self.characterPreview = CharacterPreview(xy, wh)
 
+        # Hair style selector
         hairstyles = ["hair1", "mohawk"]
         x = 800
         y = 200
         self.hairStyleSelector = ListSelector(self, (x,y), (215,50), selectionlist=hairstyles, text="Hairstyle", spacing=2)
 
+        # Hair color selector
         x = 800
         y = 300
         self.hairColorSelector = ColorSelector((x,y), (215,50), text="Haircolor", spacing=2)
@@ -192,6 +180,24 @@ class CreateCharacterMenu(Menu):
         self.hairColorSelector.add_color(self, (180,50,30))
         self.hairColorSelector.add_color(self, (50,255,50))
         self.hairColorSelector.add_color(self, (50,50,255))
+
+        # Name input box
+        x = ((globs.resolution[0]/2)-125)
+        y = (globs.resolution[1])-150
+        self.nameBox = InputBox((x,y), (250,25), question="Name: ")
+        self.nameBox.draw()
+        self.buttons.add(self.nameBox)
+
+        # Create character button
+        self.createCharacterButton = Button(self, ((globs.resolution[0]/2)-100, (globs.resolution[1])-100), (200, 50), text="New Character", bgColor=(255,255,255))
+        def createCharacterButton_clicked(self):
+            if len(self.parent.nameBox.inputText)>=5 and len(self.parent.nameBox.inputText)<=15:
+                game.characters.create(name=self.parent.nameBox.inputText, 
+                                       appearance=self.parent.characterPreview.character.appearance)
+                globs.charactername = self.parent.nameBox.inputText
+                globs.location = "game.world1_StartRegion"
+        self.createCharacterButton.onClick(createCharacterButton_clicked)
+        self.buttons.add(self.createCharacterButton)
 
         # Draw title
         self.titleText.draw()
@@ -304,9 +310,9 @@ class MultiplayerConnectMenu(Menu):
         self.connectButton.clicked = types.MethodType(connectButton_clicked, self.connectButton)
         self.buttons.add(self.connectButton)
 
-        h = 30
-        w = 300
-        self.ipBox = InputBox(self, (((globs.resolution[0]/2)-(w/2)),(globs.resolution[1])-150), (w,h), question="Address: ")
+        wh = (300, 30)
+        xy = (((globs.resolution[0]/2)-(wh[0]/2)),(globs.resolution[1])-150)
+        self.ipBox = InputBox(xy, wh, "Address: ")
         self.ipBox.inputText = "127.0.0.1"
         self.ipBox.draw()
         self.buttons.add(self.ipBox)

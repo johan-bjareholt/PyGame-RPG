@@ -101,15 +101,22 @@ class Input:
             if event.type == pygame.MOUSEBUTTONUP:
                 #print(event.dict['pos'])
                 X, Y = event.dict['pos']
+                buttonlist = pygame.sprite.Group()
                 if mode == "menu":
-                    buttonlist = location.buttons
+                    buttonlist.add(location.buttons)
                 elif mode == "game":
-                    if globs.focused:
-                        buttonlist = location.buttons
-                    else:
-                        buttonlist = globs.currentgame.clickableEntities
-                        globs.character.weapon.unattack()
-
+                    print(event.button)
+                    if event.button == 1:
+                        buttonlist.add(location.buttons)
+                        if not globs.focused:
+                            globs.character.weapon.unattack()
+                        buttonlist.add(globs.currentgame.clickableEntities)
+                    elif event.button == 3:
+                        for sprite in globs.currentgame.living_entities:
+                            if sprite != globs.character:
+                                if sprite.rect.collidepoint(X+globs.cameraX, Y+globs.cameraY):
+                                    print(sprite)
+                                    globs.currentgame.target = sprite
                 for button in buttonlist:
                     #print("{} on {}".format(button, ("{}, {}".format(button.X, button.Y))))
                     if button.rect.collidepoint(X, Y):
@@ -129,7 +136,7 @@ class Input:
         elif mode == 'game':
             if self.newly_pressed[pygame.K_q] and self.keyup(pygame.K_q):
                 # Equip/unequip weapon
-                if globs.character.weapon.equipped:
+                if globs.character.weapon != None and globs.character.weapon.equipped:
                     globs.character.weapon.unequip()
                 else:
                     globs.character.weapon.equip()

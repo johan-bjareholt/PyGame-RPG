@@ -14,6 +14,31 @@ class Entity(Sprite):
 	def events(self):
 		pass
 
+	def updateClickPosition(self):
+		if not hasattr(self, 'clickRect'):
+			self.create_clicksprite()
+		self.clickSprite.update()
+		#x = self.rect.x-globs.cameraX
+		#y = self.rect.y-globs.cameraY
+		#self.clickSprite.rect.topleft = (x, y)
+
+	def create_clicksprite(self):
+		class ClickSprite(pygame.sprite.Sprite):
+			def __init__(self, parent):
+				pygame.sprite.Sprite.__init__(self)
+				self.rect = pygame.Rect((0,0), (parent.image.get_width(), parent.image.get_height()))
+				self.parent = parent
+			def clicked(self):
+				self.parent.clicked()
+			def update(self):
+				x = self.parent.rect.x-globs.cameraX
+				y = self.parent.rect.y-globs.cameraY
+				self.rect.topleft = (x, y)
+		self.clickSprite = ClickSprite(self)
+		globs.currentgame.clickableEntities.add(self.clickSprite)
+
+	def clicked(self):
+		pass
 
 class CollidableEntity(Entity):
 	def __init__(self, xy, wh, bgColor, bounce=0.0, force=None, add=True):

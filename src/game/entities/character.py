@@ -2,41 +2,64 @@ import pygame
 import globals as globs
 
 from game.entities.baseclasses import LivingEntity, Entity
-from game.entities.weapons import *
+from . import weapons as weapons
 
 import game.characters as chars
 
-class Character(LivingEntity):
-	def __init__(self, xy, add, custom_appearance=None):
-		health = 0
+class CharacterBase(LivingEntity):
+	def __init__(self, xy, add, appearance=None, equipment=None):
+		print(weapons)
+		health = 50
 		LivingEntity.__init__(self, xy, (40,90), health, add=add)
 
-		if globs.charactername:
-			self.load()
-		else:
-			self.weapon = None
-		if custom_appearance:
-			self.set_appearance(**custom_appearance)
+		if not equipment:
+			equipment = {
+						 'Head': None,
+						 'Chest': None,
+						 'Legs': None,
+						 'Feet': None,
+						 'Mainhand': None,
+						 'Offhand': None
+						}
+		self.set_equipment(equipment)
+		if not appearance:
+			# Default appearance
+			appearance = { 'hairstyle': "hair1", 'haircolor': (160,100,80), 'eyecolor': (0,0,0) }
+		self.set_appearance(**appearance)
 		self.facing = "left"
 		self.draw_body()
-
-	def load(self):
-		self.load_attributes()
-		self.load_appearance()
-		self.health = 50
-
-		self.weapon = Bow(self)
 
 	def events(self):
 		self.update_direction()
 
 		self.checkHurt()
-		self.weapon.isHurting()
+		if self.weapon:
+			self.weapon.isHurting()
 		if not self.isAlive():
 			self.die()
 
-		globs.currentgame.healthbar.update(self.health, self.maxhealth)
-		globs.currentgame.manabar.update(self.mana, self.maxmana)
+	def set_equipment(self, equipment):
+		self.weapon = None
+		if equipment['Mainhand'] != None:
+			self.weapon = eval('weapons.'+equipment['Mainhand']+"(self)")
+
+	def set_appearance(self, hairstyle, haircolor, eyecolor):
+		self.appearance = {"hairstyle": hairstyle,
+						   "haircolor": haircolor,
+						   "eyecolor": eyecolor}
+
+	'''
+		Actions
+	'''
+
+	def action(self):
+		if pygame.spritecollideany(self, globs.currentgame.entities):
+			print("Action!")
+
+	def worldAction(self):
+		collisionItem = pygame.sprite.spritecollideany(self, globs.currentgame.worldEntities)
+		if collisionItem:
+			collisionItem.action()
 
 
 	'''
@@ -59,7 +82,10 @@ class Character(LivingEntity):
 		self.pants = pygame.image.load(globs.datadir+"/png/equipment/briefs.png").convert_alpha()
 		self.image.blit(self.pants, (8,52))
 
-		#Hair
+		# Face
+		self.face = pygame.image.load(globs.datadir+"/png/body/eyes.png").convert_alpha()
+
+		# Hair
 		hairstyle = self.appearance["hairstyle"]
 		haircolor = self.appearance["haircolor"]
 		self.hair = pygame.image.load(globs.datadir+"/png/body/hair/"+hairstyle+".png").convert_alpha()
@@ -79,35 +105,29 @@ class Character(LivingEntity):
 		# Weapon 
 		if self.weapon:
 			self.weapon.blit()
-
 		# Body
 		blitsurface.blit(self.image, xy)
-
+		# Face
+		blitsurface.blit(self.face, (xy[0], xy[1]+3))
 		# Hair
 		blitsurface.blit(self.hair, (xy[0], xy[1]-10))
 
 		# Feet
 		if self.speedX > 0:
 			# Right foot
-			blitsurface.blit(self.rfoot, (xy[0]+40-5-12,
-										   xy[1]+80))
+			blitsurface.blit(self.rfoot, (xy[0]+40-5-12, xy[1]+80))
 			# Left foot right
-			blitsurface.blit(self.rfoot, (xy[0]+5+5,
-										   xy[1]+80))
+			blitsurface.blit(self.rfoot, (xy[0]+5+5, xy[1]+80))
 		elif self.speedX < 0:
 			# Left foot
-			blitsurface.blit(self.lfoot, (xy[0]+5,
-										   xy[1]+80))
+			blitsurface.blit(self.lfoot, (xy[0]+5, xy[1]+80))
 			# Right foot left
-			blitsurface.blit(self.lfoot, (xy[0]+40-5-12-5,
-										   xy[1]+80))
+			blitsurface.blit(self.lfoot, (xy[0]+40-5-12-5, xy[1]+80))
 		else:
 			# Right foot
-			blitsurface.blit(self.rfoot, (xy[0]+40-5-12,
-										   xy[1]+80))
+			blitsurface.blit(self.rfoot, (xy[0]+40-5-12, xy[1]+80))
 			# Left foot
-			blitsurface.blit(self.lfoot, (xy[0]+5,
-										   xy[1]+80))	
+			blitsurface.blit(self.lfoot, (xy[0]+5, xy[1]+80))	
 
 	def worldBlit(self):
 		#print(globs.cameraX, globs.cameraY)
@@ -120,22 +140,47 @@ class Character(LivingEntity):
 		elif self.speedX < 0:
 			self.facing = "right"
 
+class NPC(CharacterBase):
+	def __init__(self, xy, appearance=None, equipment=None):
+		CharacterBase.__init__(self, xy, add=True, appearance=appearance, equipment=equipment)
+
+	def events(self):
+		self.updateClickPosition()
+
+	def clicked(self):
+		print("You clicked me :)")
+
+class MultiplayerCharacter(CharacterBase):
+	def __init__(self, xy):
+		pass
+
+class ControlledCharacter(CharacterBase):
+	def __init__(self, xy):
+		self.stats = chars.load(globs.charactername)
+
+		self.load_attributes()
+		self.load_inventory()
+		equipment  = self.load_equipment()
+		appearance = self.load_appearance()
+
+
+		CharacterBase.__init__(self, xy, add=False, appearance=appearance, equipment=equipment)
+
+		#self.load_player()
+
+		self.health = 50
+
+	'''
+		Player loading
 	'''
 
-		Attributes
+	def events(self):
+		CharacterBase.events(self)
 
-		### Stats
-		# Physical attributes
-		# Health, Magicka, Stamina
-		#
-		# Skills
-		# Offensive: Swordfighting, Marksmanship, Destruction
-		# Defensive: Heavy Armor, Light Armor, Restoration
-
-	'''
+		globs.currentgame.healthbar.update(self.health, self.maxhealth)
+		globs.currentgame.manabar.update(self.mana, self.maxmana)
 
 	def load_attributes(self):
-		self.stats = chars.load(globs.charactername)
 		self.maxhealth = 100 + (10*int(self.stats['Attributes']['vitality'])-10)
 		self.health = self.maxhealth
 		self.maxmana = 50 + (10*int(self.stats['Attributes']['magicka'])-10)
@@ -143,15 +188,43 @@ class Character(LivingEntity):
 		print(self.stats)
 
 	def load_appearance(self):
-		hairstyle = "hair1"
-		haircolor = (160,100,80)
-		eyecolor = (0,0,0)
-		self.set_appearance(hairstyle, haircolor, eyecolor)
+		# Hairstyle
+		hairstyle = self.stats['Appearance']['hairstyle']
 
-	def set_appearance(self, hairstyle, haircolor, eyecolor):
-		self.appearance = {"hairstyle": hairstyle,
-						   "haircolor": haircolor,
-						   "eyecolor": eyecolor}
+		# Haircolor
+		temp = self.stats['Appearance']['haircolor']
+		temp = temp.split(",")
+		print(temp)
+		haircolor = (int(temp[0]), int(temp[1]), int(temp[2]))
+
+		# Eyecolor
+		temp = self.stats['Appearance']['eyecolor']
+		temp = temp.split(",")
+		print(temp)
+		eyecolor = (int(temp[0]), int(temp[1]), int(temp[2]))
+
+		return { 'hairstyle': hairstyle, 'haircolor': haircolor, 'eyecolor': eyecolor }
+
+		#self.set_appearance(hairstyle, haircolor, eyecolor)
+
+	def load_equipment(self):
+		mainhand = self.stats['Equipment']['mainhand']
+		if mainhand == 0:
+			mainhand = None
+
+		return {
+				'Head': None,
+				'Chest': None,
+				'Legs': None,
+				'Feet': None,
+				'Mainhand': mainhand,
+				'Offhand': None
+			   }
+
+	def load_inventory(self):
+		self.inventory = []
+		for item in range(20):
+			self.inventory.append(self.stats['Inventory'][str(item)])
 
 	'''
 
@@ -183,16 +256,3 @@ class Character(LivingEntity):
 		if self.onGround():
 			self.speedY = -25
 		globs.currentgame.collidableEntities.add(self)
-
-	'''
-		Actions
-	'''
-
-	def action(self):
-		if pygame.spritecollideany(self, globs.currentgame.entities):
-			print("Action!")
-
-	def worldAction(self):
-		collisionItem = pygame.sprite.spritecollideany(self, globs.currentgame.worldEntities)
-		if collisionItem:
-			collisionItem.action()

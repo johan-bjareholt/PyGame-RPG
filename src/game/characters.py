@@ -12,8 +12,9 @@ basechar = {
 		},
 	'Appearance':
 		{
-			'HairColor',
-			'EyeColor'
+			'hairstyle',
+			'haircolor',
+			'eyecolor'
 		},
 	'Attributes':
 		{
@@ -40,6 +41,7 @@ basechar = {
 		},
 	'Inventory':
 		{
+			'0',
 			'1',
 			'2',
 			'3',
@@ -59,12 +61,11 @@ basechar = {
 			'17',
 			'18',
 			'19',
-			'20',
 		}
 }
 
 
-def create(name):
+def create(name, appearance={"hairstyle": "hair1", "haircolor": (200,120,110),"eyecolor": (0,0,255)}):
 	config = ConfigParser.RawConfigParser()
 
 	for section in basechar:
@@ -80,11 +81,20 @@ def create(name):
 					value = datetime.datetime.now()
 			elif section == 'Attributes' or section == 'Skills':
 				value = 1
+			if section == 'Appearance':
+				if type(appearance[setting]) == tuple:
+					value = ""
+					for part in appearance[setting]:
+						value += str(part) + ","
+					#value = appearance[setting]
+				if type(appearance[setting]) == str:
+					value = appearance[setting]
 			else:
 				print("Unknown setting {}.{}".format(section, setting))
 
 			config.set(section, setting, value)
 			print("Created setting {}.{} as {}".format(section, setting, value))
+			value = 0
 
 	# Writing our configuration file to 'example.cfg'
 	with open(globs.cwd+'/game/characters/{}'.format(name), 'w+') as configfile:

@@ -13,7 +13,6 @@ from menu import *
 
 from game import GameClient
 from game.worldblocks import *
-from game.entities.character import Character
 from .baseclasses import Text
 
 
@@ -53,7 +52,7 @@ def loop():
             globs.currentgame = GameClient(screen)
             if globs.lastlocation.split('.')[0] != globs.location.split('.')[0]:
                 # If first time inGame
-                globs.character = Character((0,0), add=False)
+                game.load_character()
                 #print("Loaded character")
             globs.currentgame.load(sub)
 

@@ -6,22 +6,17 @@ class Surface(pygame.Surface):
     '''
     Base class for surfaces
     '''
-    def __init__(self, wh, transparent=False, rleaccel=False, alpha=None):
-        if transparent or rleaccel:
-            pygame.Surface.__init__(self, wh, pygame.RLEACCEL)
-        else:
-            pygame.Surface.__init__(self, wh)
-        if alpha:
-            self.set_alpha(alpha)
+    def __init__(self, wh):
+        pygame.Surface.__init__(self, wh)
 
 
 class Sprite(pygame.sprite.Sprite):
     '''
     Base class for sprites
     '''
-    def __init__(self, xy, wh, colorkey=(255,0,255), rleaccel=False, alpha=None):
+    def __init__(self, xy, wh, colorkey=(255,0,255)):
         pygame.sprite.Sprite.__init__(self)
-        self.image = Surface(wh, rleaccel=rleaccel, transparent=alpha)
+        self.image = Surface(wh)
         self.rect = self.image.get_rect(topleft=xy)
         self.colorkey = colorkey
         self.lastworldrect = pygame.Rect(0,0,0,0)

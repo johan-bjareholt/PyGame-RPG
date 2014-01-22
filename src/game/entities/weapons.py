@@ -134,7 +134,7 @@ class LongSword(MeleeWeapon):
 
 class Bow(Weapon):
 	def __init__(self, owner):
-		wh = (30,60)
+		wh = (20,60)
 		Weapon.__init__(self, owner, wh, inhand=True)
 		self.original_image = self.image
 		self.r = 0
@@ -151,15 +151,19 @@ class Bow(Weapon):
 	def draw(self):
 		self.image.fill((255,0,255))
 		self.image.set_colorkey((255,0,255))
-		weaponimg = pygame.image.load(globs.datadir+"/png/weapons/longsword.png").convert_alpha()
+		weaponimg = pygame.image.load(globs.datadir+"/png/weapons/bow.png").convert_alpha()
 		self.image.blit(weaponimg, (0,0))
 
 	def blit(self):
 		if self.equipped:
 			# Bow rotation
+			x_offset = self.owner.rect.x - globs.cameraX
+			y_offset = self.owner.rect.y - globs.cameraY
 			mousepos = list(pygame.mouse.get_pos())
-			mousepos[0] -= globs.resolution[0]/2
-			mousepos[1] -= globs.resolution[1]/2
+			mousepos[0] -= x_offset
+			mousepos[1] -= y_offset
+			#mousepos[0] -= globs.resolution[0]/2
+			#mousepos[1] -= globs.resolution[1]/2
 			if mousepos[1] != 0:
 				mouserel = mousepos[0]/float(mousepos[1])
 				if mousepos[1] > 0:
@@ -206,21 +210,30 @@ class Bow(Weapon):
 				projectile.checkHit()
 
 	def attack(self):
-		if self.charge == 0:
-			self.projectile = Arrow(self.owner, -self.r, self.charge)
-		self.charge += 1
-		if self.charge > self.maxCharge:
-			self.charge = self.maxCharge
+		if self.equipped:
+			if self.charge == 0:
+				self.projectile = Arrow(self.owner, -self.r, self.charge)
+			self.charge += 1
+			if self.charge > self.maxCharge:
+				self.charge = self.maxCharge
 
 	def unattack(self):
-		self.attacking = True
-		if self.charge > self.minCharge:
-			self.projectile.shoot(self.charge)
-			self.projectiles.add(self.projectile)
-		else:
-			self.projectile.kill()
-			self.projectile = None
-		self.charge = 0
+		if self.equipped:
+			self.attacking = True
+			if self.charge > self.minCharge:
+				self.projectile.shoot(self.charge)
+				self.projectiles.add(self.projectile)
+			else:
+				self.projectile.kill()
+				self.projectile = None
+			self.charge = 0
+
+
+	def unequip(self):
+		self.equipped = False
+
+	def equip(self):
+		self.equipped = True
 
 
 class Projectile(Weapon):
@@ -231,6 +244,7 @@ class Projectile(Weapon):
 
 		self.direction = direction
 		self.attacking = False
+		self.hitted_opponent = None
 		self.defaultremovetime = 5000
 		self.removetime = self.defaultremovetime
 
@@ -261,7 +275,7 @@ class Projectile(Weapon):
 		elif self.attacking:
 			self.moveShoot()
 			self.checkOutOfBounds()
-			self.rotate()
+			self.moveRotate()
 			self.checkHit()
 		else:
 			self.fade_away()
@@ -279,7 +293,7 @@ class Projectile(Weapon):
 		self.image = pygame.transform.rotate(self.original_image, self.r)
 
 	def moveRotate(self):
-		self.r = math.degrees(math.atan(self.speedY/self.speedX))
+		self.r = -math.degrees(math.atan(self.speedY/self.speedX))
 		self.image = pygame.transform.rotate(self.original_image, self.r)
 
 	def hit(self, target):
@@ -300,11 +314,12 @@ class Projectile(Weapon):
 			self.lasthitxy = self.hitting[0].rect.topleft
 		else:
 			if self.attacking:
-				collidedItems = pygame.sprite.spritecollide(self, globs.currentgame.living_entities, False)
+				collidedItems = pygame.sprite.spritecollide(self, globs.currentgame.collidableEntities, False)
 				for collidedItem in collidedItems:
 					if collidedItem and collidedItem != self.owner and collidedItem != self:
 						#print(str(self) + " and " + str(collidedItem))
-						self.hit(collidedItem)
+						if collidedItem in globs.currentgame.living_entities:
+							self.hit(collidedItem)
 						globs.currentgame.lethals.remove(self)
 						self.attacking = False
 				if self.colliding_blocks():
@@ -337,12 +352,8 @@ class Projectile(Weapon):
 		self.rect.x += self.speedX
 		self.rect.y += self.speedY
 		self.speedY += globs.clock.get_time()/80.0
-		if self.speedX > 0:
-			#self.speedX -= globs.clock.get_time()/160.0
-			self.speedX -= self.speedY*globs.clock.get_time()/1200.0
-		elif self.speedX < 0:
-			#self.speedX += globs.clock.get_time()/160.0
-			self.speedX += self.speedY*globs.clock.get_time()/1200.0
+		# Accel down
+		self.speedX -= self.speedX*globs.clock.get_time()/1200.0
 		#print(globs.clock.get_time()/1200.0)
 
 	def fade_away(self):
@@ -390,6 +401,11 @@ class Arrow(Projectile):
 	def __init__(self, owner, direction, speed, inhand=False):
 		damage = 10
 		push = 20
-		wh = (25,8)
+		wh = (25,7)
 		#print("Arrow!")
 		Projectile.__init__(self, owner, wh, direction, damage, speed, push)
+
+		self.image.fill((255,0,255))
+		self.image.set_colorkey((255,0,255))
+		weaponimg = pygame.image.load(globs.datadir+"/png/weapons/arrow.png").convert_alpha()
+		self.image.blit(weaponimg, (0,0))

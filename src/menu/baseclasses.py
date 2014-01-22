@@ -80,7 +80,8 @@ class ButtonContainer(Sprite):
         self.image.fill(bgColor)
         self.text = text
 
-        self.buttons = []
+        self.buttons = pygame.sprite.Group()
+        self.buttonlist = []
         self.buttonH = buttonH
         self.buttonSpacing = buttonSpacing
         self.buttonBgColor = buttonBgColor
@@ -94,15 +95,15 @@ class ButtonContainer(Sprite):
         self.image.blit(self.textSprite.image, self.textSprite.rect.topleft)
 
     def updateButtons(self):
-        for button in range(len(self.buttons)):
-            self.buttons[button].localxy = (self.buttonSpacing, 
+        for button in range(len(self.buttonlist)):
+            self.buttonlist[button].localxy = (self.buttonSpacing, 
                                            ((self.textSprite.image.get_height()+self.textSprite.rect.topleft[1])+
                                            (self.buttonSpacing*button)+(self.buttonH*button)))
 
-            self.buttons[button].rect.topleft = ((self.buttons[button].localxy[0]+self.rect.topleft[0] ,
-                                              self.buttons[button].localxy[1]+self.rect.topleft[1]))
+            self.buttonlist[button].rect.topleft = ((self.buttonlist[button].localxy[0]+self.rect.topleft[0] ,
+                                              self.buttonlist[button].localxy[1]+self.rect.topleft[1]))
 
-    def newButton(self, text, function):
+    def newButton(self, text, function, buttongroup=None):
         # Set variables
         xy=(50,50)
         wh=(self.image.get_width()-(self.buttonSpacing*2),
@@ -113,13 +114,17 @@ class ButtonContainer(Sprite):
         newbutton.onClick(function)
 
         # Add button to container and return it
-        self.buttons.append(newbutton)
+        self.buttonlist.append(newbutton)
+        self.buttons.add(newbutton)
         self.updateButtons()
         #print(newbutton.xy)
-        if globs.location.split('.')[0] == "menu":
-            globs.menus[globs.location.split('.')[1]].buttons.add(newbutton)
+        if not buttongroup:
+            if globs.location.split('.')[0] == "menu":
+                globs.menus[globs.location.split('.')[1]].buttons.add(newbutton)
+            else:
+                globs.currentgame.buttons.add(newbutton)
         else:
-            globs.currentgame.buttons.add(newbutton)
+            buttongroup.add(newbutton)
         return newbutton
 
 class Button(Sprite):
@@ -330,9 +335,9 @@ class CharacterPreview(Sprite):
         self.image.fill((0,0,0))
         self.character_wh = (40,90)
 
-        self.appearance = { 'hairstyle': "hair1", 'haircolor': (160,100,80), 'eyecolor': (0,0,0) }
         character_module = import_module("game.entities.character")
-        self.Character = character_module.Character
+        self.Character = character_module.CharacterBase
+        self.appearance = { 'hairstyle': "hair1", 'haircolor': (160,100,80), 'eyecolor': (0,0,0) }
 
         self.draw()
 
@@ -341,7 +346,7 @@ class CharacterPreview(Sprite):
         self.draw_character()
 
     def draw_character(self):
-        self.character = self.Character((0,0), add=False, custom_appearance=self.appearance)
+        self.character = self.Character((0,0), add=False)
         #print(self.character.appearance)
         #self.character.rect.topleft = (x,y)
         tempSurface = Surface(self.character_wh)

@@ -92,18 +92,11 @@ class TeleportationPad(Entity):
 		Entity.__init__(self, xy, (50,100), (255,0,255))
 		self.targetLocation = location
 
-		self.clickSprite = Sprite((0,0), (self.image.get_width(), self.image.get_height()))
-		self.clickSprite.clicked = self.clicked
 		self.updateClickPosition()
-		globs.currentgame.clickableEntities.add(self.clickSprite)
+		#globs.currentgame.clickableEntities.add(self.clickSprite)
 
 	def events(self):
 		self.updateClickPosition()
-
-	def updateClickPosition(self):
-		x = self.rect.x-globs.cameraX
-		y = self.rect.y-globs.cameraY
-		self.clickSprite.rect.topleft = (x, y)
 
 	def clicked(self):
 		globs.location = self.targetLocation
