@@ -111,6 +111,7 @@ def initialize_screen():
 
 def screenshot():
     pygame.image.save(globs.screen, "screenshots/"+time.strftime("%Y-%m-%d %Hh %Mm %Ss")+".png")
+    print("Screenshot captured!")
 
 def load_cursor(name):
     cursor = eval(name)()

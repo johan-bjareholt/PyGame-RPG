@@ -9,6 +9,7 @@
 \usepackage{epstopdf}
 % wrapping
 \usepackage{wrapfig}
+\usepackage{float}
 % Bild inställningar
 \epstopdfsetup{outdir=./}
 \graphicspath{img/}
@@ -101,18 +102,18 @@ This means that i will avoid doing as much graphical and musicial work as possib
 This will make the project more scientific and more interesting to analyze around when the project is done.
 
 % Project aim and questioning of what will be hard and easy
-A schedule has been made to 
+A schedule has been made to endorse a stable development pace. It is also a good way to get a good overview on how close the project is to it's goal.
 
 
 \subsection{Recommended reading}
 % What you need to know to fully understand the report
 There is terminology and a few concepts that will repeatedly be mentioned in this report.
-Most of the report will still be understood by the average person even if they are not experienced in programming and game making, but to fully understand some parts of the report (especially the analisys), you will have to either 
+Most of the report will still be understood even if they are not experienced in programming and game making, but to fully understand some parts of the report (especially the analysis), you will have to understand the basics of how computers represents 2d graphics.
 
 
 \clearpage
 
-\section{Theory}
+\section{Theoretical background}
 %• Teori (Teoretisk bakgrund)
 %Under rubriken ”Teori” tar du upp saker som är relevanta för rapporten. Teorin är det som lägger grunden för diskussionen, så att allt du tar upp i teorin måste du återknyta till i diskussionen. På samma vis får du inte ta upp något i diskussionen som du inte tidigare har lagt grunden för och har stöd för i teoridelen.
 %Om det finns olika sätt att tolka begrepp är det viktigt att du klargör hur du i din rapport använder begreppen.
@@ -232,6 +233,13 @@ I then added so collidable items could push eachother if they were both movable,
 After 4 rewrites i finally got it working somewhat, it was still buggy and could crash the program when using bouncing objects but i decided that it took to much time so i decided to continue with the rest of the code.
 
 % Characters and weapons
+\begin{wrapfigure}{r}{0.6\textwidth}
+    \vspace{-20pt}
+    \begin{center}
+        \includegraphics[width=0.58\textwidth]{img/screenshot2.eps}
+    \end{center}
+    \vspace{-20pt}
+\end{wrapfigure}
 Then i started working on the character, characters appearance and weapons.
 I made two types of weapons, bows and swords.
 On both of these i wanted a animation that the sword got swung and that the bow was aiming where the mouse pointed, but since i am not good at animation i instead only rotated the images which made it alot easier.
@@ -239,6 +247,14 @@ I also made an arrow object which was tricky to make, because it was supposed to
 To do this i had to do use cotangens on the x and y speeds to find the angle it was supposed to be displayed.
 
 
+% GUI and Monsters
+By now the world started to feel more like a game, and i started working on monsters and user interface.
+The only monster implemented is a zombie which runs towards a player if one is within a specific radius from it.
+Every monster has a healthbar above it and can be killed, although it cannot kill you!
+The user interface is simple and consists of only a chatbox, minimap and health- and manabar.
+\\
+
+\includegraphics[width=\textwidth]{img/screenshot3.eps}
 
 
 
@@ -255,6 +271,16 @@ To do this i had to do use cotangens on the x and y speeds to find the angle it 
 During the development of this project, i have tried to always be ahead of my schedule in case a week with multiple exams would turn up.
 I was in pace until the last 3 weeks before the report deadline where alot of homeworked suddenly turned up.
 I also thought that the deadline was in April when it actually was in February, but luckily i had planned only to add extra features such as multiplayer the last week and not work on the core of the game.
+\\
+
+
+\hspace{-20pt}
+\includegraphics[width=\textwidth]{img/screenshot1.eps}
+
+
+
+
+
 
 \clearpage
 
@@ -277,12 +303,12 @@ As a result, the project is still complete but i was not able to accomplish as m
 During the development period i also implemented features that i had not planned from the beginning such as character customization and text input, but now i would rather had focused on the game than on its interface and customization.
 \\
 
-
-\includegraphics[width=\textwidth]{img/gantt.eps}
-
-\begin{description}
+\begin{figure}[h!]
+   \includegraphics[width=\textwidth]{img/gantt.eps}
+    \emph{%
         This was the original time plan, which was followed except for the last three months
-\end{description}
+    }
+\end{figure}
 
 \subsection{No hardware acceleration}
 % Slow blitting
@@ -301,18 +327,85 @@ This is pretty bad performance since the graphics are not advanced at all and no
 % Collision physics troubles
 
 I have previously worked with collision detection and i thought that it was easy to implement.
-What i wanted in this game was actual physics, so i simply tried to implement the physics i have learnt in school in programming.
-It did seem very easy and implementing the formulas was easy, although there was one thing i was not aware of.
-In reality everything moves with a constant speed, but a computer works step by step.
-The way to make this as realistic as possible it to have very small iterations of movement on each item, but that would be very resource heavy.
+What i wanted in this game was actual physics, so i simply tried to trabslate the physics i have learnt in school into programming.
+The idea did seemed very easy and implementing the formulas was easy, although there was one thing i was not aware of.
+In reality everything moves with a constant speed, but a computer works step by step and if objects do not move with constant speed at the same it becomes somewhat hard.
+The way to make this as realistic as possible it to have very small iterations of movement on each item, but that would be alot of work on the processor so that was not how i implemented it.
 
 After re-writing my code over 4 times, i finally came up with a acceptable result.
-I first moved the object in each direction, and if the speed was faster this frame than it's height or width, it should extra check so it did not jump through an object.
-This worked well if one of the objects are static, but if either both objects were moving or if they had a bouncy property it was not as straight forward.
+I first moved each object in each direction, and if the speed was faster this frame than it's height or width, it should extra check so it did not jump through an object.
+This worked well if one of the objects are static, but if either both objects were moving (and especially if they had the bouncy property) it was not as straight forward.
 
-Currently moving objects can easily collide with each other, but i have not been able to make the bounce work as intended.
+Moving objects can collide with each other pretty well, but i have not been able to make the bounce work as intended.
 A object with the bounce property can bounce onto static objects and can be pushed as long as it is not pushed into a wall (If that is the case, the game will crash).
 
 
+\section{Screenshots}
+
+\subsection{In-game}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{img/screenshot1.eps}\\
+\emph{%
+    Player standing at spawn with his sword unwielded
+}
+\end{figure}
+
+\noindent
+\vspace{10pt}
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{img/screenshot2.eps}\\
+\emph{%
+    Player shooting an arrow with his bow
+}
+\end{figure}
+
+\vspace{10pt}
+\noindent
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{img/screenshot3.eps}\\
+\emph{%
+    Player hunting a zombie with his sword
+}
+\end{figure}
+
+
+
+
+\subsection{Menu}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{img/menushot1.eps}\\
+\emph{%
+    Main menu
+}\\
+\end{figure}
+
+\vspace{10pt}
+\noindent
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{img/menushot2.eps}\\
+\emph{%
+    Character creation menu
+}
+\end{figure}
+
+\vspace{10pt}
+\noindent
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{img/menushot3.eps}\\
+\emph{%
+    Character selection menu
+}
+\end{figure}
+
+\vspace{10pt}
+\noindent
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{img/menushot4.eps}\\
+\emph{%
+    Settings menu
+}
+\end{figure}
 
 \end{document}

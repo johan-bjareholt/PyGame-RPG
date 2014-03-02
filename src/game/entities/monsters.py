@@ -64,10 +64,14 @@ class Zombie(Monster):
 		wh = (50,90)
 		health = 100
 		Monster.__init__(self, xy, wh, health)
-		self.image.fill((0,255,0))
+		#sself.image.fill((0,255,0))
 		self.facing = "right"
 
 		self.weapon = Sword(self)
+
+		self.basebody = pygame.image.load(globs.datadir+"png/monsters/zombie/zombie_base.png")
+		self.basebody.convert_alpha()
+		self.image.blit(self.basebody, (0,0))
 
 	def runTowardsPlayer(self):
 		# X

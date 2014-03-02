@@ -236,7 +236,7 @@ class SettingsMenu(Menu):
         # Create resolution buttons and container
         resolutions = [(960,540),(1280,720),(1600,900),(1920,1080),(3200,1024)]
         # Container
-        self.resolutionContainer = ButtonContainer(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-50), (200,(len(resolutions)*65)+50), text="Display", buttonSpacing=20)
+        self.resolutionContainer = ButtonContainer(self, ((globs.resolution[0]/2)-200-50, (globs.resolution[1]/2)-100), (200,(len(resolutions)*65)+50), text="Display", buttonSpacing=20)
         self.resolutionButtons = []
         # create each button
 
@@ -250,7 +250,7 @@ class SettingsMenu(Menu):
             resButton = self.resolutionContainer.newButton("{}x{}".format(r[0], r[1]), resButton_clicked)
             resButton.resolution = i
 
-        self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-50), (300,250), text="Versions")
+        self.versionContainer = Container(self, ((globs.resolution[0]/2)+50, (globs.resolution[1]/2)-100), (300,250), text="Versions")
         self.pythonVersionText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+50), "Python version: {0[0]}.{0[1]}.{0[2]}".format(sys.version_info), 20)
         self.pygameVersionText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+80), "PyGame version: {}".format(pygame.version.ver), 20)
         self.sdlVersionText = Text((self.versionContainer.rect.topleft[0]+20,self.versionContainer.rect.topleft[1]+110), "SDL version: {0[0]}.{0[1]}.{0[2]}".format(pygame.get_sdl_version()), 20)

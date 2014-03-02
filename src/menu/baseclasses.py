@@ -43,17 +43,20 @@ class Container(Sprite):
     def __init__(self, parent, xy, wh, bgColor=(235,235,235), text='', textsize=10, spacing=2):
         Sprite.__init__(self, xy, wh)
         self.text = text
+        self.textsize = textsize
         self.bgColor = bgColor
         self.spacing = spacing
         self.entries = []
 
+        self.draw()
+
     def draw(self):
-        self.image.fill((255,255,255))
+        self.image.fill(self.bgColor)
         x = 10
         y = self.spacing
 
         # Draw text
-        self.textSprite = Text(self, x+self.rect.x, y+self.rect.x, self.textsize)
+        self.textSprite = Text((x+self.rect.x, y+self.rect.x), self.text, self.textsize)
         x += self.textsize + self.spacing
 
         # Draw entries
