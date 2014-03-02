@@ -50,8 +50,8 @@ class StartRegion(Region):
 		]
 
 		wentities = [
-					 [entities.BouncyBall, (17,17)],
-					 [entities.BigBouncyBall, (19,17)],
+                    #[entities.BouncyBall, (17,17)],
+                    # [entities.BigBouncyBall, (19,17)],
 					 [entities.TeleportationPad,(25,19),"game.World1_House"],
 					 [entities.WoodenStairs,(7,14),7],
 					 [entities.npcs.Shopkeeper, (28,17)],

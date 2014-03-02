@@ -37,6 +37,8 @@ class Block_000(Block):
 	'''
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(150,150,150))
+		self.image = pygame.image.load(globs.datadir+"/png/blocks/stone.png")
+		self.image.convert()
 
 class Block_001(Block):
 	'''
@@ -44,6 +46,8 @@ class Block_001(Block):
 	'''
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(65,55,40))
+		self.image = pygame.image.load(globs.datadir+"/png/blocks/dirt.png")
+		self.image.convert()
 
 class Block_002(Block):
 	'''
@@ -52,6 +56,8 @@ class Block_002(Block):
 	def __init__(self, xy):
 		Block.__init__(self, xy, bgColor=(50,200,50))
 		grasswh = (60,25)
+		self.image = pygame.image.load(globs.datadir+"/png/blocks/grass.png")
+		self.image.convert()
 		self.grass = Sprite(self.rect.topleft, grasswh)
 		self.grass.image.set_colorkey((255,0,255))
 		self.grass.image = pygame.image.load(globs.datadir+"/png/blocks/002_decoration.png")

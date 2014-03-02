@@ -63,7 +63,7 @@ class ResourceBar(Button):
 		self.maxvalue = maxvalue
 		if self.last != value:
 			self.last = value
-			self.image.fill(self.bgColor)
+			self.draw()
 
 			percentage = self.last/float(self.maxvalue)
 			#print(healthpercentage)
@@ -91,10 +91,17 @@ Chat related
 '''
 
 class ChatBubble(Sprite):
-	def __init__(self):
-		Sprite.__init__(self, (0,0), (100,100))
+	def __init__(self, character):
+		Sprite.__init__(self, (0,0), (100,30))
+		self.owner = character
 		globs.currentgame.guiElements.add(self)
 		self.image.fill((0,0,0))
+
+	def blit(self, screen):
+		x = self.owner.rect.x-globs.cameraX-self.image.get_width()/2+self.owner.image.get_width()/2
+		y = self.owner.rect.y-globs.cameraY-self.image.get_height()-10
+		self.rect.topleft = (x, y)
+		Sprite.blit(self, screen)
 
 class ChatInputBox(InputBox):
 	def __init__(self, xy, wh):
@@ -119,7 +126,7 @@ class ChatInputBox(InputBox):
 			globs.currentgame.chatBox.draw()
 			self.inputText = ""
 		self.alpha = self.baseAlpha
-		ChatBubble()
+		ChatBubble(globs.character)
 		self.draw()
 
 		globs.currentgame.chatBox.alpha = globs.currentgame.chatBox.baseAlpha

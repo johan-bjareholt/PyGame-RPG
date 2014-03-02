@@ -6,7 +6,7 @@ from game.entities.weapons import Sword
 import globals as globs
 
 class Monster(LivingEntity):
-	def __init__(self, xy, wh, health, attackArea=1600):
+	def __init__(self, xy, wh, health, attackArea=2000):
 		LivingEntity.__init__(self, xy, wh, (0,255,0), health)
 
 		self.attackArea = Sprite((0,0), (attackArea, attackArea))
@@ -53,16 +53,9 @@ class Monster(LivingEntity):
 	def runTowardsPlayer(self):
 		pass
 
-	def updateHurtArea(self):
-		x = self.rect.x - (self.hurtAreaSize/2)
-		y = self.rect.y - (self.hurtAreaSize/2)
-		self.rect.topleft = (x,y)
-		print("x:" + str(x) + " y:" + str(y))
-		self.hurtArea.worldBlit()
-
 	def updateAttackArea(self):
-		x = self.rect.x-(self.attackArea.image.get_width()/2)-(self.image.get_width()/2)
-		y = self.rect.y-(self.attackArea.image.get_height()/2)-(self.image.get_height()/2)
+		x = self.rect.x-(self.attackArea.image.get_width()/2)+(self.image.get_width()/2)
+		y = self.rect.y-(self.attackArea.image.get_height()/2)+(self.image.get_height()/2)
 		self.attackArea.rect.topleft = (x, y)
 
 

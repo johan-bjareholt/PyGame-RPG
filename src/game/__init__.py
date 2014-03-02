@@ -229,14 +229,14 @@ class GameClient():
         self.guiElements.add(self.miniMap)
 
         # Username
-        xy = (10,10)
-        font = globs.getFont("calibrib", 20)
-        image = font.render(globs.charactername, True, (0,0,0))
-        wh = image.get_size()
-        self.username_text = Sprite(xy, wh)
-        self.username_text.image.fill((255,0,255))
-        self.username_text.image.blit(image, (0,0))
-        self.guiElements.add(self.username_text)
+        #xy = (10,10)
+        #font = globs.getFont("calibrib", 20)
+        #image = font.render(globs.charactername, True, (0,0,0))
+        #wh = image.get_size()
+        #self.username_text = Sprite(xy, wh)
+        #self.username_text.image.fill((255,0,255))
+        #self.username_text.image.blit(image, (0,0))
+        #self.guiElements.add(self.username_text)
 
 
         # Healthbar
@@ -254,16 +254,16 @@ class GameClient():
         self.buttons.add(self.manabar)
 
         # Target Healthbar
-        xy = (150, 10)
-        wh = (100,25)
-        self.target_healthbar = ResourceBar(xy, wh, bgColor=(20,20,20), fgColor=(255,0,0))
-        self.guiElements.add(self.target_healthbar)
+        #xy = (150, 10)
+        #wh = (100,25)
+        #self.target_healthbar = ResourceBar(xy, wh, bgColor=(20,20,20), fgColor=(255,0,0))
+        #self.guiElements.add(self.target_healthbar)
 
         # Target Manabar
-        xy = (150, 40)
-        wh = (100,25)
-        self.target_healthbar = ResourceBar(xy, wh, bgColor=(20,20,20), fgColor=(0,0,255))
-        self.guiElements.add(self.target_healthbar)
+        #xy = (150, 40)
+        #wh = (100,25)
+        #self.target_healthbar = ResourceBar(xy, wh, bgColor=(20,20,20), fgColor=(0,0,255))
+        #self.guiElements.add(self.target_healthbar)
 
         # System Menu
         self.systemMenu = SystemMenu(self)
