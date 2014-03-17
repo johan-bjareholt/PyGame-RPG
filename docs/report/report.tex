@@ -66,6 +66,11 @@
 %Även om sammanfattningen placeras först i rapporten är det lämpligt att skriva den sist, när du är färdig med resten av rapporten.
 %Anledningen till att sammanfattningen skrivs på engelska är förberedelse för Högskolan.
 
+This report is about the progress and result of a 2D platform game which was made for a 3rd year high school project.
+I will go into how i planned the project as well as how i faced my challenges, but i have avoided more technical terms to make it readable for a broader audience.
+The projects goal was to learn how to create a game from ground up and learning some game making techinques such as a world system, simple NPCs, character design, menu system as well as a simple physics engine.
+This was a one man project, which made time planning very important since it takes alot of time to code games.
+It has been an interesting path, and i would like to inspire others to do similar project since game making and programming are both fun and interesting.
 
 
 \clearpage
@@ -91,7 +96,7 @@
 %   Clear and multiple questions are good to have, and they have to be clear
 % This gymnasium projects goal is to learn and make a robust base for a 2d platform game.
 What does the design of a game look like abstractly in code and how does everything work together?
-What are some nice architectual code designs and how do i implement them properly?
+What are some nice structual code designs and how do i implement them properly?
 These are questions i think are very interesting and only have scraped the surface of before, and therefore have decided to learn how this works in depth with this project.
 
 % What i am going to learn
@@ -108,7 +113,7 @@ A schedule has been made to endorse a stable development pace. It is also a good
 \subsection{Recommended reading}
 % What you need to know to fully understand the report
 There is terminology and a few concepts that will repeatedly be mentioned in this report.
-Most of the report will still be understood even if they are not experienced in programming and game making, but to fully understand some parts of the report (especially the analysis), you will have to understand the basics of how computers represents 2d graphics.
+Most of the report will still be understood without any programming or game making experience, but to fully understand some parts of the report (especially the analysis), you will have to understand the basics of how computers represents 2d graphics.
 
 
 \clearpage
@@ -123,7 +128,7 @@ Most of the report will still be understood even if they are not experienced in 
 
 % Technologies
 When considering on how to actually make the game, i decided to use technologies i already knew how to use and was familiar with. 
-This resulted in a combination of the programming language Python and the game library PyGame, which are are both designed very concise so i've been able to write more effective code on less amount of lines and therefore saving time which is crucial on a one man project.
+This resulted in a combination of the programming language Python and the game library PyGame, which are are both designed very concise so i've been able to effectively write code on less amount of lines and therefore saving time which is crucial on a one man project.
 
 % Focus
 The focus of this project is to learn how to create a advanced, flexible and stable game framework.
@@ -131,7 +136,7 @@ The aim is not to add lots of game elements and make it fun, but is simply a pro
 Consicely, it's about features and not content.
 
 % Difficulties
-There are a few issues that are known that might be encountered. First off, writing a game is difficult and takes more time than people usually thinks. To explain everything the game does in code is alot of work, even though some of it might be very simple.
+There are a few issues that are known that might be encountered. First off, writing a game is difficult and takes more time than people usually believes. To explain everything the game does in code is alot of work, even though some of it might be very simple.
 Secondly, i chose a high level language which is efficient to write, but as all high level languages it is slow to execute.  
 
 
@@ -147,7 +152,7 @@ I want to be able to easily and efficiently create a menu, and make the code eas
 The others are more game centric to make it feel premium.
 Physics are important to make the game dynamic, and some extra things that would improve but not as important are multiplayer, character customization and easy world creation.
 
-These are my ambitions,
+These are my ambitions, and i am aiming to complete as much of it as i possibly can.
 
 
 \subsection{Software}
@@ -222,7 +227,7 @@ It was a long time since i wrote my last game, so i wanted to start simple.
 After i had a solid input base and a nice custom made menu, i started working on the basics of the game.
 
 % World and camera
-First off was the camera and world system was created. 
+First off was the camera and world system. 
 I decided to make the game up with worldblocks, because this was the easiest and best way if i wanted to make a world creator later on.
 
 % Objects
@@ -230,7 +235,7 @@ After this i started working on how to implement objects (both collidable and un
 The difference between a worldblock and a object is that worldblocks always are 50x50 pixels in size and cannot be moved in game.
 Objects are dynamic and can be of different sizes and can be either collidable or uncollidable. 
 I then added so collidable items could push eachother if they were both movable, which was a real challenge.
-After 4 rewrites i finally got it working somewhat, it was still buggy and could crash the program when using bouncing objects but i decided that it took to much time so i decided to continue with the rest of the code.
+After 4 rewrites i finally got it working somewhat, it was still buggy and could crash the program when using bouncing objects but i decided that it took to much time so i decided to continue with the rest of the code instead.
 
 % Characters and weapons
 \begin{wrapfigure}{r}{0.6\textwidth}
@@ -240,15 +245,15 @@ After 4 rewrites i finally got it working somewhat, it was still buggy and could
     \end{center}
     \vspace{-20pt}
 \end{wrapfigure}
-Then i started working on the character, characters appearance and weapons.
+So i started working on the character, characters appearance and weapons.
 I made two types of weapons, bows and swords.
-On both of these i wanted a animation that the sword got swung and that the bow was aiming where the mouse pointed, but since i am not good at animation i instead only rotated the images which made it alot easier.
+On both of these i wanted a animation that the sword got swung and that the bow was aiming where the mouse pointed, but since i am not good at animation i instead only rotated the images which made it easier for me.
 I also made an arrow object which was tricky to make, because it was supposed to rotate according to how fast was shot and how fast it was falling. 
 To do this i had to do use cotangens on the x and y speeds to find the angle it was supposed to be displayed.
 
 
 % GUI and Monsters
-By now the world started to feel more like a game, and i started working on monsters and user interface.
+By now the world started to feel more like a real game, and i started working on monsters and user interface.
 The only monster implemented is a zombie which runs towards a player if one is within a specific radius from it.
 Every monster has a healthbar above it and can be killed, although it cannot kill you!
 The user interface is simple and consists of only a chatbox, minimap and health- and manabar.
@@ -271,9 +276,14 @@ The user interface is simple and consists of only a chatbox, minimap and health-
 During the development of this project, i have tried to always be ahead of my schedule in case a week with multiple exams would turn up.
 I was in pace until the last 3 weeks before the report deadline where alot of homeworked suddenly turned up.
 I also thought that the deadline was in April when it actually was in February, but luckily i had planned only to add extra features such as multiplayer the last week and not work on the core of the game.
+
+
+% Which features that was successfully implemented
+I was able to implement most of the features that were planned.
+My goal was to learn how to structure a game up from ground up which i definitely successfully did!
+What i did not have enough time to implement was friendly non-player controlled characters which i just got started on as well as the online mode which i realised during the development that you have to keep in mind from the beginning or it would be a huge mess to implement in the end.
+I am happy with my result as most of it went very smoothly and as planned.
 \\
-
-
 \hspace{-20pt}
 \includegraphics[width=\textwidth]{img/screenshot1.eps}
 
